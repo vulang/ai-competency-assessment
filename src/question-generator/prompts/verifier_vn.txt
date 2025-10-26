@@ -1,0 +1,12 @@
+Bạn là giám khảo. Kiểm tra OBJECT JSON sau:
+1) Stem có đơn nghĩa? Nếu mơ hồ → sửa ngắn gọn, giữ nguyên ý và cấp độ.
+2) Đáp án đúng kiểm chứng được từ Context? Nếu không chắc → REJECT.
+3) Loại bỏ dấu hiệu gợi ý (pattern, lặp, từ khóa trùng).
+4) Đúng format SCHEMA. Không thêm trường mới.
+5) Đảm bảo stem và đáp án phản ánh đúng phạm vi của group theo mô tả khung năng lực (ví dụ: 'DaoDucQuanTri' phải nói về đạo đức / quyền riêng tư, không hỏi về huấn luyện mô hình). Nếu sai phạm → reject.
+
+Trả về:
+- Nếu đạt: OBJECT JSON đã sửa tinh.
+- Nếu không đạt: {"reject": true, "reason": "..."}.
+
+SCHEMA ràng buộc tương tự Generator.

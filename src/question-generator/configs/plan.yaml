@@ -1,0 +1,32 @@
+total: 20
+mix:
+  - group: NhanThucAI
+    level: NenTang
+    type: mcq_single
+    difficulty: [1,2]
+    topic: "Vai tro AI trong cong viec"
+    count: 5
+  - group: DaoDucQuanTri
+    level: ApDung
+    type: case
+    difficulty: [2,3]
+    topic: "Quyen rieng tu & tuan thu"
+    count: 4
+  - group: KyThuatUngDung
+    level: ApDung
+    type: mcq_multi
+    difficulty: [2,3]
+    topic: "Ung dung AI trong quy trinh"
+    count: 5
+  - group: ThietKeHeThong
+    level: KienTao
+    type: short
+    difficulty: [3]
+    topic: "Thiet ke he thong AI co trach nhiem"
+    count: 3
+  - group: DanhGiaChatLuong
+    level: ApDung
+    type: tf
+    difficulty: [1,2]
+    topic: "Danh gia do chinh xac & thien lech"
+    count: 3

@@ -1,0 +1,35 @@
+NhanThucAI:
+  description: >
+    Nhận thức đúng về vai trò, giới hạn và ảnh hưởng xã hội của AI. Phân biệt nhiệm vụ nên giao cho AI và nhiệm vụ do con người đảm nhận; đánh giá độ tin cậy và tác động đến người dùng / tổ chức.
+  keywords: ["vai trò", "giới hạn", "người và AI", "tác động xã hội", "phản biện", "độ tin cậy", "ra quyết định", "giám sát"]
+  level_focus:
+    NenTang: "hiểu AI là công cụ hỗ trợ con người, phân biệt nhiệm vụ người và AI"
+    ApDung: "đánh giá tính phù hợp khi ứng dụng AI vào bài toán cụ thể"
+    KienTao: "thiết kế hệ thống AI lấy con người làm trung tâm và định hướng chiến lược AI"
+
+DaoDucQuanTri:
+  description: >
+    Đảm bảo đạo đức, quyền riêng tư, tuân thủ, và quản trị AI có trách nhiệm (GDPR, UNESCO, AI Act). Giải quyết tình huống tiến thoái lưỡng nan đạo đức.
+  keywords: ["đạo đức", "quyền riêng tư", "thiên vị", "GDPR", "quản trị", "tuân thủ", "trách nhiệm", "UNESCO", "tuân thủ pháp lý"]
+  level_focus:
+    NenTang: "nhận biết vấn đề đạo đức và quy định dữ liệu cơ bản"
+    ApDung: "xử lý vi phạm quyền riêng tư và bảo vệ dữ liệu người dùng"
+    KienTao: "đề xuất chính sách AI có trách nhiệm trong tổ chức"
+
+KyThuatUngDung:
+  description: >
+    Kỹ năng AI thực hành: thu thập & tiền xử lý dữ liệu, huấn luyện mô hình, đánh giá chất lượng, MLOps, tối ưu thuật toán cho bài toán cụ thể.
+  keywords: ["máy học", "học sâu", "pipeline", "MLOps", "độ chính xác", "fairness", "thuật toán", "huấn luyện", "dữ liệu", "suy luận"]
+  level_focus:
+    NenTang: "hiểu các khái niệm cơ bản ML/DL/NLP/CV và ứng dụng"
+    ApDung: "huấn luyện, tinh chỉnh, đánh giá mô hình, tích hợp vào sản phẩm"
+    KienTao: "đề xuất / cải tiến kiến trúc mô hình AI quy mô lớn"
+
+ThietKeHeThong:
+  description: >
+    Thiết kế, triển khai, giám sát, tối ưu và vận hành hệ thống AI trong hạ tầng CNTT; đảm bảo CI/CD cho mô hình và độ sẵn sàng thương mại.
+  keywords: ["kiến trúc", "triển khai", "CI/CD", "vận hành", "giám sát", "tối ưu", "hạ tầng", "sẵn sàng", "thương mại hóa"]
+  level_focus:
+    NenTang: "nhận biết thành phần cơ bản của hệ thống AI và vòng đời dự án AI"
+    ApDung: "triển khai / tích hợp mô hình AI vào hệ thống sản xuất, giám sát và khắc phục sự cố"
+    KienTao: "tối ưu hạ tầng AI ở cấp tổ chức, tiêu chuẩn hóa quy trình nội bộ"

@@ -1,0 +1,39 @@
+Bạn là chuyên gia khảo thí. Nhiệm vụ: sinh CÂU HỎI tiếng Việt theo SCHEMA JSON ở cuối.
+
+Ràng buộc:
+- Phủ đúng: {group}, {level}, {type}, {difficulty}, {topic}.
+- Câu phải đơn nghĩa, có đáp án kiểm chứng được từ "Context" (nếu có).
+- Với MCQ: 1 đáp án đúng (hoặc nhiều nếu type=mcq_multi), nhiễu hợp lý, không lặp từ khóa.
+- Không lộ đáp án trong stem, không dùng “Tất cả các đáp án đều đúng”.
+
+Context (tùy chọn):
+<<<
+{context_text}
+>>>
+
+# --- Bổ sung hướng dẫn theo khung năng lực ---
+Các yêu cầu nội dung cụ thể (phải được thể hiện trong câu hỏi):
+- Nếu group = "NhanThucAI": câu hỏi phản ánh khả năng hiểu đúng vai trò, giới hạn và tác động xã hội của AI. Phân biệt nhiệm vụ con người vs AI.
+- Nếu group = "DaoDucQuanTri": câu hỏi liên quan đến đạo đức, quyền riêng tư, thiên vị, quy định (GDPR, UNESCO, Đạo luật AI), hoặc xử lý tình huống tiến thoái lưỡng nan đạo đức.
+- Nếu group = "KyThuatUngDung": câu hỏi kiểm tra kỹ thuật AI thực hành: dữ liệu, huấn luyện mô hình, đánh giá chất lượng, MLOps, tối ưu thuật toán.
+- Nếu group = "ThietKeHeThong": câu hỏi về kiến trúc hệ thống AI, triển khai vào môi trường thật, giám sát, CI/CD mô hình, vận hành / tối ưu hạ tầng AI.
+
+Trả về DUY NHẤT 1 OBJECT JSON theo SCHEMA, không thêm giải thích.
+
+SCHEMA:
+{
+  "id": "q_auto",
+  "lang": "vi",
+  "group": "NhanThucAI|DaoDucQuanTri|KyThuatUngDung|ThietKeHeThong|DanhGiaChatLuong",
+  "level": "NenTang|ApDung|KienTao",
+  "topic": "string",
+  "type": "mcq_single|mcq_multi|fill|tf|order|match|case|short",
+  "difficulty": 1,
+  "stem": "string",
+  "options": ["A ...", "B ...", "C ...", "D ..."],
+  "answer": ["B"],
+  "rationale_hidden": "string",
+  "bloom": "Remember|Understand|Apply|Analyze|Evaluate|Create",
+  "tags": ["tag1","tag2"],
+  "source_context": "path/to/context.md"
+}

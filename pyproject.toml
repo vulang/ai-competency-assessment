@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ai-competency-assessment"
+version = "0.1.0"
+description = "Simple text generation runner for FLAN-T5 and other Hugging Face models."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+dependencies = [
+  "transformers>=4.46.0",
+  "torch>=2.2.0",
+  "accelerate>=0.33.0",
+  "sentencepiece>=0.1.99"
+]
+
+[project.scripts]
+run-flan = "ai_competency_assessment.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ai_competency_assessment"]

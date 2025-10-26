@@ -1,0 +1,6 @@
+group,level,topic,description
+NhanThucAI,NenTang,Vai tro AI trong cong viec,"Khai niem co ban ve AI, tu dong hoa, ra quyet dinh ho tro"
+DaoDucQuanTri,ApDung,Quyen rieng tu & tuan thu,"Nguyen tac bao ve du lieu, an toan, quy dinh phap ly"
+KyThuatUngDung,ApDung,Ung dung AI trong quy trinh,"Tich hop AI vao quy trinh phan mem, CI/CD, A/B test"
+ThietKeHeThong,KienTao,Thiet ke he thong AI co trach nhiem,"Kien truc, giam rui ro, giai thich duoc"
+DanhGiaChatLuong,ApDung,Danh gia do chinh xac & thien lech,"Metric, fairness, do tin cay, robust"
