@@ -1,9 +1,9 @@
 openai_base_url: "http://localhost:8000/v1"
 openai_api_key: "EMPTY"
-model: "openai/gpt-oss-20b"
+openai_model: "openai/gpt-oss-20b"
+model: "Qwen/Qwen2.5-14B-Instruct-AWQ"
 request:
-  temperature: 0.8
-  max_tokens: 512
+  temperature: 0.7
+  max_tokens: 1024
   top_p: 0.95
   stop: []
-  verifier_temperature: 0.3

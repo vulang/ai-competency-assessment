@@ -1,24 +1,25 @@
-
 services:
   vllm:
     image: vllm/vllm-openai:latest
+    container_name: vllm_server
     command: >
-      --model openai/gpt-oss-20b
-      --quantization mxfp4
-      --dtype bfloat16
+      --model Qwen/Qwen2.5-14B-Instruct-AWQ
+      --quantization awq
+      --dtype half
       --max-model-len 8192
-      --gpu-memory-utilization 0.90
+      --gpu-memory-utilization 0.95
+      --enforce-eager
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              count: 1
               capabilities: [gpu]
     ports:
       - "8000:8000"
     environment:
-      - VLLM_WORKER_USE_FLASH_ATTENTION=1
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    shm_size: "2g"
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN} 
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    shm_size: "4g"

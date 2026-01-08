@@ -1,4 +1,5 @@
 import argparse, json, os, glob, re
+from dotenv import load_dotenv
 
 try:
     from .openai_helper import create_openai_client
@@ -35,15 +36,19 @@ def fill_prompt_template(tmpl, values):
 
 
 def main():
+    load_dotenv()
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=False, default=os.getenv("OPENAI_BASE_URL", "http://localhost:8000/v1"))
+    ap.add_argument("--base-url", required=False, default=None)
+    ap.add_argument("--model-name", required=False, default=os.getenv("OPENAI_MODEL", "openai/gpt-oss-20b"))
     ap.add_argument("--plan", required=True)
     ap.add_argument("--prompt", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--debug", action="store_true")
     args = ap.parse_args()
 
-    base_url = args.model if args.model.endswith("/v1") else (args.model.rstrip("/") + "/v1")
+    base_url = args.base_url or args.model
+    base_url = base_url if base_url.endswith("/v1") else (base_url.rstrip("/") + "/v1")
     api_key = os.getenv("OPENAI_API_KEY", "EMPTY")
     client = create_openai_client(base_url=base_url, api_key=api_key)
 
@@ -76,7 +81,7 @@ def main():
         ]
         try:
             resp = client.chat.completions.create(
-                model="openai/gpt-oss-20b",
+                model=args.model_name,
                 messages=messages,
                 temperature=0.8,
                 max_tokens=512,
