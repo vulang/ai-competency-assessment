@@ -1,0 +1,56 @@
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a routerLink="/admin/tests">Tests</a></li>
+            <li class="breadcrumb-item active" aria-current="page">New Blueprint</li>
+        </ol>
+    </nav>
+    <h2>Create Test Blueprint</h2>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="save()" class="row g-4">
+    <div class="col-lg-8">
+        <div class="card-common bg-white mb-4">
+            <h5 class="mb-3">Basic Information</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Test Name</label>
+                <input class="form-control" formControlName="name" placeholder="e.g. Mid-term Assessment">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" formControlName="description" rows="3"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Duration (Minutes)</label>
+                    <input type="number" class="form-control" formControlName="durationMinutes">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Passing Score (%)</label>
+                    <input type="number" class="form-control" formControlName="passingScore">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-common bg-white">
+            <h5 class="mb-3">Configuration</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" formControlName="status">
+                    <option value="draft">Draft</option>
+                    <option value="active">Active</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary-custom w-100" type="submit" [disabled]="form.invalid">
+                Save Blueprint
+            </button>
+        </div>
+    </div>
+</form>

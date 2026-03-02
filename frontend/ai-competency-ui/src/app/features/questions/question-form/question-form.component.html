@@ -1,0 +1,91 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a routerLink="/admin/questions">Questions</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ isEditMode() ? 'Edit' : 'New' }} Question</li>
+            </ol>
+        </nav>
+        <h2 class="mb-0">{{ isEditMode() ? 'Edit Question' : 'Create New Question' }}</h2>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" routerLink="/admin/questions">Cancel</button>
+        <button class="btn btn-primary-custom" (click)="onSubmit()" [disabled]="form.invalid || isSaving()">
+            {{ isSaving() ? 'Saving...' : 'Save Question' }}
+        </button>
+    </div>
+</div>
+
+<form [formGroup]="form" class="row g-4">
+    <!-- Main Details -->
+    <div class="col-lg-8">
+        <div class="card-common bg-white mb-4">
+            <h5 class="mb-3">Question Details</h5>
+
+            <!-- Title -->
+            <div class="mb-3">
+                <label class="form-label">Internal Title</label>
+                <input type="text" class="form-control" formControlName="title"
+                    placeholder="e.g. Intro to Neural Networks Q1">
+            </div>
+
+            <!-- Prompt -->
+            <div class="mb-3">
+                <label class="form-label">Question Prompt</label>
+                <textarea class="form-control" formControlName="prompt" rows="4"
+                    placeholder="Enter the question text here..."></textarea>
+            </div>
+
+            <!-- Type -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Question Type</label>
+                    <select class="form-select" formControlName="type">
+                        <option value="single_choice">Single Choice</option>
+                        <option value="multi_choice">Multiple Choice</option>
+                        <option value="true_false">True / False</option>
+                        <option value="short_answer">Short Answer</option>
+                        <option value="scenario">Scenario Based</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Difficulty (1-5)</label>
+                    <input type="number" class="form-control" formControlName="difficulty" min="1" max="5">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Settings -->
+    <div class="col-lg-4">
+        <div class="card-common bg-white mb-4">
+            <h5 class="mb-3">Settings</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Competency Group</label>
+                <select class="form-select" formControlName="competencyGroupId">
+                    <option value="cg1">AI Fundamentals</option>
+                    <option value="cg2">Machine Learning</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Competency Level</label>
+                <select class="form-select" formControlName="competencyLevelId">
+                    <option value="cl1">Level 1: Foundation</option>
+                    <option value="cl2">Level 2: Apply</option>
+                    <option value="cl3">Level 3: Create</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" formControlName="status">
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="archived">Archived</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</form>

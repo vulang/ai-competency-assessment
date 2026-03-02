@@ -1,0 +1,125 @@
+<div class="container-fluid fade-in">
+    <h2 class="section-title mb-4">AI Question Generator</h2>
+
+    <div class="row g-4">
+        <!-- Configuration Panel -->
+        <div class="col-lg-5">
+            <div class="module-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Generation Plan</h5>
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addMixItem()">
+                        + Add Item
+                    </button>
+                </div>
+
+                <form [formGroup]="form" (ngSubmit)="generate()">
+                    <div formArrayName="mix">
+                        <div *ngFor="let item of mixControls; let i = index" [formGroupName]="i"
+                            class="border rounded p-3 mb-3 bg-light">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h6 class="text-primary">Item #{{i + 1}}</h6>
+                                <button type="button" class="btn-close small" aria-label="Remove"
+                                    (click)="removeMixItem(i)" *ngIf="mixControls.length > 1"></button>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label small">Topic</label>
+                                <input type="text" class="form-control form-control-sm" formControlName="topic"
+                                    placeholder="e.g. Bias in AI">
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small">Group</label>
+                                    <select class="form-select form-select-sm" formControlName="group">
+                                        <option value="NhanThucAI">NhanThucAI</option>
+                                        <option value="DaoDucQuanTri">DaoDucQuanTri</option>
+                                        <option value="KyThuatUngDung">KyThuatUngDung</option>
+                                        <option value="ThietKeHeThong">ThietKeHeThong</option>
+                                        <option value="DanhGiaChatLuong">DanhGiaChatLuong</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Level</label>
+                                    <select class="form-select form-select-sm" formControlName="level">
+                                        <option value="NenTang">NenTang</option>
+                                        <option value="ApDung">ApDung</option>
+                                        <option value="KienTao">KienTao</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small">Type</label>
+                                    <select class="form-select form-select-sm" formControlName="type">
+                                        <option value="mcq_single">MCQ Single</option>
+                                        <option value="mcq_multi">MCQ Multi</option>
+                                        <option value="tf">True/False</option>
+                                        <option value="short">Short Answer</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small">Count</label>
+                                    <input type="number" class="form-control form-control-sm" formControlName="count"
+                                        min="1" max="20">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" [disabled]="form.invalid || isGenerating">
+                        <span *ngIf="isGenerating" class="spinner-border spinner-border-sm me-2"></span>
+                        {{ isGenerating ? 'Generating...' : 'Generate Questions' }}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="col-lg-7">
+            <div class="module-card" *ngIf="questions().length > 0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Generated Results</h5>
+                    <button class="btn btn-sm btn-outline-success">Save All to Bank</button>
+                </div>
+
+                <div class="d-grid gap-3" style="max-height: 600px; overflow-y: auto;">
+                    <div *ngFor="let q of questions(); let i = index" class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title fw-bold">Q{{i+1}} ({{q.type}})</h6>
+                                <span class="badge bg-light text-dark border">{{ q.level }}</span>
+                            </div>
+                            <p class="card-text mb-2" [innerHTML]="q.stem || q.question"></p>
+
+                            <div class="list-group list-group-flush mb-3" *ngIf="q.options">
+                                <div *ngFor="let opt of q.options" class="list-group-item py-2 px-0 border-0">
+                                    <i class="bi bi-circle"></i>
+                                    <span class="ms-2">{{ opt }}</span>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-light border small text-muted mb-0" *ngIf="q.answer">
+                                <strong>Answer:</strong> {{ q.answer }}
+                                <div *ngIf="q.rationale_hidden" class="mt-1">
+                                    <i class="bi bi-info-circle me-1"></i> {{ q.rationale_hidden }}
+                                </div>
+                            </div>
+
+                            <div class="mt-2">
+                                <span class="badge bg-secondary me-1">{{ q.group }}</span>
+                                <span class="badge bg-info text-dark">{{ q.topic }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="questions().length === 0 && !isGenerating" class="text-center py-5 text-muted">
+                <i class="bi bi-magic display-1 text-light mb-3 d-block"></i>
+                Configure a plan and generate questions to see them here.
+            </div>
+        </div>
+    </div>
+</div>

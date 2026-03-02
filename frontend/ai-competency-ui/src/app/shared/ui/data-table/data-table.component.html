@@ -1,0 +1,45 @@
+<div class="table-responsive card-common p-0 overflow-hidden">
+    <table class="table mb-0 align-middle">
+        <thead class="bg-light">
+            <tr>
+                <th *ngFor="let col of columns"
+                    class="px-4 py-3 border-0 text-muted font-weight-bold text-uppercase small">
+                    {{ col.label }}
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of data" class="border-bottom">
+                <td *ngFor="let col of columns" class="px-4 py-3">
+                    <!-- Text -->
+                    <span *ngIf="!col.type || col.type === 'text'">{{ row[col.key] }}</span>
+
+                    <!-- Date -->
+                    <span *ngIf="col.type === 'date'">{{ row[col.key] | date:'mediumDate' }}</span>
+
+                    <!-- Badge -->
+                    <span *ngIf="col.type === 'badge'" class="badge rounded-pill"
+                        [ngClass]="'bg-' + (col.badgeVariants?.[row[col.key]] || 'secondary')">
+                        {{ row[col.key] }}
+                    </span>
+
+                    <!-- Actions -->
+                    <div *ngIf="col.type === 'actions'" class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary" (click)="onEdit.emit(row)">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" (click)="onDelete.emit(row)">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </div>
+                </td>
+            </tr>
+
+            <tr *ngIf="data.length === 0">
+                <td [attr.colspan]="columns.length" class="text-center py-5 text-muted">
+                    No data available
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -6,20 +6,7 @@ try:
 except ImportError:
     yaml = None
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--config", required=True)
-    ap.add_argument("--out", required=True)
-    args = ap.parse_args()
-
-    with open(args.config, "r", encoding="utf-8") as f:
-        if args.config.endswith(".yaml") or args.config.endswith(".yml"):
-            if yaml is None:
-                raise RuntimeError("PyYAML chưa được cài. pip install pyyaml")
-            plan = yaml.safe_load(f)
-        else:
-            plan = json.load(f)
-
+def expand_plan(plan):
     jobs = []
     jid = 0
     for mix in plan.get("mix", []):
@@ -35,6 +22,23 @@ def main():
                 "topic": mix.get("topic", ""),
             }
             jobs.append(job)
+    return jobs
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--config", required=True)
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args()
+
+    with open(args.config, "r", encoding="utf-8") as f:
+        if args.config.endswith(".yaml") or args.config.endswith(".yml"):
+            if yaml is None:
+                raise RuntimeError("PyYAML chưa được cài. pip install pyyaml")
+            plan = yaml.safe_load(f)
+        else:
+            plan = json.load(f)
+
+    jobs = expand_plan(plan)
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:

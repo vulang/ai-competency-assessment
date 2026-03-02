@@ -1,0 +1,11 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Rubrics</h2>
+        <p class="text-muted">Define scoring criteria for competencies</p>
+    </div>
+    <button class="btn btn-primary-custom" (click)="createRubric()">
+        <i class="bi bi-plus-lg me-1"></i> New Rubric
+    </button>
+</div>
+
+<app-data-table [columns]="columns" [data]="rubrics() || []" (onEdit)="editRubric($event)"></app-data-table>

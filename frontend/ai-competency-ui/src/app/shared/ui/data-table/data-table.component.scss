@@ -1,0 +1,11 @@
+.table thead th {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.table tbody tr:last-child {
+  border-bottom: 0 !important;
+}
+.badge {
+  font-weight: 500;
+  padding: 0.5em 0.8em;
+}

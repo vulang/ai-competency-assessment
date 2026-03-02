@@ -2,9 +2,16 @@ Bạn là chuyên gia khảo thí. Nhiệm vụ: sinh CÂU HỎI tiếng Việt 
 
 Ràng buộc:
 - Phủ đúng: {group}, {level}, {type}, {difficulty}, {topic}.
-- Câu phải đơn nghĩa, có đáp án kiểm chứng được từ "Context" (nếu có).
-- Với MCQ: 1 đáp án đúng (hoặc nhiều nếu type=mcq_multi), nhiễu hợp lý, không lặp từ khóa.
+- CHÚ Ý QUAN TRỌNG: Output `type` PHẢI KHỚP chình xác với yêu cầu là "{type}".
+- Tuân thủ cấu trúc của từng loại câu hỏi ({type}):
+  + mcq_single: 4 lựa chọn (A,B,C,D), 1 đáp án đúng. BẮT BUỘC `options` phải chứa đủ 4 chuỗi (vd: ["A. ...", "B. ...", "C. ...", "D. ..."]). `answer` là mảng 1 chữ cái đáp án đúng (vd: ["A"]).
+  + mcq_multi: 4 lựa chọn (A,B,C,D), có thể nhiều đáp án đúng. BẮT BUỘC `options` phải chứa đủ 4 chuỗi như trên, KHÔNG ĐỂ RỖNG. `answer` là mảng các chữ cái đáp án đúng (vd: ["A", "C"], KHÔNG chứa text nội dung trả lời).
+  + tf: True/False (Đúng/Sai). KHÔNG có A,B,C,D.
+  + short: Câu trả lời ngắn (tự luận). KHÔNG có options. Field `options` ĐỂ RỖNG []. KHÔNG tự bịa ra options A,B,C,D.
+  + fill: Điền từ vào chỗ trống.
+- KHÔNG thay đổi giá trị của field `type` trong kết quả JSON. Nó PHẢI là "{type}".
 - Không lộ đáp án trong stem, không dùng “Tất cả các đáp án đều đúng”.
+
 
 Context (tùy chọn):
 <<<
@@ -27,11 +34,11 @@ SCHEMA:
   "group": "NhanThucAI|DaoDucQuanTri|KyThuatUngDung|ThietKeHeThong|DanhGiaChatLuong",
   "level": "NenTang|ApDung|KienTao",
   "topic": "string",
-  "type": "mcq_single|mcq_multi|fill|tf|order|match|case|short",
+  "type": "{type}",
   "difficulty": 1,
   "stem": "string",
-  "options": ["A ...", "B ...", "C ...", "D ..."],
-  "answer": ["B"],
+  "options": [], // QUAN TRỌNG: Để rỗng [] nếu type=short/fill/tf. BẮT BUỘC điền đủ 4 options nếu type=mcq_single/mcq_multi (vd: ["A. ...", "B. ...", "C. ...", "D. ..."]).
+  "answer": ["..."], // string or list of strings. Với mcq_single/mcq_multi: CHỈ ghi chữ cái đáp án (vd: ["A"] hoặc ["C", "D"]).
   "rationale_hidden": "string",
   "bloom": "Remember|Understand|Apply|Analyze|Evaluate|Create",
   "tags": ["tag1","tag2"],

@@ -1,0 +1,6 @@
+<div class="mb-4">
+    <h2 class="mb-1">Exam Results</h2>
+    <p class="text-muted">Review candidate performance</p>
+</div>
+
+<app-data-table [columns]="columns" [data]="attempts() || []" (onEdit)="viewDetails($event)"></app-data-table>

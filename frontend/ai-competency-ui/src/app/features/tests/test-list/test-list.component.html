@@ -1,0 +1,11 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Test Blueprints</h2>
+        <p class="text-muted">Manage test definitions and configurations</p>
+    </div>
+    <button class="btn btn-primary-custom" (click)="createTest()">
+        <i class="bi bi-plus-lg me-1"></i> New Blueprint
+    </button>
+</div>
+
+<app-data-table [columns]="columns" [data]="tests() || []" (onEdit)="editTest($event)"></app-data-table>

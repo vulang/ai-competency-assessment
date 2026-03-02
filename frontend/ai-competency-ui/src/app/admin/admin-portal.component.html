@@ -1,0 +1,54 @@
+<section class="fade-in">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="section-title">Admin control center</h1>
+      <p class="text-muted">Coordinate question banks, grading pipelines, and reporting.</p>
+    </div>
+    <button class="btn btn-dark">Create exam</button>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-4" *ngFor="let stat of stats">
+      <div class="module-card h-100">
+        <div class="text-muted">{{ stat.label }}</div>
+        <div class="display-6 fw-semibold mt-2">{{ stat.value }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="module-card h-100">
+        <h3 class="fw-semibold">AI grading pipeline</h3>
+        <div class="mt-3 d-grid gap-3">
+          <div class="d-flex justify-content-between align-items-center" *ngFor="let pipeline of pipelines">
+            <div>
+              <div class="fw-semibold">{{ pipeline.name }}</div>
+              <div class="text-muted mono">Latency: {{ pipeline.latency }}</div>
+            </div>
+            <span class="badge-soft">{{ pipeline.status }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="module-card h-100">
+        <h3 class="fw-semibold">Quick actions</h3>
+        <ul class="list-unstyled mt-3 d-grid gap-2">
+          <li class="d-flex justify-content-between align-items-center">
+            <span>Review flagged answers</span>
+            <button class="btn btn-sm btn-outline-dark">Open</button>
+          </li>
+          <li class="d-flex justify-content-between align-items-center">
+            <span>Publish new framework</span>
+            <button class="btn btn-sm btn-outline-dark">Publish</button>
+          </li>
+          <li class="d-flex justify-content-between align-items-center">
+            <span>Export analytics</span>
+            <button class="btn btn-sm btn-outline-dark">Export</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
