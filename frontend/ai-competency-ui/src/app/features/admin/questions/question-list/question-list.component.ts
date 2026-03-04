@@ -1,9 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { QuestionService } from '../../../core/questions/question.service';
-import { DataTableComponent, TableColumn } from '../../../shared/ui/data-table/data-table.component';
-import { Question } from '../../../models/question.model';
+import { QuestionService } from '../../../../core/questions/question.service';
+import { DataTableComponent, TableColumn } from '../../../../shared/ui/data-table/data-table.component';
+import { Question } from '../../../../models/question.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({

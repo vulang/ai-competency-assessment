@@ -82,4 +82,20 @@ export class QuestionGeneratorComponent {
        }
      });
    }
+
+   saveAllToBank() {
+     const questionsToSave = this.questions();
+     if (!questionsToSave || questionsToSave.length === 0) return;
+
+     this.aiService.saveQuestions(questionsToSave).subscribe({
+       next: (res) => {
+         alert(`Successfully saved ${res.count} questions to the bank!`);
+         this.questions.set([]); // clear after saving
+       },
+       error: (err) => {
+         console.error('Failed to save questions = ', err);
+         alert('An error occurred while saving the questions.');
+       }
+     });
+   }
 }

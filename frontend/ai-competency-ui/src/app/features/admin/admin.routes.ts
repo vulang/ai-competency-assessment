@@ -95,7 +95,7 @@ export const ADMIN_ROUTES: Routes = [
         },
         {
             path: 'questions',
-            loadChildren: () => import('../questions/questions.routes').then(m => m.QUESTION_ROUTES)
+            loadChildren: () => import('./questions/questions.routes').then(m => m.QUESTION_ROUTES)
         },
         {
             path: 'tests',
@@ -103,7 +103,7 @@ export const ADMIN_ROUTES: Routes = [
         },
         {
             path: 'rubrics',
-            loadChildren: () => import('../rubrics/rubrics.routes').then(m => m.RUBRIC_ROUTES)
+            loadChildren: () => import('./rubrics/rubrics.routes').then(m => m.RUBRIC_ROUTES)
         },
         {
             path: 'reports',

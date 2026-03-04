@@ -24,7 +24,15 @@ Start the required databases and services:
 cd infra
 docker compose up -d
 ```
-This starts PostgreSQL (port 5434), MongoDB, RabbitMQ, MinIO, Qdrant, and the Question Generator service (port 5001).
+This starts PostgreSQL (port 5434), MongoDB, RabbitMQ, MinIO, Qdrant, and the Question Generator service (port 8000).
+
+> **Note**: If you make any changes to the Python code or prompts in `src/question-generator/`, you will need to rebuild its Docker image for the changes to take effect:
+> ```bash
+> cd infra
+> docker compose stop question-generator
+> docker compose build question-generator
+> docker compose up -d question-generator
+> ```
 
 > **Note**: The root `docker-compose.yml` is for the legacy stand-alone POC and should not be used when running the full stack.
 

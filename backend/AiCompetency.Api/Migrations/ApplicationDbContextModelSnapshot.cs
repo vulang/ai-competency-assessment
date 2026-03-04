@@ -52,7 +52,7 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("exams");
+                    b.ToTable("exams", (string)null);
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.ExamQuestion", b =>
@@ -86,7 +86,7 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("exam_questions");
+                    b.ToTable("exam_questions", (string)null);
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.ExamResult", b =>
@@ -126,7 +126,7 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasIndex("ExamId");
 
-                    b.ToTable("test_sessions");
+                    b.ToTable("test_sessions", (string)null);
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.Question", b =>
@@ -173,7 +173,7 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("questions");
+                    b.ToTable("questions", (string)null);
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.QuestionGenerationPlan", b =>
@@ -194,7 +194,7 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("question_generation_plans");
+                    b.ToTable("question_generation_plans", (string)null);
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.Response", b =>
@@ -235,7 +235,7 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("responses");
+                    b.ToTable("responses", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

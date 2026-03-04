@@ -1,68 +1,33 @@
-import { Injectable, signal } from '@angular/core';
-import { of, delay, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 import { Question } from '../../models/question.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuestionService {
-  // Mock Data
-  private mockQuestions: Question[] = [
-    {
-      id: 'q1',
-      title: 'What is a Tensor?',
-      prompt: 'Define a tensor in the context of deep learning.',
-      type: 'short_answer',
-      competencyGroupId: 'cg1',
-      competencyLevelId: 'cl1',
-      difficulty: 2,
-      tags: ['basics', 'math'],
-      status: 'published',
-      updatedAt: new Date()
-    },
-    {
-      id: 'q2',
-      title: 'Backpropagation Steps',
-      prompt: 'Identify the correct order of operations in backpropagation.',
-      type: 'single_choice',
-      competencyGroupId: 'cg1',
-      competencyLevelId: 'cl2',
-      difficulty: 3,
-      tags: ['training', 'algorithm'],
-      status: 'draft',
-      updatedAt: new Date()
-    }
-  ];
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/Questions`;
 
   getQuestions(): Observable<Question[]> {
-    return of(this.mockQuestions).pipe(delay(500));
+    return this.http.get<Question[]>(this.apiUrl);
   }
 
   getQuestion(id: string): Observable<Question | undefined> {
-    return of(this.mockQuestions.find(q => q.id === id)).pipe(delay(300));
+    return this.http.get<Question>(`${this.apiUrl}/${id}`);
   }
 
   createQuestion(question: Omit<Question, 'id' | 'updatedAt'>): Observable<Question> {
-    const newQuestion = {
-      ...question,
-      id: 'q' + (Date.now()),
-      updatedAt: new Date()
-    };
-    this.mockQuestions = [...this.mockQuestions, newQuestion];
-    return of(newQuestion).pipe(delay(500));
+    return this.http.post<Question>(this.apiUrl, question);
   }
 
   updateQuestion(id: string, question: Partial<Question>): Observable<Question> {
-    const index = this.mockQuestions.findIndex(q => q.id === id);
-    if (index !== -1) {
-       this.mockQuestions[index] = { ...this.mockQuestions[index], ...question, updatedAt: new Date() };
-       return of(this.mockQuestions[index]).pipe(delay(500));
-    }
-    throw new Error('Question not found');
+    return this.http.put<Question>(`${this.apiUrl}/${id}`, question);
   }
 
   deleteQuestion(id: string): Observable<boolean> {
-    this.mockQuestions = this.mockQuestions.filter(q => q.id !== id);
-    return of(true).pipe(delay(500));
+    return this.http.delete<any>(`${this.apiUrl}/${id}`).pipe(map(() => true));
   }
 }

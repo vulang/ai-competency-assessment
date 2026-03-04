@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { delay, map, Observable, of } from 'rxjs';
 import { Question } from '../../models/question.model';
+import { environment } from '../../../environments/environment';
 
 export interface MixItem {
   group: string;
@@ -54,6 +55,10 @@ export class AiService {
 
   generateFromPlanRaw(plan: GenerationPlan): Observable<any[]> {
     return this.http.post<any[]>(`${this.apiUrl}/generate-from-plan`, plan);
+  }
+
+  saveQuestions(questions: any[]): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/api/Questions/batch`, questions);
   }
 
   private mapResponseToQuestions(rawQuestions: any[]): Question[] {

@@ -2,7 +2,7 @@ Bạn là chuyên gia khảo thí. Nhiệm vụ: sinh CÂU HỎI tiếng Việt 
 
 Ràng buộc:
 - Phủ đúng: {group}, {level}, {type}, {difficulty}, {topic}.
-- CHÚ Ý QUAN TRỌNG: Output `type` PHẢI KHỚP chình xác với yêu cầu là "{type}".
+- CHÚ Ý QUAN TRỌNG: Output `type` PHẢI KHỚP chính xác với yêu cầu là "{type}".
 - Tuân thủ cấu trúc của từng loại câu hỏi ({type}):
   + mcq_single: 4 lựa chọn (A,B,C,D), 1 đáp án đúng. BẮT BUỘC `options` phải chứa đủ 4 chuỗi (vd: ["A. ...", "B. ...", "C. ...", "D. ..."]). `answer` là mảng 1 chữ cái đáp án đúng (vd: ["A"]).
   + mcq_multi: 4 lựa chọn (A,B,C,D), có thể nhiều đáp án đúng. BẮT BUỘC `options` phải chứa đủ 4 chuỗi như trên, KHÔNG ĐỂ RỖNG. `answer` là mảng các chữ cái đáp án đúng (vd: ["A", "C"], KHÔNG chứa text nội dung trả lời).

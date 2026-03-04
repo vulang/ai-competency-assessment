@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { RubricService } from '../../../core/rubrics/rubric.service';
+import { RubricService } from '../../../../core/rubrics/rubric.service';
 
 @Component({
   selector: 'app-rubric-form',

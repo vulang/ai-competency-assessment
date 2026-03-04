@@ -81,7 +81,7 @@
             <div class="module-card" *ngIf="questions().length > 0">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Generated Results</h5>
-                    <button class="btn btn-sm btn-outline-success">Save All to Bank</button>
+                    <button class="btn btn-sm btn-outline-success" (click)="saveAllToBank()">Save All to Bank</button>
                 </div>
 
                 <div class="d-grid gap-3" style="max-height: 600px; overflow-y: auto;">

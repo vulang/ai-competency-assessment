@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { RubricService } from '../../../core/rubrics/rubric.service';
-import { DataTableComponent, TableColumn } from '../../../shared/ui/data-table/data-table.component';
+import { RubricService } from '../../../../core/rubrics/rubric.service';
+import { DataTableComponent, TableColumn } from '../../../../shared/ui/data-table/data-table.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({

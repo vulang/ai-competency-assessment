@@ -2,8 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { QuestionService } from '../../../core/questions/question.service';
-import { Question, QuestionType } from '../../../models/question.model';
+import { QuestionService } from '../../../../core/questions/question.service';
+import { Question, QuestionType } from '../../../../models/question.model';
 import { switchMap, of } from 'rxjs';
 
 @Component({
