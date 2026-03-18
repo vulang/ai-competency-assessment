@@ -14,6 +14,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
   },
   {
+    path: 'candidate',
+    loadChildren: () => import('./features/candidate/candidate.routes').then(m => m.CANDIDATE_ROUTES)
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'

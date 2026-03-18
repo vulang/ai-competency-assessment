@@ -117,6 +117,7 @@ using (var scope = app.Services.CreateScope())
             //OpenIddictConstants.Permissions.Endpoints.Logout,
             OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
             OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+            OpenIddictConstants.Permissions.GrantTypes.Password,
             OpenIddictConstants.Permissions.ResponseTypes.Code,
             OpenIddictConstants.Permissions.Scopes.Email,
             OpenIddictConstants.Permissions.Scopes.Profile,
@@ -176,6 +177,30 @@ app.MapPost("/api/responses", (CreateResponseRequest request) =>
 {
     var response = new ResponseDto(Guid.NewGuid(), request.SessionId, request.QuestionId, request.FinalAnswer, 0, null, DateTimeOffset.UtcNow);
     return Results.Ok(response);
+});
+
+app.MapPost("/api/seed-difficulty", async (ApplicationDbContext context) =>
+{
+    var questions = await context.Questions.ToListAsync();
+    var random = new Random();
+    int updatedCount = 0;
+    
+    foreach (var q in questions)
+    {
+        if (q.DifficultyLevel == null || q.Status != AiCompetency.Api.Models.QuestionStatus.Published)
+        {
+            q.DifficultyLevel = random.Next(1, 11);
+            q.Status = AiCompetency.Api.Models.QuestionStatus.Published;
+            updatedCount++;
+        }
+    }
+    
+    if (updatedCount > 0)
+    {
+        await context.SaveChangesAsync();
+    }
+    
+    return Results.Ok(new { Message = $"Seeded difficulty and published {updatedCount} questions." });
 });
 
 app.Run();

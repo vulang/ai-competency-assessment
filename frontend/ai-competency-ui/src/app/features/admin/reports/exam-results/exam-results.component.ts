@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReportService } from '../../../core/reports/report.service';
-import { DataTableComponent, TableColumn } from '../../../shared/ui/data-table/data-table.component';
+import { ReportService } from '../../../../core/reports/report.service';
+import { DataTableComponent, TableColumn } from '../../../../shared/ui/data-table/data-table.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({

@@ -18,6 +18,8 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<ExamResult> ExamResults { get; set; }
     public DbSet<Response> Responses { get; set; }
     public DbSet<QuestionGenerationPlan> QuestionGenerationPlans { get; set; }
+    public DbSet<AdaptiveTestSession> AdaptiveTestSessions { get; set; }
+    public DbSet<AdaptiveResponse> AdaptiveResponses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -60,5 +62,17 @@ public class ApplicationDbContext : IdentityDbContext
             .HasOne(r => r.Question)
             .WithMany()
             .HasForeignKey(r => r.QuestionId);
+
+        builder.Entity<AdaptiveResponse>()
+            .HasOne(ar => ar.Session)
+            .WithMany(s => s.Responses)
+            .HasForeignKey(ar => ar.SessionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<AdaptiveResponse>()
+            .HasOne(ar => ar.Question)
+            .WithMany()
+            .HasForeignKey(ar => ar.QuestionId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

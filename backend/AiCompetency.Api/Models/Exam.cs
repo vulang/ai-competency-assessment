@@ -15,14 +15,28 @@ public class Exam
     [MaxLength(255)]
     public string Title { get; set; } = string.Empty;
 
+    [Column("description")]
+    [MaxLength(1000)]
+    public string Description { get; set; } = string.Empty;
+
     [Column("duration_minutes")]
     public int DurationMinutes { get; set; }
 
     [Column("pass_score")]
     public int PassScore { get; set; }
 
-    [Column("is_published")]
-    public bool IsPublished { get; set; }
+    [Column("question_count")]
+    public int QuestionCount { get; set; }
+
+    [Column("status")]
+    [MaxLength(50)]
+    public string Status { get; set; } = "draft";
+
+    [Column("created_at")]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    [Column("updated_at")]
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public ICollection<ExamQuestion> ExamQuestions { get; set; } = new List<ExamQuestion>();
 }

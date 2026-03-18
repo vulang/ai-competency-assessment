@@ -1,0 +1,85 @@
+<div class="runner-container" *ngIf="session && !isLoading">
+  <div class="runner-header">
+    <h2>{{ session.exam.title }}</h2>
+    <div class="progress-indicator">
+      Question {{ currentIndex + 1 }} of {{ session.questions.length }}
+    </div>
+  </div>
+
+  <div class="question-container" *ngIf="currentQuestion">
+    {{ currentQuestion | json }}
+
+    <div class="question-content">
+      <h3>Question {{ currentIndex + 1 }}</h3>
+      <p class="question-text">{{ currentQuestion.content }}</p>
+
+      <!-- Render different inputs based on question type -->
+      <div class="answer-section">
+        <ng-container [ngSwitch]="currentQuestion.type">
+
+          <!-- Multiple Choice Single Answer -->
+          <div *ngSwitchCase="'mcq_single'" class="options-list">
+            <label *ngFor="let opt of currentQuestion.metadata?.options" class="option-label"
+              [class.selected]="responses[currentQuestion.id] === opt">
+              <input type="radio" [name]="'q_' + currentQuestion.id" [value]="opt"
+                [(ngModel)]="responses[currentQuestion.id]">
+              <span class="option-text">{{ opt }}</span>
+            </label>
+          </div>
+
+          <!-- Multiple Choice Multiple Answers -->
+          <div *ngSwitchCase="'mcq_multi'" class="options-list">
+            <label *ngFor="let opt of currentQuestion.metadata?.options" class="option-label"
+              [class.selected]="isMultiSelected(currentQuestion.id, opt)">
+              <input type="checkbox" [value]="opt" (change)="toggleMultiSelection(currentQuestion.id, opt)"
+                [checked]="isMultiSelected(currentQuestion.id, opt)">
+              <span class="option-text">{{ opt }}</span>
+            </label>
+          </div>
+
+          <!-- True/False -->
+          <div *ngSwitchCase="'tf'" class="options-list">
+            <label class="option-label" [class.selected]="responses[currentQuestion.id] === 'True'">
+              <input type="radio" [name]="'q_' + currentQuestion.id" value="True"
+                [(ngModel)]="responses[currentQuestion.id]">
+              <span class="option-text">True</span>
+            </label>
+            <label class="option-label" [class.selected]="responses[currentQuestion.id] === 'False'">
+              <input type="radio" [name]="'q_' + currentQuestion.id" value="False"
+                [(ngModel)]="responses[currentQuestion.id]">
+              <span class="option-text">False</span>
+            </label>
+          </div>
+
+          <!-- Short Answer / Essay -->
+          <div *ngSwitchDefault class="text-answer">
+            <textarea [(ngModel)]="responses[currentQuestion.id]" rows="6" class="form-control"
+              placeholder="Type your answer here..."></textarea>
+          </div>
+
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="runner-footer">
+    <button class="btn btn-secondary" (click)="previousQuestion()" [disabled]="currentIndex === 0">
+      Previous
+    </button>
+
+    <button class="btn btn-primary" (click)="nextQuestion()" *ngIf="currentIndex < session.questions.length - 1">
+      Next
+    </button>
+
+    <button class="btn btn-success" (click)="submitTest()" *ngIf="currentIndex === session.questions.length - 1"
+      [disabled]="isSubmitting">
+      <span *ngIf="isSubmitting" class="spinner"></span>
+      Submit Assessment
+    </button>
+  </div>
+</div>
+
+<div class="loading-state full-height" *ngIf="isLoading">
+  <div class="spinner-large"></div>
+  <p>Loading assessment...</p>
+</div>

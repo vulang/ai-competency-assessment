@@ -107,11 +107,11 @@ export const ADMIN_ROUTES: Routes = [
         },
         {
             path: 'reports',
-            loadChildren: () => import('../reports/reports.routes').then(m => m.REPORT_ROUTES)
+            loadChildren: () => import('./reports/reports.routes').then(m => m.REPORT_ROUTES)
         },
          {
             path: 'dashboard', // Add direct route to dashboard component if needed via reports
-            loadChildren: () => import('../reports/reports.routes').then(m => m.REPORT_ROUTES) // reuse reports for dashboard
+            loadChildren: () => import('./reports/reports.routes').then(m => m.REPORT_ROUTES) // reuse reports for dashboard
         },
         {
             path: '',
