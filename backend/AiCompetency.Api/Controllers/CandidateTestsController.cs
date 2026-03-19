@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using AiCompetency.Api.Data;
 using AiCompetency.Api.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -189,6 +190,7 @@ public class CandidateTestsController : ControllerBase
         var session = await _context.ExamResults
             .Include(er => er.Exam)
                 .ThenInclude(e => e.ExamQuestions)
+                    .ThenInclude(eq => eq.Question)
             .FirstOrDefaultAsync(er => er.Id == sessionId);
 
         if (session == null || session.UserId != GetCurrentUserId())
@@ -209,9 +211,19 @@ public class CandidateTestsController : ControllerBase
             var examQuestion = session.Exam.ExamQuestions.FirstOrDefault(eq => eq.QuestionId == answer.QuestionId);
             if (examQuestion == null) continue;
 
-            // Simple auto-scoring for prototype. In reality, we'd check against correct answer in JSON metadata.
-            // For now, give full points if they answered anything, just to mock the process.
-            decimal scoreEarned = string.IsNullOrWhiteSpace(answer.Answer) ? 0 : examQuestion.PointValue;
+            decimal scoreEarned = 0;
+            string feedback = "Incorrect.";
+
+            if (!string.IsNullOrWhiteSpace(answer.Answer) && examQuestion.Question != null)
+            {
+                bool isCorrect = EvaluateAnswer(examQuestion.Question?.Type ?? "", examQuestion.Question?.Metadata, answer.Answer);
+                if (isCorrect) 
+                {
+                    scoreEarned = examQuestion.PointValue;
+                    feedback = "Correct!";
+                }
+            }
+
             totalScore += scoreEarned;
 
             responsesToSave.Add(new Response
@@ -222,7 +234,7 @@ public class CandidateTestsController : ControllerBase
                 FinalAnswer = answer.Answer,
                 ScoreEarned = scoreEarned,
                 SubmittedAt = DateTime.UtcNow,
-                AiFeedback = scoreEarned > 0 ? "Good answer!" : "Please provide an answer next time."
+                AiFeedback = string.IsNullOrWhiteSpace(answer.Answer) ? "Please provide an answer next time." : feedback
             });
         }
 
@@ -293,5 +305,57 @@ public class CandidateTestsController : ControllerBase
             .ToListAsync();
 
         return Ok(sessions);
+    }
+
+    private bool EvaluateAnswer(string type, JsonDocument? metadata, string userAnswer)
+    {
+        if (metadata == null) return false;
+
+        var root = metadata.RootElement;
+        if (!root.TryGetProperty("answer", out var correctAnswerElement))
+        {
+            return false;
+        }
+
+        if (type == "mcq_multi")
+        {
+            try 
+            {
+                var userAnswers = JsonSerializer.Deserialize<List<string>>(userAnswer) ?? new List<string>();
+                if (correctAnswerElement.ValueKind == JsonValueKind.Array)
+                {
+                    var correctAnswers = correctAnswerElement.EnumerateArray().Select(e => e.GetString() ?? "").ToList();
+                    
+                    if (userAnswers.Count == correctAnswers.Count && !userAnswers.Except(correctAnswers).Any()) 
+                    {
+                        return true;
+                    }
+                }
+            } 
+            catch
+            {
+                return false;
+            }
+        }
+        else 
+        {
+            string correctAnswerStr = "";
+            if (correctAnswerElement.ValueKind == JsonValueKind.String)
+            {
+                correctAnswerStr = correctAnswerElement.GetString() ?? "";
+            }
+            else if (correctAnswerElement.ValueKind == JsonValueKind.Array)
+            {
+                var first = correctAnswerElement.EnumerateArray().FirstOrDefault();
+                correctAnswerStr = first.ValueKind != JsonValueKind.Undefined ? (first.GetString() ?? "") : "";
+            }
+            
+            if (string.Equals(userAnswer.Trim(), correctAnswerStr.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
