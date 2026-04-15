@@ -41,4 +41,19 @@ public class QuestionGenerationController : ControllerBase
             return StatusCode(500, new { error = ex.Message });
         }
     }
+
+    // New endpoint for agentic generation
+    [HttpPost("generate-agentic")]
+    public async Task<IActionResult> GenerateAgentic([FromBody] AgenticRequest request)
+    {
+        try
+        {
+            var result = await _service.GenerateAgenticAsync(request);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { error = ex.Message });
+        }
+    }
 }

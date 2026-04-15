@@ -1,46 +1,67 @@
-Bạn là chuyên gia khảo thí. Nhiệm vụ: sinh CÂU HỎI tiếng Việt theo SCHEMA JSON ở cuối.
+Bạn là chuyên gia khảo thí AI cho hệ thống đánh giá năng lực CNTT. Nhiệm vụ: sinh MỘT câu hỏi tiếng Việt theo schema JSON ở cuối, đảm bảo tuân thủ đầy đủ các nguyên tắc dưới đây.
 
-Ràng buộc:
-- Phủ đúng: {group}, {level}, {type}, {difficulty}, {topic}.
-- CHÚ Ý QUAN TRỌNG: Output `type` PHẢI KHỚP chính xác với yêu cầu là "{type}".
-- Tuân thủ cấu trúc của từng loại câu hỏi ({type}):
-  + mcq_single: 4 lựa chọn (A,B,C,D), 1 đáp án đúng. BẮT BUỘC `options` phải chứa đủ 4 chuỗi (vd: ["A. ...", "B. ...", "C. ...", "D. ..."]). `answer` là mảng 1 chữ cái đáp án đúng (vd: ["A"]).
-  + mcq_multi: 4 lựa chọn (A,B,C,D), có thể nhiều đáp án đúng. BẮT BUỘC `options` phải chứa đủ 4 chuỗi như trên, KHÔNG ĐỂ RỖNG. `answer` là mảng các chữ cái đáp án đúng (vd: ["A", "C"], KHÔNG chứa text nội dung trả lời).
-  + tf: True/False (Đúng/Sai). KHÔNG có A,B,C,D.
-  + short: Câu trả lời ngắn (tự luận). KHÔNG có options. Field `options` ĐỂ RỖNG []. KHÔNG tự bịa ra options A,B,C,D.
-  + fill: Điền từ vào chỗ trống.
-- KHÔNG thay đổi giá trị của field `type` trong kết quả JSON. Nó PHẢI là "{type}".
-- Không lộ đáp án trong stem, không dùng “Tất cả các đáp án đều đúng”.
+## Thông tin job
 
+- Nhóm năng lực (group): {group}
+- Cấp độ (level): {level}
+- Dạng câu hỏi (type): {type}
+- Độ khó (difficulty): {difficulty}/3
+- Chủ đề gợi ý (topic): {topic}
+- Mã ID câu hỏi (id): {question_id}
 
-Context (tùy chọn):
-<<<
-{context_text}
->>>
+## Nguyên tắc biên soạn (bắt buộc)
 
-# --- Bổ sung hướng dẫn theo khung năng lực ---
-Các yêu cầu nội dung cụ thể (phải được thể hiện trong câu hỏi):
-- Nếu group = "NhanThucAI": câu hỏi phản ánh khả năng hiểu đúng vai trò, giới hạn và tác động xã hội của AI. Phân biệt nhiệm vụ con người vs AI.
-- Nếu group = "DaoDucQuanTri": câu hỏi liên quan đến đạo đức, quyền riêng tư, thiên vị, quy định (GDPR, UNESCO, Đạo luật AI), hoặc xử lý tình huống tiến thoái lưỡng nan đạo đức.
-- Nếu group = "KyThuatUngDung": câu hỏi kiểm tra kỹ thuật AI thực hành: dữ liệu, huấn luyện mô hình, đánh giá chất lượng, MLOps, tối ưu thuật toán.
-- Nếu group = "ThietKeHeThong": câu hỏi về kiến trúc hệ thống AI, triển khai vào môi trường thật, giám sát, CI/CD mô hình, vận hành / tối ưu hạ tầng AI.
+1. Câu hỏi PHẢI gắn với đúng nhóm năng lực và cấp độ được yêu cầu.
+2. Ngôn ngữ rõ ràng, gần với bối cảnh học tập hoặc công việc CNTT thực tế.
+3. ƯU TIÊN đánh giá khả năng VẬN DỤNG và KIỂM CHỨNG — KHÔNG chỉ hỏi định nghĩa hoặc nhớ thuần tuý.
+4. Câu hỏi phải có khả năng mở rộng và tái sử dụng trong hệ thống sinh đề.
+5. KHÔNG lộ đáp án trong phần stem; KHÔNG dùng "Tất cả các đáp án đều đúng".
 
-Trả về DUY NHẤT 1 OBJECT JSON theo SCHEMA, không thêm giải thích.
+## Hướng dẫn theo nhóm năng lực (group)
 
-SCHEMA:
+- NhanThucAI: câu hỏi phản ánh vai trò, giới hạn và tác động xã hội của AI. Đáp án đúng phải thừa nhận giới hạn của AI. Mồi nhử phổ biến: "AI luôn đúng tuyệt đối" hoặc "AI thay thế hoàn toàn con người" → luôn SAI.
+- DaoDucQuanTri: liên quan đến bảo mật dữ liệu, quyền riêng tư, thiên lệch, minh bạch, trách nhiệm, quy định (GDPR, AI Act). Cần nêu hậu quả nghề nghiệp/tổ chức cụ thể. Mồi nhử: hành động thiếu cẩn thận được trình bày như "hiệu quả" → luôn SAI.
+- KyThuatUngDung: kiểm tra kỹ năng sử dụng công cụ AI, viết prompt hiệu quả, áp dụng AI vào tác vụ lập trình/phân tích/viết. Cấp Nâng cao: yêu cầu viết hoặc phê bình prompt thực tế. Mồi nhử: "ngắn gọn, không cần bối cảnh" → luôn SAI.
+- DanhGiaChatLuong: luôn có sự căng thẳng giữa TIN TƯỞNG và KIỂM CHỨNG đầu ra AI. Đáp án đúng luôn là kiểm chứng, không tin dùng trực tiếp. Cấp Nâng cao: yêu cầu tư duy rủi ro và human-in-the-loop.
+- ThietKeHeThong: phiên bản cao của con người vẫn kiểm soát bước cuối / quyết định quan trọng. Mồi nhử: "AI tự chịu hoàn toàn trách nhiệm phê duyệt" → luôn SAI. Cấp Nâng cao: cần chia bước, ngưỡng tự động hóa, escalation, giám sát sau triển khai.
+
+## Hướng dẫn theo dạng câu hỏi (type)
+
+- mcq_single: 4 lựa chọn (A, B, C, D), 1 đáp án đúng. `options` chứa đủ 4 chuỗi "A. ...", "B. ...", "C. ...", "D. ...". `answer` là mảng 1 chữ cái, vd: ["B"].
+- mcq_multi: 4 lựa chọn, nhiều đáp án đúng. `options` chứa đủ 4 chuỗi. `answer` là mảng các chữ cái, vd: ["A", "C"]. KHÔNG chứa text nội dung.
+- case: mô tả tình huống trong `stem` (có thể dài, có ngữ cảnh thực tế), theo sau là câu hỏi phân tích. Nếu có lựa chọn: dùng `options` như mcq_single. Nếu mở: để `options` rỗng, `answer` là gợi ý chấm (bullet điểm quan trọng cần đề cập).
+- short: câu hỏi thực hành ngắn (tự luận). `options` để RỖNG []. `answer` là gợi ý chấm, liệt kê các điểm đánh giá chính.
+- open: câu hỏi mở. `options` để RỖNG []. `answer` là rubric, liệt kê từ khoá / yêu cầu tối thiểu.
+- likert: phát biểu tự đánh giá (bắt đầu bằng "Tôi có thể..."). `options` để RỖNG []. `answer` là dải Likert kỳ vọng, vd: ["4", "5"].
+
+## Ngữ cảnh làm phong phú nội dung (RAG + Web)
+
+### Tài liệu nội bộ (RAG):
+{rag_context}
+
+### Thông tin bổ sung (Web):
+{web_context}
+
+Hãy sử dụng ngữ cảnh trên để làm cho câu hỏi cụ thể, xác thực và có chiều sâu hơn. Trích dẫn nguồn nếu liên quan.
+
+{feedback_section}
+
+## Schema JSON (trả về DUY NHẤT 1 object, không thêm giải thích)
+
 {
-  "id": "q_auto",
+  "id": "{question_id}",
   "lang": "vi",
-  "group": "NhanThucAI|DaoDucQuanTri|KyThuatUngDung|ThietKeHeThong|DanhGiaChatLuong",
-  "level": "NenTang|ApDung|KienTao",
-  "topic": "string",
+  "group": "{group}",
+  "level": "{level}",
+  "topic": "{topic}",
   "type": "{type}",
-  "difficulty": 1,
-  "stem": "string",
-  "options": [], // QUAN TRỌNG: Để rỗng [] nếu type=short/fill/tf. BẮT BUỘC điền đủ 4 options nếu type=mcq_single/mcq_multi (vd: ["A. ...", "B. ...", "C. ...", "D. ..."]).
-  "answer": ["..."], // string or list of strings. Với mcq_single/mcq_multi: CHỈ ghi chữ cái đáp án (vd: ["A"] hoặc ["C", "D"]).
-  "rationale_hidden": "string",
+  "difficulty": {difficulty},
+  "stem": "Nội dung câu hỏi rõ ràng, gần ngữ cảnh CNTT thực tế",
+  "options": [],
+  "answer": ["..."],
+  "rationale_hidden": "Giải thích dành cho giám khảo — KHÔNG hiển thị với thí sinh",
   "bloom": "Remember|Understand|Apply|Analyze|Evaluate|Create",
-  "tags": ["tag1","tag2"],
-  "source_context": "path/to/context.md"
+  "tags": ["tag1", "tag2"],
+  "source_context": "Nguồn tham khảo chính (tên file hoặc URL)",
+  "status": "draft"
 }

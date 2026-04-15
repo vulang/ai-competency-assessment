@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Collections.Generic;
+using System.Net.Http.Json;
 
 namespace AiCompetency.Api.Services;
 
@@ -63,6 +65,24 @@ public class QuestionGeneratorService
             throw;
         }
     }
+
+    // New method for agentic generation
+    public async Task<object> GenerateAgenticAsync(AgenticRequest request)
+    {
+        try
+        {
+            _logger.LogInformation($"Sending generation request to {_serviceUrl}/generate-agentic");
+            var response = await _httpClient.PostAsJsonAsync($"{_serviceUrl}/generate-agentic", request);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadFromJsonAsync<object>();
+            return result ?? new {};
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error calling question generator service (agentic): {ex.Message}");
+            throw;
+        }
+    }
 }
 
 public record GenerationRequest(string Topic, int Count, string Difficulty);
@@ -91,3 +111,6 @@ public class GenerationPlanRequest
     public int Total { get; set; } = 100;
     public List<MixItem> Mix { get; set; } = new();
 }
+
+// DTO matching Python AgenticRequest
+public record AgenticRequest(List<MixItem> Mix, int? Total = null, bool Debug = false, int Concurrency = 4);

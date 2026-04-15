@@ -1,9 +1,49 @@
-openai_base_url: "http://localhost:8000/v1"
-openai_api_key: "EMPTY"
-openai_model: "openai/gpt-oss-20b"
-model: "Qwen/Qwen2.5-14B-Instruct-AWQ"
-request:
-  temperature: 0.7
-  max_tokens: 1024
-  top_p: 0.95
-  stop: []
+# ============================================================
+# Agentic Question Generator — Model & Pipeline Configuration
+# ============================================================
+
+# --- Generator Agent ---
+generator:
+  model: "gpt-4o-mini"
+  temperature: 0.8
+  max_tokens: 900
+  # Provider — override per-agent to use a different provider/endpoint
+  base_url: ""                  # leave empty to use OPENAI_BASE_URL env var
+  api_key_env: "OPENAI_API_KEY" # name of the env var holding the API key
+
+# --- Judge Agent (LLM-as-a-Judge) ---
+judge:
+  model: "gpt-4o"
+  temperature: 0.2
+  max_tokens: 700
+  # Can point to a different provider (e.g. on-premise vLLM)
+  base_url: ""                  # leave empty to reuse generator's provider
+  api_key_env: "OPENAI_API_KEY" # override with e.g. "JUDGE_API_KEY" for a separate key
+
+# --- RAG (local vector index over /data/contexts + /data/documents) ---
+rag:
+  enabled: true
+  top_k: 5                      # number of chunks to retrieve per query
+  min_score: 0.25               # cosine similarity threshold; below this triggers web search
+  chunk_size: 400               # target tokens per chunk
+  chunk_overlap: 80             # token overlap between consecutive chunks
+  max_pdf_pages: 100            # 0 = no limit; caps large PDFs to avoid token blowout
+  embedding_model: "text-embedding-3-small"
+  index_path: ".cache/rag_index" # persisted FAISS index (auto-rebuilt when files change)
+
+# --- Web Search (fallback when RAG score is below min_score) ---
+web_search:
+  enabled: true
+  # Provider options: duckduckgo | serper | serpapi | tavily
+  # duckduckgo: free, no key needed (unofficial API — may break)
+  # serper:     ~$0.30/1K queries, SERPER_API_KEY required — recommended for real Google results
+  # serpapi:    ~$75+/month flat, SERPAPI_API_KEY required
+  # tavily:     ~$20/10K queries, TAVILY_API_KEY required
+  provider: "duckduckgo"
+  max_results: 3
+  timeout_sec: 10
+
+# --- Agentic Loop ---
+agentic:
+  max_retries: 3          # max judge→generator feedback cycles per question
+  pass_threshold: 0.75    # average judge score (0.0–1.0) required to accept a question

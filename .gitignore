@@ -16,3 +16,4 @@ build/
 *.swo
 bin/
 obj/
+src/question-generator/out/

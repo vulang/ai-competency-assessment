@@ -52,47 +52,51 @@ export class QuestionGeneratorComponent {
      (this.form.get('mix') as FormArray).removeAt(index);
    }
 
-   generate() {
-     if (this.form.invalid) return;
+    generate() {
+      if (this.form.invalid) return;
 
-     this.isGenerating = true;
-     this.questions.set([]);
+      this.isGenerating = true;
+      this.questions.set([]);
 
-     // Map form value to GenerationPlan
-     const formValue = this.form.value;
-     const mixItems = formValue.mix || [];
-     const plan = {
-       total: 0, 
-       mix: mixItems.map((item: any) => ({
-         ...item,
-         difficulty: [2], // Default difficulty
-       }))
-     };
+      // Map form value to GenerationPlan
+      const formValue = this.form.value;
+      const mixItems = formValue.mix || [];
+      const plan = {
+        total: mixItems.reduce((sum: number, item: any) => sum + (item.count || 0), 0),
+        mix: mixItems.map((item: any) => ({
+          ...item,
+          difficulty: [2], // Default difficulty
+        }))
+      };
 
-     // Note: Using port 8000 for Python API service
-     this.aiService.generateFromPlanRaw(plan).subscribe({
-       next: (res) => {
-         this.questions.set(res);
-         this.isGenerating = false;
-       },
-       error: (err) => {
-         console.error(err);
-         this.isGenerating = false;
-         alert('Failed to generate questions. Ensure backend services are running.');
-       }
-     });
-   }
+      this.aiService.generateAgentic(plan).subscribe({
+        next: (res) => {
+          // The API returns { questions: [], summary: {}, audit: [] }
+          if (res && res.questions) {
+             this.questions.set(res.questions);
+          } else {
+             this.questions.set([]);
+          }
+          this.isGenerating = false;
+        },
+        error: (err: any) => {
+          console.error(err);
+          this.isGenerating = false;
+          alert('Failed to generate agentic questions. Ensure backend services are running.');
+        }
+      });
+    }
 
    saveAllToBank() {
      const questionsToSave = this.questions();
      if (!questionsToSave || questionsToSave.length === 0) return;
 
      this.aiService.saveQuestions(questionsToSave).subscribe({
-       next: (res) => {
+       next: (res: any) => {
          alert(`Successfully saved ${res.count} questions to the bank!`);
          this.questions.set([]); // clear after saving
        },
-       error: (err) => {
+       error: (err: any) => {
          console.error('Failed to save questions = ', err);
          alert('An error occurred while saving the questions.');
        }

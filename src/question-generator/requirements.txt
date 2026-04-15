@@ -3,3 +3,19 @@ PyYAML>=6.0
 python-dotenv>=1.0.0
 fastapi>=0.100.0
 uvicorn>=0.20.0
+
+# RAG — local vector index
+faiss-cpu>=1.7.4
+numpy>=1.24
+
+# PDF ingestion (pymupdf is installed as a dependency automatically)
+pymupdf4llm>=0.0.17
+
+# Token-aware chunking
+tiktoken>=0.6.0
+
+# Web search providers (install the one matching your config)
+duckduckgo-search>=6.0         # provider: duckduckgo — free, no key needed
+# serper is called via plain requests (no extra package needed)
+# serpapi is called via plain requests (no extra package needed)
+tavily-python>=0.3.0           # provider: tavily — optional, needs TAVILY_API_KEY
