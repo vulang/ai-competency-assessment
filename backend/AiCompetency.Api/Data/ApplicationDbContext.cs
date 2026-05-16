@@ -21,6 +21,12 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<AdaptiveTestSession> AdaptiveTestSessions { get; set; }
     public DbSet<AdaptiveResponse> AdaptiveResponses { get; set; }
 
+    // ML / IRT / BKT tables
+    public DbSet<QuestionIrtParams> QuestionIrtParams { get; set; }
+    public DbSet<SessionIrtEstimate> SessionIrtEstimates { get; set; }
+    public DbSet<UserSkillMastery> UserSkillMasteries { get; set; }
+    public DbSet<CompetencyProfile> CompetencyProfiles { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -74,5 +80,26 @@ public class ApplicationDbContext : IdentityDbContext
             .WithMany()
             .HasForeignKey(ar => ar.QuestionId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // ── ML / IRT / BKT ──────────────────────────────────────────────────
+
+        builder.Entity<QuestionIrtParams>()
+            .HasOne(p => p.Question)
+            .WithMany()
+            .HasForeignKey(p => p.QuestionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<SessionIrtEstimate>()
+            .HasOne(s => s.Session)
+            .WithMany()
+            .HasForeignKey(s => s.SessionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<UserSkillMastery>()
+            .HasKey(m => new { m.UserId, m.SkillId });
+
+        builder.Entity<CompetencyProfile>()
+            .Property(p => p.Scores)
+            .HasColumnType("jsonb");
     }
 }

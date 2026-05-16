@@ -29,6 +29,10 @@ export const CANDIDATE_ROUTES: Routes = [
         loadComponent: () => import('./adaptive-runner/adaptive-runner.component').then(m => m.AdaptiveRunnerComponent)
       },
       {
+        path: 'competency-profile',
+        loadComponent: () => import('./competency-profile/competency-profile.component').then(m => m.CompetencyProfileComponent)
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full'

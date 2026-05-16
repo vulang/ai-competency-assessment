@@ -106,6 +106,49 @@ namespace AiCompetency.Api.Migrations
                     b.ToTable("adaptive_test_sessions");
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencyProfile", b =>
+                {
+                    b.Property<Guid>("ProfileId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("profile_id");
+
+                    b.Property<DateTime>("GeneratedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("generated_at");
+
+                    b.Property<string>("OverallLevel")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("overall_level");
+
+                    b.Property<decimal>("OverallScore")
+                        .HasColumnType("numeric")
+                        .HasColumnName("overall_score");
+
+                    b.Property<JsonDocument>("Scores")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("scores");
+
+                    b.Property<Guid?>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<decimal?>("Theta")
+                        .HasColumnType("numeric")
+                        .HasColumnName("theta");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("ProfileId");
+
+                    b.ToTable("competency_profiles");
+                });
+
             modelBuilder.Entity("AiCompetency.Api.Models.Exam", b =>
                 {
                     b.Property<int>("Id")
@@ -300,6 +343,45 @@ namespace AiCompetency.Api.Migrations
                     b.ToTable("question_generation_plans");
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.QuestionIrtParams", b =>
+                {
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("question_id");
+
+                    b.Property<decimal>("AParam")
+                        .HasColumnType("numeric")
+                        .HasColumnName("a_param");
+
+                    b.Property<decimal>("BParam")
+                        .HasColumnType("numeric")
+                        .HasColumnName("b_param");
+
+                    b.Property<decimal>("CParam")
+                        .HasColumnType("numeric")
+                        .HasColumnName("c_param");
+
+                    b.Property<DateTime?>("CalibratedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("calibrated_at");
+
+                    b.Property<bool>("IsCalibrated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_calibrated");
+
+                    b.Property<int>("ResponseCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("response_count");
+
+                    b.Property<decimal?>("SeB")
+                        .HasColumnType("numeric")
+                        .HasColumnName("se_b");
+
+                    b.HasKey("QuestionId");
+
+                    b.ToTable("question_irt_params");
+                });
+
             modelBuilder.Entity("AiCompetency.Api.Models.Response", b =>
                 {
                     b.Property<Guid>("Id")
@@ -339,6 +421,62 @@ namespace AiCompetency.Api.Migrations
                     b.HasIndex("SessionId");
 
                     b.ToTable("responses");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.SessionIrtEstimate", b =>
+                {
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<DateTime>("ComputedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("computed_at");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("method");
+
+                    b.Property<decimal>("SeTheta")
+                        .HasColumnType("numeric")
+                        .HasColumnName("se_theta");
+
+                    b.Property<decimal>("Theta")
+                        .HasColumnType("numeric")
+                        .HasColumnName("theta");
+
+                    b.HasKey("SessionId");
+
+                    b.ToTable("session_irt_estimates");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.UserSkillMastery", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("SkillId")
+                        .HasColumnType("integer")
+                        .HasColumnName("skill_id");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_updated");
+
+                    b.Property<decimal>("MasteryProb")
+                        .HasColumnType("numeric")
+                        .HasColumnName("mastery_prob");
+
+                    b.Property<int>("ResponseCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("response_count");
+
+                    b.HasKey("UserId", "SkillId");
+
+                    b.ToTable("user_skill_mastery");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -794,6 +932,17 @@ namespace AiCompetency.Api.Migrations
                     b.Navigation("Exam");
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.QuestionIrtParams", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.Question", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+                });
+
             modelBuilder.Entity("AiCompetency.Api.Models.Response", b =>
                 {
                     b.HasOne("AiCompetency.Api.Models.Question", "Question")
@@ -811,6 +960,17 @@ namespace AiCompetency.Api.Migrations
                     b.Navigation("ExamResult");
 
                     b.Navigation("Question");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.SessionIrtEstimate", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.ExamResult", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

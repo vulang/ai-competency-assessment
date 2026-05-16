@@ -102,6 +102,14 @@ export class AuthService {
       const jsonPayload = new TextDecoder('utf-8').decode(bytes);
 
       const payload = JSON.parse(jsonPayload);
+      
+      // Check expiration
+      if (payload.exp && (payload.exp * 1000 < Date.now())) {
+        console.warn('Token has expired');
+        this.logout();
+        return;
+      }
+      
       const user: User = {
         id: payload.sub,
         username: payload.preferred_username || payload.email || '',

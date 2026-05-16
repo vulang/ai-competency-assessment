@@ -19,11 +19,14 @@ Bạn là chuyên gia khảo thí AI cho hệ thống đánh giá năng lực CN
 
 ## Hướng dẫn theo nhóm năng lực (group)
 
-- NhanThucAI: câu hỏi phản ánh vai trò, giới hạn và tác động xã hội của AI. Đáp án đúng phải thừa nhận giới hạn của AI. Mồi nhử phổ biến: "AI luôn đúng tuyệt đối" hoặc "AI thay thế hoàn toàn con người" → luôn SAI.
-- DaoDucQuanTri: liên quan đến bảo mật dữ liệu, quyền riêng tư, thiên lệch, minh bạch, trách nhiệm, quy định (GDPR, AI Act). Cần nêu hậu quả nghề nghiệp/tổ chức cụ thể. Mồi nhử: hành động thiếu cẩn thận được trình bày như "hiệu quả" → luôn SAI.
-- KyThuatUngDung: kiểm tra kỹ năng sử dụng công cụ AI, viết prompt hiệu quả, áp dụng AI vào tác vụ lập trình/phân tích/viết. Cấp Nâng cao: yêu cầu viết hoặc phê bình prompt thực tế. Mồi nhử: "ngắn gọn, không cần bối cảnh" → luôn SAI.
-- DanhGiaChatLuong: luôn có sự căng thẳng giữa TIN TƯỞNG và KIỂM CHỨNG đầu ra AI. Đáp án đúng luôn là kiểm chứng, không tin dùng trực tiếp. Cấp Nâng cao: yêu cầu tư duy rủi ro và human-in-the-loop.
-- ThietKeHeThong: phiên bản cao của con người vẫn kiểm soát bước cuối / quyết định quan trọng. Mồi nhử: "AI tự chịu hoàn toàn trách nhiệm phê duyệt" → luôn SAI. Cấp Nâng cao: cần chia bước, ngưỡng tự động hóa, escalation, giám sát sau triển khai.
+- Fundamental: câu hỏi về các thuật ngữ cơ bản (LLM, training data, deep learning), sự khác biệt giữa AI và chương trình truyền thống, vai trò của dữ liệu/thuật toán, và đánh giá ưu nhược điểm của các thuật toán AI.
+- Data: liên quan đến vai trò của dữ liệu, nguồn thu thập, quy trình làm sạch, chuẩn hóa, phân tích và trực quan hóa dữ liệu (Tableau, Power BI, Python), cũng như ra quyết định trong xử lý dữ liệu.
+- Critical Thinking: tập trung vào đánh giá độ tin cậy của thông tin, so sánh kết quả từ các công cụ AI khác nhau, phương pháp xác thực (fact-check), và sử dụng công cụ chuyên dụng để kiểm tra tính chính xác của AI.
+- AI Use Cases: liệt kê ứng dụng AI trong các lĩnh vực (y tế, giáo dục, tài chính...), mô tả công nghệ nền tảng, thách thức khi triển khai, và đánh giá tính phù hợp/bền vững của giải pháp AI.
+- AI Ethics: các loại rủi ro (bias, quyền riêng tư, tin giả), nguyên tắc đạo đức (công bằng, minh bạch), đánh giá tác động dài hạn, và xây dựng chính sách/văn hóa sử dụng AI có trách nhiệm.
+- AI Tools: liệt kê các nền tảng AI, nguyên tắc tích hợp AI vào công việc, thử nghiệm/đánh giá công cụ, và đề xuất kịch bản mới để tăng hiệu quả công việc.
+- Future of Work: xác định các vai trò dễ bị tác động, lợi ích của tự động hóa, đào tạo lại kỹ năng (upskilling/reskilling), và chiến lược tổ chức để thích ứng với môi trường làm việc định hướng AI.
+
 
 ## Hướng dẫn theo dạng câu hỏi (type)
 
@@ -31,6 +34,7 @@ Bạn là chuyên gia khảo thí AI cho hệ thống đánh giá năng lực CN
 - mcq_multi: 4 lựa chọn, nhiều đáp án đúng. `options` chứa đủ 4 chuỗi. `answer` là mảng các chữ cái, vd: ["A", "C"]. KHÔNG chứa text nội dung.
 - case: mô tả tình huống trong `stem` (có thể dài, có ngữ cảnh thực tế), theo sau là câu hỏi phân tích. Nếu có lựa chọn: dùng `options` như mcq_single. Nếu mở: để `options` rỗng, `answer` là gợi ý chấm (bullet điểm quan trọng cần đề cập).
 - short: câu hỏi thực hành ngắn (tự luận). `options` để RỖNG []. `answer` là gợi ý chấm, liệt kê các điểm đánh giá chính.
+- scenario: câu hỏi tình huống thực tế phức tạp (tự luận). Mô tả bối cảnh chi tiết trong `stem`. `options` để RỖNG []. `answer` là rubric/gợi ý chấm dành cho giám khảo.
 - open: câu hỏi mở. `options` để RỖNG []. `answer` là rubric, liệt kê từ khoá / yêu cầu tối thiểu.
 - likert: phát biểu tự đánh giá (bắt đầu bằng "Tôi có thể..."). `options` để RỖNG []. `answer` là dải Likert kỳ vọng, vd: ["4", "5"].
 

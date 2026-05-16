@@ -7,9 +7,14 @@
             <div class="module-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Generation Plan</h5>
-                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addMixItem()">
-                        + Add Item
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-info me-2" (click)="autoSuggestPlan()" [disabled]="isGenerating">
+                            <i class="bi bi-magic"></i> Auto Suggest Plan
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addMixItem()" [disabled]="isGenerating">
+                            + Add Item
+                        </button>
+                    </div>
                 </div>
 
                 <form [formGroup]="form" (ngSubmit)="generate()">
@@ -32,19 +37,21 @@
                                 <div class="col-6">
                                     <label class="form-label small">Group</label>
                                     <select class="form-select form-select-sm" formControlName="group">
-                                        <option value="NhanThucAI">NhanThucAI</option>
-                                        <option value="DaoDucQuanTri">DaoDucQuanTri</option>
-                                        <option value="KyThuatUngDung">KyThuatUngDung</option>
-                                        <option value="ThietKeHeThong">ThietKeHeThong</option>
-                                        <option value="DanhGiaChatLuong">DanhGiaChatLuong</option>
+                                        <option value="Fundamental">Fundamental</option>
+                                        <option value="Data">Data</option>
+                                        <option value="Critical Thinking">Critical Thinking</option>
+                                        <option value="AI Use Cases">AI Use Cases</option>
+                                        <option value="AI Ethics">AI Ethics</option>
+                                        <option value="AI Tools">AI Tools</option>
+                                        <option value="Future of Work">Future of Work</option>
                                     </select>
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label small">Level</label>
                                     <select class="form-select form-select-sm" formControlName="level">
-                                        <option value="NenTang">NenTang</option>
-                                        <option value="ApDung">ApDung</option>
-                                        <option value="KienTao">KienTao</option>
+                                        <option value="Basic">Basic</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
                                     </select>
                                 </div>
                             </div>
@@ -57,6 +64,7 @@
                                         <option value="mcq_multi">MCQ Multi</option>
                                         <option value="tf">True/False</option>
                                         <option value="short">Short Answer</option>
+                                        <option value="scenario">Scenario Based</option>
                                     </select>
                                 </div>
                                 <div class="col-6">

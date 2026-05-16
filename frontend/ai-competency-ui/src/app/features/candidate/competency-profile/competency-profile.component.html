@@ -1,0 +1,102 @@
+<div class="profile-page">
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>Loading your competency profile…</p>
+  </div>
+
+  <!-- Error / empty -->
+  <div class="empty-state" *ngIf="!loading() && error()">
+    <div class="empty-icon">📊</div>
+    <p>{{ error() }}</p>
+    <a routerLink="/candidate/home" class="btn-primary">Take a Test</a>
+  </div>
+
+  <!-- Profile content -->
+  <ng-container *ngIf="!loading() && !error() && profile() as p">
+
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="level-badge" [style.background]="levelColor">
+        {{ p.overallLevel }}
+      </div>
+      <div class="header-meta">
+        <h1>Your AI Competency Profile</h1>
+        <p class="subtitle">
+          Overall Score: <strong>{{ p.overallScore | number:'1.0-0' }}/100</strong>
+          &nbsp;·&nbsp; IRT θ: <strong>{{ thetaDisplay }}</strong>
+          &nbsp;·&nbsp; Assessed: {{ p.generatedAt | date:'mediumDate' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Main grid -->
+    <div class="profile-grid">
+
+      <!-- Radar chart -->
+      <div class="card radar-card">
+        <h2>7-Domain Radar</h2>
+        <div class="canvas-wrapper">
+          <canvas #radarCanvas></canvas>
+        </div>
+      </div>
+
+      <!-- Domain breakdown -->
+      <div class="card domain-card">
+        <h2>Domain Scores</h2>
+        <ul class="domain-list">
+          <li *ngFor="let d of domainEntries" class="domain-item">
+            <span class="domain-label">{{ d.label }}</span>
+            <div class="bar-track">
+              <div class="bar-fill"
+                   [style.width.%]="d.score"
+                   [class.bar-high]="d.score >= 70"
+                   [class.bar-mid]="d.score >= 40 && d.score < 70"
+                   [class.bar-low]="d.score < 40">
+              </div>
+            </div>
+            <span class="domain-score">{{ d.score | number:'1.0-0' }}</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Skill mastery section -->
+    <div class="card mastery-card" *ngIf="skillMasteries().length > 0">
+      <h2>Skill Mastery Status</h2>
+      <div class="mastery-grid">
+        <div *ngFor="let m of skillMasteries()" class="mastery-chip"
+             [class.mastered]="m.mastered">
+          <span class="chip-icon">{{ m.mastered ? '✅' : '🔄' }}</span>
+          <span class="chip-label">Skill {{ m.skillId }}</span>
+          <span class="chip-prob">{{ (m.masteryProb * 100) | number:'1.0-0' }}%</span>
+          <span class="chip-count">{{ m.responseCount }} responses</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- IRT theta explanation -->
+    <div class="card irt-card">
+      <h2>About Your IRT Score (θ)</h2>
+      <div class="irt-scale">
+        <div class="scale-track">
+          <div class="scale-marker foundation">Foundation<br>θ &lt; -1</div>
+          <div class="scale-marker apply">Apply<br>-1 ≤ θ &lt; 1</div>
+          <div class="scale-marker create">Create<br>θ ≥ 1</div>
+        </div>
+        <div class="theta-pointer" [style.left.%]="((+p.theta + 4) / 8) * 100">
+          <div class="pointer-label">θ = {{ thetaDisplay }}</div>
+          <div class="pointer-arrow">▼</div>
+        </div>
+      </div>
+      <p class="irt-explanation">
+        The θ (theta) score is computed using <strong>Item Response Theory (IRT 3PL)</strong>
+        and measures your true underlying ability independent of test difficulty.
+        A θ of 0 represents average performance across all test-takers.
+      </p>
+    </div>
+
+  </ng-container>
+</div>

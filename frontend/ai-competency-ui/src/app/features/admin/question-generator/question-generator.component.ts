@@ -37,8 +37,8 @@ export class QuestionGeneratorComponent {
    createMixItem() {
      return this.fb.group({
        topic: ['', Validators.required],
-       group: ['NhanThucAI', Validators.required],
-       level: ['NenTang', Validators.required],
+       group: ['Fundamental', Validators.required],
+       level: ['Basic', Validators.required],
        type: ['mcq_single', Validators.required],
        count: [5, [Validators.required, Validators.min(1), Validators.max(20)]]
      });
@@ -50,6 +50,58 @@ export class QuestionGeneratorComponent {
 
    removeMixItem(index: number) {
      (this.form.get('mix') as FormArray).removeAt(index);
+   }
+
+   autoSuggestPlan() {
+     const suggestedMix = [
+       // 1. Fundamental
+       { topic: 'AI vs ML vs DL', group: 'Fundamental', level: 'Basic', type: 'mcq_single', count: 2 },
+       { topic: 'AI Training Lifecycle', group: 'Fundamental', level: 'Intermediate', type: 'mcq_multi', count: 2 },
+       { topic: 'Model Architecture Trade-offs', group: 'Fundamental', level: 'Advanced', type: 'scenario', count: 1 },
+       
+       // 2. Data
+       { topic: 'Data Types and Sources', group: 'Data', level: 'Basic', type: 'tf', count: 2 },
+       { topic: 'Data Quality and EDA', group: 'Data', level: 'Intermediate', type: 'short', count: 2 },
+       { topic: 'Data Pipelines in Production', group: 'Data', level: 'Advanced', type: 'scenario', count: 1 },
+       
+       // 3. Critical Thinking
+       { topic: 'AI Hallucination vs Facts', group: 'Critical Thinking', level: 'Basic', type: 'tf', count: 2 },
+       { topic: 'Fact-checking and Verification', group: 'Critical Thinking', level: 'Intermediate', type: 'mcq_multi', count: 2 },
+       { topic: 'Designing Verification Frameworks', group: 'Critical Thinking', level: 'Advanced', type: 'scenario', count: 1 },
+       
+       // 4. AI Use Cases
+       { topic: 'Coding Assistants (Copilot, Cursor)', group: 'AI Use Cases', level: 'Basic', type: 'mcq_single', count: 2 },
+       { topic: 'RAG and API Integration', group: 'AI Use Cases', level: 'Intermediate', type: 'mcq_multi', count: 2 },
+       { topic: 'Designing Multi-agent Systems', group: 'AI Use Cases', level: 'Advanced', type: 'scenario', count: 1 },
+       
+       // 5. AI Ethics
+       { topic: 'AI Risks and Principles', group: 'AI Ethics', level: 'Basic', type: 'tf', count: 2 },
+       { topic: 'Bias Mitigation and Privacy', group: 'AI Ethics', level: 'Intermediate', type: 'short', count: 2 },
+       { topic: 'AI Policy and Governance', group: 'AI Ethics', level: 'Advanced', type: 'scenario', count: 1 },
+       
+       // 6. AI Tools
+       { topic: 'Prompt Engineering Basics', group: 'AI Tools', level: 'Basic', type: 'mcq_single', count: 2 },
+       { topic: 'Advanced Prompting and Tools', group: 'AI Tools', level: 'Intermediate', type: 'mcq_multi', count: 2 },
+       { topic: 'Automated Workflows and MCP', group: 'AI Tools', level: 'Advanced', type: 'scenario', count: 1 },
+       
+       // 7. Future of Work
+       { topic: 'Automating vs Augmenting', group: 'Future of Work', level: 'Basic', type: 'mcq_single', count: 2 },
+       { topic: 'Upskilling Strategies', group: 'Future of Work', level: 'Intermediate', type: 'short', count: 2 },
+       { topic: 'Workforce Transformation', group: 'Future of Work', level: 'Advanced', type: 'scenario', count: 1 }
+     ];
+
+     const mixArray = this.form.get('mix') as FormArray;
+     mixArray.clear();
+     
+     suggestedMix.forEach(item => {
+       mixArray.push(this.fb.group({
+         topic: [item.topic, Validators.required],
+         group: [item.group, Validators.required],
+         level: [item.level, Validators.required],
+         type: [item.type, Validators.required],
+         count: [item.count, [Validators.required, Validators.min(1), Validators.max(20)]]
+       }));
+     });
    }
 
     generate() {

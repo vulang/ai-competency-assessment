@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using AiCompetency.Api.Data;
 using AiCompetency.Api.Models;
+using AiCompetency.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,15 +15,23 @@ namespace AiCompetency.Api.Controllers;
 public class AdaptiveTestsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly MlService _ml;
+    private readonly CompetencyProfileService _profileService;
 
     // CAT Configuration
     private const int MaxQuestions = 10;
-    private const decimal InitialAbility = 5.0m;
-    private const decimal AbilityAdjustment = 1.0m;
+    private const decimal InitialAbility = 0.0m;   // IRT logit scale, N(0,1)
+    private const decimal ThetaMin = -4.0m;
+    private const decimal ThetaMax = 4.0m;
 
-    public AdaptiveTestsController(ApplicationDbContext context)
+    public AdaptiveTestsController(
+        ApplicationDbContext context,
+        MlService ml,
+        CompetencyProfileService profileService)
     {
         _context = context;
+        _ml = ml;
+        _profileService = profileService;
     }
 
     private int GetCurrentUserId()
@@ -72,21 +81,59 @@ public class AdaptiveTestsController : ControllerBase
         }
 
         var askedQuestionIds = session.Responses.Select(r => r.QuestionId).ToList();
+        var currentTheta = (double)session.CurrentAbilityEstimate;
 
-        // Get questions that haven't been asked, are published, and have a difficulty level.
-        // Orders by the absolute difference between the question's difficulty and the candidate's estimated ability.
-        var nextQuestion = await _context.Questions
-            .Where(q => q.Status == QuestionStatus.Published && q.DifficultyLevel.HasValue && !askedQuestionIds.Contains(q.Id))
-            .OrderBy(q => Math.Abs((decimal)q.DifficultyLevel.Value - session.CurrentAbilityEstimate))
-            .FirstOrDefaultAsync();
+        // Fetch candidate questions (published, not yet asked, have difficulty)
+        var candidateQuestions = await _context.Questions
+            .Where(q => q.Status == QuestionStatus.Published
+                     && q.DifficultyLevel.HasValue
+                     && !askedQuestionIds.Contains(q.Id))
+            .ToListAsync();
 
-        if (nextQuestion == null)
+        if (candidateQuestions.Count == 0)
         {
-            // If no more questions available, complete test
             session.Status = "Completed";
             session.EndTime = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return BadRequest(new { Message = "No more questions available. Test completed.", Status = "Completed" });
+        }
+
+        // Load IRT params for each candidate (or use defaults)
+        var candidateIds = candidateQuestions.Select(q => q.Id).ToList();
+        var irtParamsMap = await _context.QuestionIrtParams
+            .Where(p => candidateIds.Contains(p.QuestionId))
+            .ToDictionaryAsync(p => p.QuestionId);
+
+        var candidatesWithParams = candidateQuestions.Select(q =>
+        {
+            if (!irtParamsMap.TryGetValue(q.Id, out var p))
+                p = new QuestionIrtParams
+                {
+                    QuestionId = q.Id,
+                    AParam = 1.0m,
+                    BParam = q.DifficultyLevel switch { 1 => -2m, 2 => -1m, 4 => 1m, 5 => 2m, _ => 0m },
+                    CParam = 0.25m
+                };
+            return (q, p);
+        }).ToList();
+
+        // Select next item: try ML service (Fisher Information) then fall back to closest-b
+        Question nextQuestion;
+        var mlResult = await _ml.SelectNextItemAsync(
+            currentTheta,
+            candidatesWithParams.Select(c => (c.q.Id, c.p)).ToList());
+
+        if (mlResult != null)
+        {
+            nextQuestion = candidatesWithParams
+                .First(c => c.q.Id == mlResult.SelectedItemId).q;
+        }
+        else
+        {
+            // Fallback: item with b closest to current theta
+            nextQuestion = candidatesWithParams
+                .OrderBy(c => Math.Abs((double)c.p.BParam - currentTheta))
+                .First().q;
         }
 
         return Ok(new
@@ -126,25 +173,34 @@ public class AdaptiveTestsController : ControllerBase
         var question = await _context.Questions.FindAsync(request.QuestionId);
         if (question == null) return NotFound("Question not found.");
 
-        // Simple mock scoring based on whether they typed anything
-        // In a real CAT, "isCorrect" relies heavily on precise answer matching or AI grading
         bool isCorrect = !string.IsNullOrWhiteSpace(request.Answer);
 
-        // Adjust ability estimate
-        decimal oldAbility = session.CurrentAbilityEstimate;
-        decimal newAbility = oldAbility;
+        // ── IRT-based theta update (EAP) ────────────────────────────────────
+        // Build all responses so far (including current) for EAP
+        var allResponsesSoFar = session.Responses
+            .Select(r => new IrtItemResponse(
+                r.QuestionId, r.IsCorrect,
+                new IrtItemParams(1.0, MapDifficultyToB(r.QuestionDifficultyLevel), 0.25)))
+            .Append(new IrtItemResponse(
+                request.QuestionId, isCorrect,
+                new IrtItemParams(1.0, MapDifficultyToB((decimal)(question.DifficultyLevel ?? 3)), 0.25)))
+            .ToList();
 
-        if (isCorrect)
+        // Try ML EAP; fall back to clamped linear adjustment
+        decimal newAbility;
+        var thetaEst = await _ml.EstimateThetaAsync(allResponsesSoFar);
+        if (thetaEst != null)
         {
-            newAbility += AbilityAdjustment;
+            newAbility = Math.Clamp((decimal)thetaEst.Theta, ThetaMin, ThetaMax);
         }
         else
         {
-            newAbility -= AbilityAdjustment;
+            // Fallback: simple ±0.4 step in logit scale
+            decimal step = 0.4m;
+            newAbility = Math.Clamp(
+                session.CurrentAbilityEstimate + (isCorrect ? step : -step),
+                ThetaMin, ThetaMax);
         }
-
-        // Clamp ability between bounds if needed (e.g. 1 to 10)
-        newAbility = Math.Clamp(newAbility, 1.0m, 10.0m);
 
         var response = new AdaptiveResponse
         {
@@ -206,12 +262,32 @@ public class AdaptiveTestsController : ControllerBase
                 r.QuestionId,
                 r.Question.Content,
                 r.UserAnswer,
-                finalAnswer = r.UserAnswer, // Aliased for GUI component
+                finalAnswer = r.UserAnswer,
                 ScoreEarned = r.IsCorrect ? 1 : 0,
-                AiFeedback = $"Difficulty: {r.QuestionDifficultyLevel}. Ability changed to {r.AbilityAfterResponse}. Answer evaluated as {(r.IsCorrect ? "Correct" : "Incorrect")}."
+                AiFeedback = $"Difficulty b≈{r.QuestionDifficultyLevel}. θ={r.AbilityAfterResponse:F2}. {(r.IsCorrect ? "Correct" : "Incorrect")}.",
+                r.Question.Metadata
             })
         };
 
         return Ok(result);
     }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /// <summary>Map integer difficulty level to IRT b parameter (logit scale).</summary>
+    private static double MapDifficultyToB(decimal difficultyLevel) => (int)difficultyLevel switch
+    {
+        1 => -2.0,
+        2 => -1.0,
+        4 => 1.0,
+        5 => 2.0,
+        _ => 0.0
+    };
+
+    private static string ClassifyLevel(decimal theta) => theta switch
+    {
+        < -1.0m => "Foundation",
+        < 1.0m  => "Apply",
+        _       => "Create"
+    };
 }

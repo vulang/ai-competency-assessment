@@ -1,0 +1,84 @@
+<div class="irt-page">
+  <div class="page-header">
+    <h1>IRT Item Analysis</h1>
+    <p class="subtitle">Item Response Theory statistics for all published questions</p>
+  </div>
+
+  <div class="loading-state" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>Loading IRT statistics…</p>
+  </div>
+
+  <div class="error-state" *ngIf="!loading() && error()">
+    <p>⚠️ {{ error() }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading() && !error() && stats() as s">
+
+    <!-- Summary cards -->
+    <div class="summary-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ s.totalItems }}</div>
+        <div class="stat-label">Total Items</div>
+      </div>
+      <div class="stat-card calibrated">
+        <div class="stat-value">{{ s.calibratedItems }}</div>
+        <div class="stat-label">Calibrated</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ s.avgDifficulty | number:'1.2-2' }}</div>
+        <div class="stat-label">Avg Difficulty (b̄)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ s.avgDiscrimination | number:'1.2-2' }}</div>
+        <div class="stat-label">Avg Discrimination (ā)</div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="card">
+        <h2>Difficulty Distribution (b parameter)</h2>
+        <canvas #difficultyCanvas style="max-height:260px"></canvas>
+      </div>
+      <div class="card">
+        <h2>Discrimination vs Difficulty</h2>
+        <canvas #scatterCanvas style="max-height:260px"></canvas>
+      </div>
+    </div>
+
+    <!-- Items table -->
+    <div class="card table-card">
+      <h2>Item Parameter Table</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th (click)="sortBy('questionId')">ID</th>
+              <th (click)="sortBy('bParam')">b (Difficulty)</th>
+              <th (click)="sortBy('aParam')">a (Discrimination)</th>
+              <th (click)="sortBy('cParam')">c (Guessing)</th>
+              <th (click)="sortBy('responseCount')">Responses</th>
+              <th (click)="sortBy('isCalibrated')">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of sortedItems">
+              <td>{{ item.questionId }}</td>
+              <td>{{ item.bParam | number:'1.2-2' }}</td>
+              <td>{{ item.aParam | number:'1.2-2' }}</td>
+              <td>{{ item.cParam | number:'1.2-2' }}</td>
+              <td>{{ item.responseCount }}</td>
+              <td>
+                <span class="status-badge" [class.calibrated]="item.isCalibrated">
+                  {{ item.isCalibrated ? 'Calibrated' : 'Default' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

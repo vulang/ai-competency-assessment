@@ -15,11 +15,13 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def load_context(topic_or_group):
     ctx_dir = os.path.join(ROOT_DIR, "data", "contexts")
     mapping = {
-        "NhanThucAI": "01_nhan_thuc_ai_co_ban.md",
-        "DaoDucQuanTri": "02_quyen_rieng_tu.md",
-        "KyThuatUngDung": "03_ung_dung_ai_quy_trinh.md",
-        "ThietKeHeThong": "04_thiet_ke_co_trach_nhiem.md",
-        "DanhGiaChatLuong": "05_danh_gia_chat_luong.md",
+    "Fundamental": "01_nhan_thuc_ai_co_ban.md",
+    "Data": "01_nhan_thuc_ai_co_ban.md", # placeholder
+    "Critical Thinking": "05_danh_gia_chat_luong.md",
+    "AI Use Cases": "03_ung_dung_ai_quy_trinh.md",
+    "AI Ethics": "02_quyen_rieng_tu.md",
+    "AI Tools": "01_nhan_thuc_ai_co_ban.md", # placeholder
+    "Future of Work": "01_nhan_thuc_ai_co_ban.md", # placeholder
     }
     filename = mapping.get(topic_or_group, None)
     if filename:

@@ -1,9 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/auth/auth.service';
+import { Chart, RadialLinearScale, RadarController, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
+
+Chart.register(RadialLinearScale, RadarController, PointElement, LineElement, Filler, Tooltip, Legend);
 
 @Component({
   selector: 'app-test-results',
@@ -18,16 +21,25 @@ import { AuthService } from '../../../core/auth/auth.service';
         <h2>{{ result.examTitle }} Results</h2>
       </div>
 
-      <div class="score-card">
-        <div class="score-circle" [class.passed]="result.passed" [class.failed]="!result.passed">
-          <div class="score-value">{{ result.totalScore }}</div>
-          <div class="score-total">out of {{ result.passScore }}+ needed</div>
+      <div class="summary-section">
+        <div class="score-card">
+          <div class="score-circle" [class.passed]="result.passed" [class.failed]="!result.passed">
+            <div class="score-value">{{ result.totalScore }}</div>
+            <div class="score-total">out of {{ result.passScore }}+ needed</div>
+          </div>
+          <div class="score-status">
+            <h3 [class.text-passed]="result.passed" [class.text-failed]="!result.passed">
+              {{ result.passed ? 'Passed!' : 'Did not pass' }}
+            </h3>
+            <p>Completed on {{ result.endTime | date:'medium' }}</p>
+          </div>
         </div>
-        <div class="score-status">
-          <h3 [class.text-passed]="result.passed" [class.text-failed]="!result.passed">
-            {{ result.passed ? 'Passed!' : 'Did not pass' }}
-          </h3>
-          <p>Completed on {{ result.endTime | date:'medium' }}</p>
+
+        <div class="chart-card">
+          <h3>Competency Overview</h3>
+          <div class="chart-wrapper">
+            <canvas #radarChart></canvas>
+          </div>
         </div>
       </div>
 
@@ -87,16 +99,45 @@ import { AuthService } from '../../../core/auth/auth.service';
       color: #2d3748;
       background: transparent;
     }
-    .score-card {
+    .summary-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    @media (max-width: 768px) {
+      .summary-section {
+        grid-template-columns: 1fr;
+      }
+    }
+    .score-card, .chart-card {
       background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border-radius: 12px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.025);
       border: 1px solid #e2e8f0;
       padding: 32px;
+    }
+    .score-card {
       display: flex;
       align-items: center;
       gap: 32px;
-      margin-bottom: 32px;
+    }
+    .chart-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+    }
+    .chart-card h3 {
+      margin: 0 0 16px 0;
+      font-size: 1.25rem;
+      color: #2d3748;
+      align-self: flex-start;
+    }
+    .chart-wrapper {
+      width: 100%;
+      height: 250px;
+      position: relative;
     }
     .score-circle {
       width: 120px;
@@ -226,10 +267,15 @@ import { AuthService } from '../../../core/auth/auth.service';
     @keyframes spin { 100% { transform: rotate(360deg); } }
   `]
 })
-export class TestResultsComponent implements OnInit {
+export class TestResultsComponent implements OnInit, OnDestroy {
   sessionId: string = '';
   result: any = null;
   isLoading = true;
+
+  @ViewChild('radarChart') radarChartRef?: ElementRef<HTMLCanvasElement>;
+  chartInstance: Chart | null = null;
+  labels = ["Fundamental", "Data", "Critical Thinking", "AI Use Cases", "AI Ethics", "AI Tools", "Future of Work"];
+  radarScores: number[] = [0, 0, 0, 0, 0, 0, 0];
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -263,6 +309,7 @@ export class TestResultsComponent implements OnInit {
         next: (data) => {
           this.result = data;
           this.isLoading = false;
+          this.calculateRadarData();
         },
         error: (err) => {
           console.error(err);
@@ -287,6 +334,109 @@ export class TestResultsComponent implements OnInit {
       return answer;
     } catch {
       return answer;
+    }
+  }
+
+  calculateRadarData() {
+    const scores: Record<string, { earned: number, total: number }> = {};
+    this.labels.forEach(l => scores[l] = { earned: 0, total: 0 });
+
+    if (this.result && this.result.responses) {
+      this.result.responses.forEach((r: any) => {
+        // C# may serialize 'Metadata' to 'metadata'
+        const metadata = r.metadata || r.Metadata || {};
+        const group = metadata.group || metadata.Group;
+        
+        if (group && scores[group]) {
+          scores[group].earned += r.scoreEarned > 0 ? 1 : 0;
+          scores[group].total += 1;
+        }
+      });
+    }
+
+    this.radarScores = this.labels.map(l => {
+       const s = scores[l];
+       if (s.total === 0) return 0; // Or keep prior 0
+       return Math.round((s.earned / s.total) * 100);
+    });
+    
+    // Ensure view is updated before rendering chart
+    setTimeout(() => this.renderChart(), 0);
+  }
+
+  renderChart() {
+    if (!this.radarChartRef) return;
+    
+    if (this.chartInstance) {
+       this.chartInstance.destroy();
+    }
+
+    // Colors matching a premium UI scale 
+    const bgColor = 'rgba(56, 161, 105, 0.25)'; // A rich green gradient hue
+    const borderColor = 'rgba(56, 161, 105, 1)';
+    const pointColor = '#2f855a';
+
+    this.chartInstance = new Chart(this.radarChartRef.nativeElement, {
+        type: 'radar',
+        data: {
+            labels: this.labels,
+            datasets: [{
+                label: 'Capability %',
+                data: this.radarScores,
+                backgroundColor: bgColor,
+                borderColor: borderColor,
+                pointBackgroundColor: pointColor,
+                pointBorderColor: '#ffffff',
+                pointHoverBackgroundColor: '#ffffff',
+                pointHoverBorderColor: pointColor,
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(0,0,0,0.1)' },
+                    grid: { color: 'rgba(0,0,0,0.1)' },
+                    pointLabels: {
+                        font: { size: 11, family: "'Inter', sans-serif" },
+                        color: '#4a5568'
+                    },
+                    ticks: {
+                        display: false, // hide the inner numbers 
+                        stepSize: 20
+                    },
+                    min: 0,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(26, 32, 44, 0.9)',
+                    titleFont: { family: "'Inter', sans-serif", size: 14 },
+                    bodyFont: { family: "'Inter', sans-serif", size: 14 },
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            return context.raw + '% Mastery';
+                        }
+                    }
+                }
+            }
+        }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.chartInstance) {
+      this.chartInstance.destroy();
     }
   }
 }

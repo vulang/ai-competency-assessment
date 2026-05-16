@@ -1,32 +1,44 @@
 total: 100
 mix:
-  - group: NhanThucAI
-    level: NenTang
+  - group: Fundamental
+    level: Basic
     type: mcq_single
     difficulty: [1,2]
-    topic: "Vai tro AI trong cong viec"
-    count: 25
-  - group: DaoDucQuanTri
-    level: ApDung
+    topic: "AI vs Traditional Programming"
+    count: 20
+  - group: Data
+    level: Intermediate
     type: case
     difficulty: [2,3]
-    topic: "Quyen rieng tu & tuan thu"
-    count: 20
-  - group: KyThuatUngDung
-    level: ApDung
+    topic: "Data Cleaning & Normalization"
+    count: 15
+  - group: Critical Thinking
+    level: Advanced
     type: mcq_multi
+    difficulty: [3]
+    topic: "Verifying AI outputs"
+    count: 15
+  - group: AI Use Cases
+    level: Basic
+    type: mcq_single
+    difficulty: [1]
+    topic: "AI in Healthcare"
+    count: 15
+  - group: AI Ethics
+    level: Intermediate
+    type: case
     difficulty: [2,3]
-    topic: "Ung dung AI trong quy trinh"
-    count: 25
-  - group: ThietKeHeThong
-    level: KienTao
+    topic: "Algorithmic Bias"
+    count: 15
+  - group: AI Tools
+    level: Basic
+    type: mcq_single
+    difficulty: [1,2]
+    topic: "LLM Platforms"
+    count: 10
+  - group: Future of Work
+    level: Advanced
     type: short
     difficulty: [3]
-    topic: "Thiet ke he thong AI co trach nhiem"
-    count: 15
-  - group: DanhGiaChatLuong
-    level: ApDung
-    type: tf
-    difficulty: [1,2]
-    topic: "Danh gia do chinh xac & thien lech"
-    count: 15
+    topic: "Upskilling Strategies"
+    count: 10

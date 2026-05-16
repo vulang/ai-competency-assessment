@@ -68,6 +68,12 @@ def _load_prompt(filename: str) -> str:
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
 
+def _load_skill_prompt(filename: str) -> str:
+    path = os.path.join(_project_root, "skills", "assets", filename)
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+
 
 def _load_config() -> dict:
     return _load_yaml(os.path.join(_project_root, "configs", "model.yaml"))
@@ -162,8 +168,8 @@ async def generate_questions_simple(request: GenerationRequest):
     diff_map = {"easy": [1], "medium": [2], "hard": [3]}
     difficulty = diff_map.get(request.difficulty or "medium", [2])
     mix_item = MixItem(
-        group="NhanThucAI",
-        level="NenTang",
+        group="Fundamental",
+        level="Basic",
         type="mcq_single",
         difficulty=difficulty,
         topic=request.topic,
@@ -186,18 +192,27 @@ async def generate_agentic(request: AgenticRequest):
     try:
         try:
             from agents import build_orchestrator_from_config  # type: ignore
+            from framework_parser import FrameworkParser
         except ImportError:
             try:
                 from src.agents import build_orchestrator_from_config  # type: ignore
+                from src.framework_parser import FrameworkParser
             except ImportError:
                 raise HTTPException(
                     status_code=500,
-                    detail="agents module not found. Ensure all dependencies are installed.",
+                    detail="agents or framework_parser module not found. Ensure all dependencies are installed.",
             )
 
         config = _load_config()
-        generator_prompt = _load_prompt("generator_vn.txt")
+        generator_prompt_mcq = _load_skill_prompt("prompt-mcq.md")
+        generator_prompt_sit = _load_skill_prompt("prompt-situational.md")
         judge_prompt = _load_prompt("judge_vn.txt")
+
+        # Initialize framework parser
+        framework_md_path = os.path.join(_project_root, "skills", "references", "framework.md")
+        mcq_examples_path = os.path.join(_project_root, "skills", "references", "examples-mcq.md")
+        sit_examples_path = os.path.join(_project_root, "skills", "references", "examples-situational.md")
+        framework_parser = FrameworkParser(framework_md_path, mcq_examples_path, sit_examples_path)
 
         # Build jobs from mix
         jobs: list[dict] = []
@@ -213,8 +228,10 @@ async def generate_agentic(request: AgenticRequest):
 
         orchestrator = build_orchestrator_from_config(
             config=config,
-            prompt_tmpl=generator_prompt,
+            prompt_mcq_tmpl=generator_prompt_mcq,
+            prompt_sit_tmpl=generator_prompt_sit,
             judge_prompt_tmpl=judge_prompt,
+            framework_parser=framework_parser,
             data_root=data_root,
             index_path=index_path,
         )

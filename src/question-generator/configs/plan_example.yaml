@@ -1,25 +1,14 @@
-# configs/plan_example.yaml
-# Example generation plan — 5 sample questions across 3 domains
-
-total: 5
+total: 10
 mix:
-  - group: NhanThucAI
-    level: NenTang
+  - group: Fundamental
+    level: Basic
     type: mcq_single
     difficulty: [1]
-    topic: "AI tạo sinh và giới hạn của nó"
-    count: 2
-
-  - group: KyThuatUngDung
-    level: ApDung
-    type: case
+    topic: "AI Definition"
+    count: 5
+  - group: AI Ethics
+    level: Intermediate
+    type: mcq_single
     difficulty: [2]
-    topic: "Viết prompt hiệu quả cho tác vụ lập trình"
-    count: 2
-
-  - group: DaoDucQuanTri
-    level: NenTang
-    type: mcq_single
-    difficulty: [1]
-    topic: "Bảo mật dữ liệu khi dùng AI công khai"
-    count: 1
+    topic: "Explainability"
+    count: 5

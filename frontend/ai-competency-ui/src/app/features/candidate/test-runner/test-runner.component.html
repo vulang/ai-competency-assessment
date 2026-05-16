@@ -7,8 +7,6 @@
   </div>
 
   <div class="question-container" *ngIf="currentQuestion">
-    {{ currentQuestion | json }}
-
     <div class="question-content">
       <h3>Question {{ currentIndex + 1 }}</h3>
       <p class="question-text">{{ currentQuestion.content }}</p>
@@ -49,6 +47,12 @@
                 [(ngModel)]="responses[currentQuestion.id]">
               <span class="option-text">False</span>
             </label>
+          </div>
+
+          <!-- Scenario -->
+          <div *ngSwitchCase="'scenario'" class="text-answer">
+            <textarea [(ngModel)]="responses[currentQuestion.id]" rows="10" class="form-control"
+              placeholder="Provide your detailed scenario response here..."></textarea>
           </div>
 
           <!-- Short Answer / Essay -->

@@ -37,20 +37,124 @@
             </div>
 
             <!-- Type -->
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Question Type</label>
-                    <select class="form-select" formControlName="type">
-                        <option value="single_choice">Single Choice</option>
-                        <option value="multi_choice">Multiple Choice</option>
-                        <option value="true_false">True / False</option>
-                        <option value="short_answer">Short Answer</option>
-                        <option value="scenario">Scenario Based</option>
-                    </select>
+            <div class="mb-3">
+                <label class="form-label">Question Type</label>
+                <select class="form-select" formControlName="type">
+                    <option value="single_choice">Single Choice</option>
+                    <option value="multi_choice">Multiple Choice</option>
+                    <option value="mcq_single">Single Choice (Generated)</option>
+                    <option value="mcq_multi">Multiple Choice (Generated)</option>
+                    <option value="true_false">True / False</option>
+                    <option value="short_answer">Short Answer</option>
+                    <option value="scenario">Scenario Based</option>
+                </select>
+            </div>
+
+            <!-- Options & Answers -->
+            <div class="mb-3" *ngIf="['mcq_single', 'single_choice', 'mcq_multi', 'multi_choice'].includes(form.get('type')?.value || '')">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label mb-0">Answers & Options</label>
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="addOption()">Add Option</button>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Difficulty (1-5)</label>
-                    <input type="number" class="form-control" formControlName="difficulty" min="1" max="5">
+                
+                <div formArrayName="options">
+                    <div class="d-flex mb-2" *ngFor="let opt of optionsControls; let i=index">
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <input *ngIf="['mcq_single', 'single_choice'].includes(form.get('type')?.value || '')" 
+                                       type="radio" 
+                                       [value]="opt.value" 
+                                       [checked]="isAnswerSelected(opt.value)"
+                                       (change)="setSingleAnswer(opt.value)"
+                                       name="answer">
+                                <input *ngIf="['mcq_multi', 'multi_choice'].includes(form.get('type')?.value || '')" 
+                                       type="checkbox" 
+                                       [checked]="isAnswerSelected(opt.value)"
+                                       (change)="toggleMultiAnswer(opt.value)">
+                            </div>
+                            <input type="text" class="form-control" [formControlName]="i">
+                            <button type="button" class="btn btn-outline-danger" (click)="removeOption(i)">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Answer formatting for other types -->
+            <div class="mb-3" *ngIf="form.get('type')?.value === 'short_answer' || form.get('type')?.value === 'true_false'">
+                <label class="form-label">Correct Answer</label>
+                <input type="text" class="form-control" formControlName="answer">
+            </div>
+
+            <!-- Situational / Scenario Fields -->
+            <div *ngIf="form.get('type')?.value === 'scenario' || form.get('type')?.value === 'situational'">
+                <!-- Context -->
+                <div class="mb-3">
+                    <label class="form-label">Context (Bối cảnh)</label>
+                    <textarea class="form-control" formControlName="context" rows="4"
+                        placeholder="Enter the scenario context here..."></textarea>
+                </div>
+
+                <!-- Judge Prompt Hints -->
+                <div class="mb-3">
+                    <label class="form-label">Judge Prompt Hints</label>
+                    <textarea class="form-control" formControlName="judgePromptHints" rows="3"
+                        placeholder="Hints for the LLM-as-a-judge..."></textarea>
+                </div>
+
+                <!-- Response Structure -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0">Response Structure</label>
+                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArrayItem('responseStructure')">Add Item</button>
+                    </div>
+                    <div formArrayName="responseStructure">
+                        <div class="d-flex mb-2" *ngFor="let ctrl of getArrayControls('responseStructure'); let i=index">
+                            <div class="input-group">
+                                <input type="text" class="form-control" [formControlName]="i">
+                                <button type="button" class="btn btn-outline-danger" (click)="removeArrayItem('responseStructure', i)">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rubric -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0">Rubric Scoring</label>
+                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArrayItem('rubric')">Add Item</button>
+                    </div>
+                    <div formArrayName="rubric">
+                        <div class="d-flex mb-2" *ngFor="let ctrl of getArrayControls('rubric'); let i=index">
+                            <div class="input-group">
+                                <input type="text" class="form-control" [formControlName]="i" placeholder="e.g. (1đ) ...">
+                                <button type="button" class="btn btn-outline-danger" (click)="removeArrayItem('rubric', i)">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Behaviors Addressed -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0">Behaviors Addressed</label>
+                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArrayItem('behaviorsAddressed')">Add Item</button>
+                    </div>
+                    <div formArrayName="behaviorsAddressed">
+                        <div class="d-flex mb-2" *ngFor="let ctrl of getArrayControls('behaviorsAddressed'); let i=index">
+                            <div class="input-group">
+                                <input type="text" class="form-control" [formControlName]="i">
+                                <button type="button" class="btn btn-outline-danger" (click)="removeArrayItem('behaviorsAddressed', i)">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -64,17 +168,33 @@
             <div class="mb-3">
                 <label class="form-label">Competency Group</label>
                 <select class="form-select" formControlName="competencyGroupId">
-                    <option value="cg1">AI Fundamentals</option>
-                    <option value="cg2">Machine Learning</option>
+                    <option value="cg1">AI Fundamentals (Legacy)</option>
+                    <option value="cg2">Machine Learning (Legacy)</option>
+                    <option value="Fundamental">Fundamental</option>
+                    <option value="Data">Data</option>
+                    <option value="CriticalThinking">Critical Thinking</option>
+                    <option value="AIUseCases">AI Use Cases</option>
+                    <option value="AIEthics">AI Ethics</option>
+                    <option value="AITools">AI Tools</option>
+                    <option value="FutureOfWork">Future of Work</option>
                 </select>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Competency Level</label>
                 <select class="form-select" formControlName="competencyLevelId">
-                    <option value="cl1">Level 1: Foundation</option>
-                    <option value="cl2">Level 2: Apply</option>
-                    <option value="cl3">Level 3: Create</option>
+                    <option value="cl1">Level 1: Foundation (Legacy)</option>
+                    <option value="cl2">Level 2: Apply (Legacy)</option>
+                    <option value="cl3">Level 3: Create (Legacy)</option>
+                    <option value="Foundation">Level 1: Foundation</option>
+                    <option value="Apply">Level 2: Apply</option>
+                    <option value="Create">Level 3: Create</option>
+                    <option value="NenTang">Level 1: Foundation (NenTang)</option>
+                    <option value="ApDung">Level 2: Apply (ApDung)</option>
+                    <option value="KienTao">Level 3: Create (KienTao)</option>
+                    <option value="Basic">Level 1: Foundation (Basic)</option>
+                    <option value="Intermediate">Level 2: Apply (Intermediate)</option>
+                    <option value="Advanced">Level 3: Create (Advanced)</option>
                 </select>
             </div>
 

@@ -1,4 +1,4 @@
-export type QuestionType = 'single_choice' | 'multi_choice' | 'true_false' | 'short_answer' | 'scenario';
+export type QuestionType = 'single_choice' | 'multi_choice' | 'mcq_single' | 'mcq_multi' | 'true_false' | 'short_answer' | 'scenario';
 export type QuestionStatus = 'draft' | 'published' | 'archived';
 
 export interface Question {
@@ -10,6 +10,13 @@ export interface Question {
   competencyLevelId: string;
   difficulty: 1 | 2 | 3 | 4 | 5;
   tags: string[];
+  options?: string[];
+  answer?: any;
+  context?: string;
+  responseStructure?: string[];
+  rubric?: string[];
+  judgePromptHints?: string;
+  behaviorsAddressed?: string[];
   status: QuestionStatus;
   updatedAt: Date;
 }

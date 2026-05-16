@@ -9,7 +9,7 @@ You MUST:
 - Optimize for clarity, maintainability, and scalability
 - Prefer explicitness over magic
 - Respect separation of concerns
-
+- For Angular components, ensure template, style and logic are in their own files
 You MUST NOT:
 - Over-explain basic concepts
 - Leave TODOs for core logic
@@ -21,3 +21,4 @@ When requirements are ambiguous:
 - Clearly document assumptions in README.md
 
 Your output should be structured, deterministic, and implementation-focused.
+

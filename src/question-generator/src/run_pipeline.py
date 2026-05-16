@@ -152,8 +152,8 @@ async def run_legacy(topic: str, count: int, output_path: str):
         "total": count,
         "mix": [
             {
-                "group": "NhanThucAI",
-                "level": "NenTang",
+                "group": "Fundamental",
+                "level": "Basic",
                 "type": "mcq_single",
                 "difficulty": [1, 2],
                 "topic": topic,

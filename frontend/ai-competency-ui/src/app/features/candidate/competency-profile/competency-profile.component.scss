@@ -1,0 +1,156 @@
+.profile-page {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  color: #e5e7eb;
+}
+
+/* ── Loading / Empty ─────────────────────────────────── */
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #9ca3af;
+}
+.empty-icon { font-size: 3rem; }
+.spinner {
+  width: 2.5rem; height: 2.5rem;
+  border: 3px solid rgba(99,102,241,0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Header ──────────────────────────────────────────── */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.level-badge {
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+.header-meta h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+.subtitle { color: #9ca3af; margin: 0; font-size: 0.9rem; }
+
+/* ── Cards ───────────────────────────────────────────── */
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.card h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #c4b5fd;
+  margin: 0 0 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* ── Grid layout ─────────────────────────────────────── */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 768px) {
+  .profile-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Radar ───────────────────────────────────────────── */
+.canvas-wrapper {
+  position: relative;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Domain bars ─────────────────────────────────────── */
+.domain-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+.domain-item { display: grid; grid-template-columns: 140px 1fr 40px; align-items: center; gap: 0.75rem; }
+.domain-label { font-size: 0.82rem; color: #d1d5db; }
+.bar-track { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.bar-high  { background: #10b981; }
+.bar-mid   { background: #3b82f6; }
+.bar-low   { background: #f59e0b; }
+.domain-score { font-size: 0.82rem; font-weight: 600; color: #e5e7eb; text-align: right; }
+
+/* ── Skill mastery grid ──────────────────────────────── */
+.mastery-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.mastery-chip {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.82rem;
+}
+.mastery-chip.mastered { border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.08); }
+.chip-label { color: #d1d5db; }
+.chip-prob  { font-weight: 700; color: #a5f3fc; }
+.chip-count { color: #6b7280; font-size: 0.75rem; }
+
+/* ── IRT scale ───────────────────────────────────────── */
+.irt-scale { position: relative; margin-bottom: 1.5rem; }
+.scale-track {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  height: 36px; border-radius: 8px; overflow: hidden;
+}
+.scale-marker {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; text-align: center; line-height: 1.2; font-weight: 600;
+}
+.scale-marker.foundation { background: rgba(245,158,11,0.3); color: #fbbf24; }
+.scale-marker.apply      { background: rgba(59,130,246,0.3);  color: #60a5fa; }
+.scale-marker.create     { background: rgba(16,185,129,0.3);  color: #34d399; }
+
+.theta-pointer {
+  position: absolute;
+  top: -2px;
+  transform: translateX(-50%);
+  text-align: center;
+}
+.pointer-label {
+  background: #6366f1;
+  color: white;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.pointer-arrow { color: #6366f1; font-size: 0.9rem; line-height: 1; }
+.irt-explanation { font-size: 0.85rem; color: #9ca3af; line-height: 1.6; margin: 0; }
+
+.btn-primary {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background: #6366f1;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-primary:hover { background: #4f46e5; }

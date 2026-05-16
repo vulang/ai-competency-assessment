@@ -24,6 +24,16 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHttpClient<AiCompetency.Api.Services.QuestionGeneratorService>();
 
+// ── ML Microservice (Python FastAPI on port 8001) ─────────────────────────
+var mlServiceUrl = builder.Configuration.GetValue<string>("MlService:BaseUrl") ?? "http://localhost:8001";
+builder.Services.AddHttpClient<AiCompetency.Api.Services.MlService>(client =>
+{
+    client.BaseAddress = new Uri(mlServiceUrl);
+    client.Timeout = TimeSpan.FromSeconds(10); // Fast timeout; ML calls are non-critical
+});
+builder.Services.AddScoped<AiCompetency.Api.Services.CompetencyProfileService>();
+
+
 // Register the DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

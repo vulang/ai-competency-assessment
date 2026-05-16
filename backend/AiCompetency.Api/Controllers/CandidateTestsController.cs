@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Validation.AspNetCore;
 
+using AiCompetency.Api.Services;
+
 namespace AiCompetency.Api.Controllers;
 
 [ApiController]
@@ -15,10 +17,14 @@ namespace AiCompetency.Api.Controllers;
 public class CandidateTestsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly CompetencyProfileService _profileService;
 
-    public CandidateTestsController(ApplicationDbContext context)
+    public CandidateTestsController(
+        ApplicationDbContext context,
+        CompetencyProfileService profileService)
     {
         _context = context;
+        _profileService = profileService;
     }
 
     private int GetCurrentUserId()
@@ -216,11 +222,19 @@ public class CandidateTestsController : ControllerBase
 
             if (!string.IsNullOrWhiteSpace(answer.Answer) && examQuestion.Question != null)
             {
-                bool isCorrect = EvaluateAnswer(examQuestion.Question?.Type ?? "", examQuestion.Question?.Metadata, answer.Answer);
-                if (isCorrect) 
+                if (examQuestion.Question.Type == "scenario")
                 {
-                    scoreEarned = examQuestion.PointValue;
-                    feedback = "Correct!";
+                    scoreEarned = 0;
+                    feedback = "Answer submitted for manual review.";
+                }
+                else
+                {
+                    bool isCorrect = EvaluateAnswer(examQuestion.Question?.Type ?? "", examQuestion.Question?.Metadata, answer.Answer);
+                    if (isCorrect) 
+                    {
+                        scoreEarned = examQuestion.PointValue;
+                        feedback = "Correct!";
+                    }
                 }
             }
 
@@ -245,6 +259,33 @@ public class CandidateTestsController : ControllerBase
         session.TotalScore = totalScore;
 
         await _context.SaveChangesAsync();
+
+        // ── ML Pipeline (fire-and-continue, non-blocking for the candidate) ──
+        // Build response data for IRT/BKT from the evaluated answers
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var mlResponses = responsesToSave.Select(r =>
+                {
+                    var eq = session.Exam.ExamQuestions
+                        .FirstOrDefault(q => q.QuestionId == r.QuestionId);
+                    return (
+                        QuestionId: r.QuestionId,
+                        IsCorrect: r.ScoreEarned > 0,
+                        DifficultyLevel: eq?.Question?.DifficultyLevel,
+                        SkillId: eq?.Question?.SkillId
+                    );
+                }).ToList();
+
+                await _profileService.ProcessSessionAsync(
+                    sessionId, GetCurrentUserId(), mlResponses);
+            }
+            catch
+            {
+                // ML pipeline failure must never affect the candidate's result
+            }
+        });
 
         return Ok(new { SessionId = session.Id, TotalScore = totalScore });
     }
@@ -278,7 +319,8 @@ public class CandidateTestsController : ControllerBase
                 r.Question.Content,
                 r.FinalAnswer,
                 r.ScoreEarned,
-                r.AiFeedback
+                r.AiFeedback,
+                r.Question.Metadata
             })
         };
 

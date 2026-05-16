@@ -1,35 +1,62 @@
-NhanThucAI:
+Fundamental:
   description: >
-    Nhận thức đúng về vai trò, giới hạn và ảnh hưởng xã hội của AI. Phân biệt nhiệm vụ nên giao cho AI và nhiệm vụ do con người đảm nhận; đánh giá độ tin cậy và tác động đến người dùng / tổ chức.
-  keywords: ["vai trò", "giới hạn", "người và AI", "tác động xã hội", "phản biện", "độ tin cậy", "ra quyết định", "giám sát"]
+    Hiểu các thuật ngữ AI thông dụng, sự khác biệt giữa AI và chương trình truyền thống. Giải thích vai trò của dữ liệu và thuật toán; Đánh giá ưu nhược điểm của các thuật toán AI.
+  keywords: ["thuật ngữ", "LLM", "deep learning", "big data", "thuật toán", "dữ liệu", "truyền thống vs AI", "đào tạo mô hình"]
   level_focus:
-    NenTang: "hiểu AI là công cụ hỗ trợ con người, phân biệt nhiệm vụ người và AI"
-    ApDung: "đánh giá tính phù hợp khi ứng dụng AI vào bài toán cụ thể"
-    KienTao: "thiết kế hệ thống AI lấy con người làm trung tâm và định hướng chiến lược AI"
+    Basic: "Hiểu thuật ngữ AI thông dụng và phân biệt AI với chương trình truyền thống"
+    Intermediate: "Xác định quy trình phát triển AI và hiểu tài liệu khoa học/chính sách"
+    Advanced: "Giải thích vai trò dữ liệu/thuật toán và đánh giá các thuật toán AI"
 
-DaoDucQuanTri:
+Data:
   description: >
-    Đảm bảo đạo đức, quyền riêng tư, tuân thủ, và quản trị AI có trách nhiệm (GDPR, UNESCO, AI Act). Giải quyết tình huống tiến thoái lưỡng nan đạo đức.
-  keywords: ["đạo đức", "quyền riêng tư", "thiên vị", "GDPR", "quản trị", "tuân thủ", "trách nhiệm", "UNESCO", "tuân thủ pháp lý"]
+    Hiểu vai trò của dữ liệu, quy trình thu thập, làm sạch, chuẩn hóa, phân tích và trực quan hóa dữ liệu bằng các công cụ hiện đại.
+  keywords: ["thu thập dữ liệu", "làm sạch", "chuẩn hóa", "phân tích", "trực quan hóa", "Tableau", "Power BI", "Python", "gắn nhãn"]
   level_focus:
-    NenTang: "nhận biết vấn đề đạo đức và quy định dữ liệu cơ bản"
-    ApDung: "xử lý vi phạm quyền riêng tư và bảo vệ dữ liệu người dùng"
-    KienTao: "đề xuất chính sách AI có trách nhiệm trong tổ chức"
+    Basic: "Hiểu vai trò dữ liệu và nguồn thu thập, làm sạch cơ bản"
+    Intermediate: "Đánh giá chất lượng dữ liệu và sử dụng công cụ phân tích cơ bản"
+    Advanced: "Sử dụng công cụ chuyên sâu để thiết kế và trực quan hóa dữ liệu"
 
-KyThuatUngDung:
+Critical Thinking:
   description: >
-    Kỹ năng AI thực hành: thu thập & tiền xử lý dữ liệu, huấn luyện mô hình, đánh giá chất lượng, MLOps, tối ưu thuật toán cho bài toán cụ thể.
-  keywords: ["máy học", "học sâu", "pipeline", "MLOps", "độ chính xác", "fairness", "thuật toán", "huấn luyện", "dữ liệu", "suy luận"]
+    Phân tích nguồn thông tin, đánh giá độ tin cậy, so sánh kết quả từ các công cụ AI và thực hiện xác thực kết quả (fact-check).
+  keywords: ["tin cậy", "so sánh", "đối chiếu", "xác thực", "fact-check", "phản biện", "kiểm tra", "tư duy"]
   level_focus:
-    NenTang: "hiểu các khái niệm cơ bản ML/DL/NLP/CV và ứng dụng"
-    ApDung: "huấn luyện, tinh chỉnh, đánh giá mô hình, tích hợp vào sản phẩm"
-    KienTao: "đề xuất / cải tiến kiến trúc mô hình AI quy mô lớn"
+    Basic: "Xác định nguồn thông tin và đánh giá độ tin cậy cơ bản"
+    Intermediate: "So sánh kết quả từ nhiều công cụ AI và phân tích phương pháp xác thực"
+    Advanced: "Sử dụng công cụ chuyên dụng để kiểm tra tính chính xác và hiệu lực của AI"
 
-ThietKeHeThong:
+AI Use Cases:
   description: >
-    Thiết kế, triển khai, giám sát, tối ưu và vận hành hệ thống AI trong hạ tầng CNTT; đảm bảo CI/CD cho mô hình và độ sẵn sàng thương mại.
-  keywords: ["kiến trúc", "triển khai", "CI/CD", "vận hành", "giám sát", "tối ưu", "hạ tầng", "sẵn sàng", "thương mại hóa"]
+    Ứng dụng AI trong các lĩnh vực, hiểu công nghệ nền tảng, thách thức triển khai và đánh giá tính khả thi lâu dài.
+  keywords: ["y tế", "giáo dục", "tài chính", "kỹ thuật", "lợi ích", "thách thức", "bền vững", "khả thi", "triển khai"]
   level_focus:
-    NenTang: "nhận biết thành phần cơ bản của hệ thống AI và vòng đời dự án AI"
-    ApDung: "triển khai / tích hợp mô hình AI vào hệ thống sản xuất, giám sát và khắc phục sự cố"
-    KienTao: "tối ưu hạ tầng AI ở cấp tổ chức, tiêu chuẩn hóa quy trình nội bộ"
+    Basic: "Liệt kê ví dụ ứng dụng AI và xác định lợi ích/thách thức theo ngành"
+    Intermediate: "Mô tả công nghệ nền tảng và thách thức tiềm ẩn khi triển khai"
+    Advanced: "Đánh giá tính phù hợp và bền vững lâu dài của giải pháp AI"
+
+AI Ethics:
+  description: >
+    Nhận diện rủi ro (bias, riêng tư), tuân thủ nguyên tắc đạo đức và xây dựng văn hóa sử dụng AI trách nhiệm.
+  keywords: ["đạo đức", "thiên kiến", "bias", "riêng tư", "tin giả", "minh bạch", "trách nhiệm", "chính sách", "quy định"]
+  level_focus:
+    Basic: "Liệt kê rủi ro AI và hiểu các nguyên tắc đạo đức cơ bản"
+    Intermediate: "Đánh giá mức độ rủi ro và hạn chế của các ứng dụng AI cụ thể"
+    Advanced: "Xây dựng chính sách tổ chức và tư vấn văn hóa sử dụng AI đạo đức"
+
+AI Tools:
+  description: >
+    Sử dụng và đánh giá các công cụ/nền tảng AI, tích hợp vào quy trình làm việc và đề xuất giải pháp cải thiện hiệu quả.
+  keywords: ["công cụ AI", "nền tảng", "tích hợp", "thử nghiệm", "đánh giá", "hiệu quả", "khuyến nghị", "thích ứng"]
+  level_focus:
+    Basic: "Liệt kê các công cụ AI và xác định lợi ích/hạn chế cơ bản"
+    Intermediate: "Nguyên tắc tích hợp AI vào công việc và đánh giá lựa chọn công cụ"
+    Advanced: "Đề xuất kịch bản sử dụng mới và khuyến nghị tính tiếp cận của AI"
+
+Future of Work:
+  description: >
+    Tác động của AI đến việc làm, kỹ năng mới (upskilling), chiến lược tổ chức và thích ứng với môi trường làm việc AI.
+  keywords: ["việc làm", "tác động", "tự động hóa", "tăng cường", "upskilling", "reskilling", "chiến lược", "thay đổi", "hệ sinh thái"]
+  level_focus:
+    Basic: "Xác định vai trò dễ bị tác động và nhận biết lợi ích/thách thức chung"
+    Intermediate: "Liên hệ thay đổi công nghệ quá khứ và đề xuất can thiệp đào tạo"
+    Advanced: "Đánh giá tác động rộng lớn và phát triển chiến lược thích ứng của tổ chức"

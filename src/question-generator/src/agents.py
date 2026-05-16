@@ -45,11 +45,13 @@ except ImportError:
 
 # ── Domain ID prefix mapping ──────────────────────────────────────────────────
 DOMAIN_ID_PREFIX: dict[str, str] = {
-    "NhanThucAI":       "QF-",
-    "KyThuatUngDung":   "QP-",
-    "DanhGiaChatLuong": "QE-",
-    "DaoDucQuanTri":    "QP-ETH-",
-    "ThietKeHeThong":   "QW-",
+    "Fundamental":       "QF-",
+    "Data":              "QD-",
+    "Critical Thinking": "QC-",
+    "AI Use Cases":      "QU-",
+    "AI Ethics":         "QE-",
+    "AI Tools":          "QT-",
+    "Future of Work":    "QW-",
 }
 
 
@@ -138,7 +140,9 @@ class GeneratorAgent:
         self,
         client: "AsyncOpenAI",
         model: str,
-        prompt_tmpl: str,
+        prompt_mcq_tmpl: str,
+        prompt_sit_tmpl: str,
+        framework_parser: Any,
         retriever: Optional[ContextRetriever],
         web_search: Optional[WebSearchTool],
         rag_top_k: int = 5,
@@ -148,7 +152,9 @@ class GeneratorAgent:
     ):
         self.client = client
         self.model = model
-        self.prompt_tmpl = prompt_tmpl
+        self.prompt_mcq_tmpl = prompt_mcq_tmpl
+        self.prompt_sit_tmpl = prompt_sit_tmpl
+        self.framework_parser = framework_parser
         self.retriever = retriever
         self.web_search = web_search
         self.rag_top_k = rag_top_k
@@ -214,10 +220,58 @@ class GeneratorAgent:
             import random
             difficulty = random.choice(difficulty)
 
-        prompt = self.prompt_tmpl
+        is_scenario = job.get("type") == "scenario"
+        prompt_tmpl = self.prompt_sit_tmpl if is_scenario else self.prompt_mcq_tmpl
+
+        group = job.get("group", "")
+        level = job.get("level", "")
+        
+        # Get context from framework
+        fw_ctx = {"definition": "", "behaviors": "", "examples": ""}
+        if self.framework_parser:
+            fw_ctx = self.framework_parser.get_context(group, level, is_scenario)
+            
+        prompt = prompt_tmpl
+        # Replace mapping based on the SKILL.md assets templates
+        # Examples: {TÊN TIÊU CHÍ}, {MỨC}, {Định nghĩa lấy từ framework.md}, {Tên tiêu chí}
+        # The prompt uses {Behavior 1}, {Behavior 2} etc., we'll just replace the whole behavior block
+        
+        # First fix the behavior list. The template has:
+        # - {Behavior 1}
+        # - {Behavior 2}...
+        # We can just replace the whole section if we do a regex, or simpler: replace "{Behavior 1}\n- {Behavior 2}\n- {Behavior 3}\n- {Behavior 4}" with fw_ctx["behaviors"]
+        # In prompt-mcq.md it is exactly:
+        # Hành vi quan sát được:
+        # - {Behavior 1}
+        # - {Behavior 2}
+        # - {Behavior 3}
+        # - {Behavior 4}
+        
+        prompt = re.sub(r'- \{Behavior 1\}\n- \{Behavior 2\}\n- \{Behavior 3\}\n- \{Behavior 4\}', fw_ctx["behaviors"], prompt)
+        
+        # Replace specific SKILL.md placeholders
+        prompt = prompt.replace("{N=10}", "1")
+        prompt = prompt.replace("{N=3}", "1")
+        prompt = prompt.replace("{N}", "1")
+        prompt = prompt.replace("{TÊN TIÊU CHÍ}", str(group).upper())
+        prompt = prompt.replace("{Tên tiêu chí}", str(group))
+        prompt = prompt.replace("{MỨC}", str(level).upper())
+        prompt = prompt.replace("{Mức}", str(level))
+        prompt = prompt.replace("{Định nghĩa lấy từ framework.md}", fw_ctx["definition"])
+        prompt = prompt.replace("{Dán 1-2 câu mẫu từ examples-mcq.md cùng tiêu chí — có thể chọn câu cùng mức hoặc gần mức}", fw_ctx["examples"])
+        prompt = prompt.replace("{Dán 1 câu mẫu từ examples-situational.md cùng tiêu chí}", fw_ctx["examples"])
+        
+        # Handle the ID prefix mapping
+        prefix = DOMAIN_ID_PREFIX.get(group, "Q-")
+        level_abbr = "Basic" if level == "Basic" else ("Int" if level == "Intermediate" else "Adv")
+        id_template = f"{prefix}{level_abbr}"
+        prompt = prompt.replace("C{Mã tiêu chí 1-7}-L{Basic|Int|Adv}-{Số thứ tự 01-99}", question_id)
+        prompt = prompt.replace("C{Mã tiêu chí 1-7}-L{Int|Adv}-SIT-{Số}", question_id)
+        
+        # Replace normal placeholders
         for key, value in {
-            "group": job.get("group", ""),
-            "level": job.get("level", ""),
+            "group": group,
+            "level": level,
             "type": job.get("type", "mcq_single"),
             "difficulty": str(difficulty),
             "topic": job.get("topic", ""),
@@ -227,6 +281,14 @@ class GeneratorAgent:
             "feedback_section": feedback_section,
         }.items():
             prompt = prompt.replace("{" + key + "}", str(value))
+
+        # Append RAG and feedback if not natively in the situational prompt
+        if "{rag_context}" not in prompt_tmpl:
+             prompt += f"\n\n[NGỮ CẢNH RAG]\n{rag_context}\n"
+             if web_used:
+                 prompt += f"\n[NGỮ CẢNH WEB]\n{web_context}\n"
+        if feedback_section and "{feedback_section}" not in prompt_tmpl:
+             prompt += f"\n\n{feedback_section}\n"
 
         messages = [
             {
@@ -258,17 +320,21 @@ class GeneratorAgent:
             obj.setdefault("lang", "vi")
             obj.setdefault("group", job.get("group", ""))
             obj.setdefault("level", job.get("level", ""))
-            obj.setdefault("type", job.get("type", "mcq_single"))
+            
+            job_type = job.get("type", "mcq_single")
+            obj.setdefault("type", job_type)
             obj.setdefault("difficulty", difficulty)
-            obj.setdefault("options", [])
-            obj.setdefault("answer", [])
 
-            # Normalise answer to list
-            if isinstance(obj["answer"], str):
-                obj["answer"] = [obj["answer"]]
+            # Only enforce options and answer for MCQ types
+            if job_type in ("mcq_single", "mcq_multi"):
+                obj.setdefault("options", [])
+                obj.setdefault("answer", [])
 
-            # MCQ cleanup — strip full-text from answers, keep only letter keys
-            if obj["type"] in ("mcq_single", "mcq_multi"):
+                # Normalise answer to list
+                if isinstance(obj["answer"], str):
+                    obj["answer"] = [obj["answer"]]
+
+                # MCQ cleanup — strip full-text from answers, keep only letter keys
                 cleaned = []
                 for a in obj["answer"]:
                     a_str = str(a).strip()
@@ -283,7 +349,7 @@ class GeneratorAgent:
                 seen: set[str] = set()
                 dedup = [x for x in cleaned if not (x in seen or seen.add(x))]  # type: ignore
                 obj["answer"] = dedup
-                if obj["type"] == "mcq_single" and len(obj["answer"]) > 1:
+                if job_type == "mcq_single" and len(obj["answer"]) > 1:
                     obj["answer"] = [obj["answer"][0]]
 
             # Attach source info from RAG
@@ -493,11 +559,12 @@ class AgenticOrchestrator:
         )
 
 
-# ── Factory: build orchestrator from config ──────────────────────────────────
 def build_orchestrator_from_config(
     config: dict,
-    prompt_tmpl: str,
+    prompt_mcq_tmpl: str,
+    prompt_sit_tmpl: str,
     judge_prompt_tmpl: str,
+    framework_parser: Any,
     data_root: str,
     index_path: str,
 ) -> AgenticOrchestrator:
@@ -546,7 +613,9 @@ def build_orchestrator_from_config(
     generator = GeneratorAgent(
         client=gen_client,
         model=gen_cfg.get("model", "gpt-4o-mini"),
-        prompt_tmpl=prompt_tmpl,
+        prompt_mcq_tmpl=prompt_mcq_tmpl,
+        prompt_sit_tmpl=prompt_sit_tmpl,
+        framework_parser=framework_parser,
         retriever=retriever,
         web_search=web_search,
         rag_top_k=rag_cfg.get("top_k", 5),
