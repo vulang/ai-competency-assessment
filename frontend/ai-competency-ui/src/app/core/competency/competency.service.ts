@@ -12,7 +12,7 @@ export interface DomainScore {
 
 export interface CompetencyProfile {
   profileId: string;
-  userId: number;
+  userId: string;
   sessionId: string | null;
   theta: number;
   overallLevel: 'Foundation' | 'Apply' | 'Create';
@@ -59,7 +59,7 @@ export interface IrtItemStat {
 
 @Injectable({ providedIn: 'root' })
 export class CompetencyService {
-  private readonly base = `${environment.apiUrl}/competency`;
+  private readonly base = `${environment.apiUrl}/api/competency`;
 
   constructor(private http: HttpClient) {}
 
@@ -83,7 +83,7 @@ export class CompetencyService {
 
   // ── Admin ─────────────────────────────────────────────────────────────────
 
-  getCandidateProfile(userId: number): Observable<CompetencyProfile> {
+  getCandidateProfile(userId: string): Observable<CompetencyProfile> {
     return this.http.get<CompetencyProfile>(`${this.base}/admin/candidates/${userId}/profile`);
   }
 

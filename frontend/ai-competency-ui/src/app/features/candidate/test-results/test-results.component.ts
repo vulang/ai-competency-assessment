@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { AuthService } from '../../../core/auth/auth.service';
 import { Chart, RadialLinearScale, RadarController, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 
 Chart.register(RadialLinearScale, RadarController, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -280,7 +279,6 @@ export class TestResultsComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
 
   testType: string = '';
 
@@ -292,19 +290,13 @@ export class TestResultsComponent implements OnInit, OnDestroy {
     }
   }
 
-  get headers() {
-    const user = this.authService.currentUser();
-    return {
-      Authorization: `Bearer ${user?.accessToken || sessionStorage.getItem('access_token')}`
-    };
-  }
 
   loadResults() {
     const endpoint = this.testType === 'adaptive'
       ? `${environment.apiUrl}/api/adaptivetests/${this.sessionId}/result`
       : `${environment.apiUrl}/api/candidate/tests/sessions/${this.sessionId}/result`;
 
-    this.http.get<any>(endpoint, { headers: this.headers })
+    this.http.get<any>(endpoint)
       .subscribe({
         next: (data) => {
           this.result = data;

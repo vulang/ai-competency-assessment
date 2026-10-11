@@ -8,7 +8,8 @@ export interface Question {
   type: QuestionType;
   competencyGroupId: string;
   competencyLevelId: string;
-  difficulty: 1 | 2 | 3 | 4 | 5;
+  difficulty: 1 | 2 | 3 | 4 | 5 | null;
+  skillId?: number | null;
   tags: string[];
   options?: string[];
   answer?: any;

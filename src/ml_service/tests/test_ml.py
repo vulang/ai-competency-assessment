@@ -186,3 +186,15 @@ if __name__ == "__main__":
     test_fisher_info_higher_near_matching_difficulty()
     test_bkt_sequence_monotone_for_all_correct()
     print("All tests passed.")
+
+
+def test_profile_preserves_identity_subject():
+    from models import GenerateProfileRequest
+    from profile.generator import generate_profile
+
+    subject = "061ebcc1-40a0-49c0-872f-96b57e7bbb9d"
+    request = GenerateProfileRequest(
+        user_id=subject, session_id="session", theta=0, se_theta=1,
+        skill_masteries=[],
+    )
+    assert generate_profile(request).user_id == subject

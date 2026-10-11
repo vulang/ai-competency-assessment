@@ -211,22 +211,24 @@ flowchart LR
 
 ### Phase 0 — Ổn định nền tảng và sửa lỗi chặn
 
+**Trạng thái:** Hoàn tất triển khai và kiểm chứng cục bộ ngày 2026-10-11. CI trên GitHub chờ lần push đầu tiên; ghi chú triển khai và kiểm chứng: [phase-0-progress.md](phase-0-progress.md).
+
 **Mục tiêu:** Có nền tảng đúng và tái lập được để mọi dữ liệu thu thập về sau đều hợp lệ.
 
 **Công việc**
 
-- [ ] **Định danh người dùng (B1):** chuyển mọi cột `user_id` sang `string` (Identity GUID) hoặc thêm `pseudo_id`; viết helper `ICurrentUser` đọc claim `sub`; bỏ fallback `return 1`.
-- [ ] **Vai trò:** seed role `Admin`, `Annotator`, `Candidate`; thêm claim role vào token; dùng `[Authorize(Roles=...)]` cho admin API, câu hỏi, đề và sinh câu hỏi (B7); thêm `roleGuard` ở frontend.
-- [ ] **Đăng ký ứng viên:** endpoint `POST /api/account/register` và màn đăng ký. Đây là điều kiện để thu thập dữ liệu thật.
-- [ ] **Migrations (B6):** thay `EnsureCreatedAsync` bằng `Database.MigrateAsync()`; đưa `frameworks/domains/skills/criteria` vào EF (sẽ làm lại ở P1); để `db/schema.sql` được sinh tự động bằng `dotnet ef migrations script`.
-- [ ] **Xử lý nền (B4):** thay `Task.Run` bằng `BackgroundService` + `Channel<T>` (hoặc RabbitMQ consumer) có scope DI riêng; ghi log lỗi thay vì nuốt.
-- [ ] **Dọn API giả (B9) và seed nguy hiểm (B8):** xóa minimal API in-memory; bỏ `/api/seed-difficulty` (hoặc chỉ bật ở môi trường Development); tách rõ `difficulty` và `competency level`.
-- [ ] **Sửa CAT (B2, B3, B11)** nếu giữ lại: chấm bằng `EvaluateAnswer` dùng chung; nạp đủ lịch sử phản hồi; bỏ `PassScore = 6`.
-- [ ] **Frontend (B10):** gom base URL vào `environment.apiUrl + '/api'`; dựa vào `authInterceptor` đã đăng ký sẵn, bỏ việc tự đặt header ở từng component; thêm `proxy.conf.json` cho `ng serve`.
-- [ ] **Hạ tầng (B13):** thêm Dockerfile và service `ml-service` vào `infra/docker-compose.yml`; tạo `.env.example`; viết `Makefile` hoặc script `dev-up`.
-- [ ] **CI (B14):** GitHub Actions gồm `dotnet build/test`, `ng build/test`, `pytest` cho `ml_service` và `question-generator`, `ruff`/`eslint`.
-- [ ] **Test tối thiểu:** dự án `AiCompetency.Api.Tests` (xUnit + Testcontainers Postgres) cho chấm điểm và phân quyền; spec Angular cho 1 service và 1 form.
-- [ ] **Dọn code chết (B15)** và đánh dấu `docs/ml-methods.md` là "extension, không thuộc phạm vi chính" (B16).
+- [x] **Định danh người dùng (B1):** chuyển mọi cột `user_id` sang `string` (Identity GUID) hoặc thêm `pseudo_id`; viết helper `ICurrentUser` đọc claim `sub`; bỏ fallback `return 1`.
+- [x] **Vai trò:** seed role `Admin`, `Annotator`, `Candidate`; thêm claim role vào token; dùng `[Authorize(Roles=...)]` cho admin API, câu hỏi, đề và sinh câu hỏi (B7); thêm `roleGuard` ở frontend.
+- [x] **Đăng ký ứng viên:** endpoint `POST /api/account/register` và màn đăng ký. Đây là điều kiện để thu thập dữ liệu thật.
+- [x] **Migrations (B6):** thay `EnsureCreatedAsync` bằng `Database.MigrateAsync()`; đưa `frameworks/domains/skills/criteria` vào EF (sẽ làm lại ở P1); để `db/schema.sql` được sinh tự động bằng `dotnet ef migrations script`.
+- [x] **Xử lý nền (B4):** thay `Task.Run` bằng `BackgroundService` + `Channel<T>` (hoặc RabbitMQ consumer) có scope DI riêng; ghi log lỗi thay vì nuốt.
+- [x] **Dọn API giả (B9) và seed nguy hiểm (B8):** xóa minimal API in-memory; bỏ `/api/seed-difficulty` (hoặc chỉ bật ở môi trường Development); tách rõ `difficulty` và `competency level`.
+- [x] **Sửa CAT (B2, B3, B11)** nếu giữ lại: chấm bằng `EvaluateAnswer` dùng chung; nạp đủ lịch sử phản hồi; bỏ `PassScore = 6`.
+- [x] **Frontend (B10):** gom base URL vào `environment.apiUrl + '/api'`; dựa vào `authInterceptor` đã đăng ký sẵn, bỏ việc tự đặt header ở từng component; thêm `proxy.conf.json` cho `ng serve`.
+- [x] **Hạ tầng (B13):** thêm Dockerfile và service `ml-service` vào `infra/docker-compose.yml`; tạo `.env.example`; viết `Makefile` hoặc script `dev-up`.
+- [x] **CI (B14):** GitHub Actions gồm `dotnet build/test`, `ng build/test`, `pytest` cho `ml_service` và `question-generator`, `ruff`/`eslint`.
+- [x] **Test tối thiểu:** dự án `AiCompetency.Api.Tests` (xUnit + Testcontainers Postgres) cho chấm điểm và phân quyền; spec Angular cho 1 service và 1 form.
+- [x] **Dọn code chết (B15)** và đánh dấu `docs/ml-methods.md` là "extension, không thuộc phạm vi chính" (B16).
 
 **Sản phẩm bàn giao:** stack chạy bằng một lệnh; CI xanh; nhiều ứng viên dùng song song mà dữ liệu không trộn lẫn.
 

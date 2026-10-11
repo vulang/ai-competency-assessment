@@ -1,0 +1,17 @@
+.register-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: #f5f7fa;
+}
+.register-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 32px;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+}
+h1 { font-size: 1.5rem; }

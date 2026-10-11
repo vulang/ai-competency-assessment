@@ -43,7 +43,7 @@ public class CompetencyProfileService
     /// </summary>
     public async Task<CompetencyProfile?> ProcessSessionAsync(
         Guid sessionId,
-        int userId,
+        string userId,
         List<(int QuestionId, bool IsCorrect, int? DifficultyLevel, int? SkillId)> responses)
     {
         if (responses.Count == 0) return null;
@@ -69,7 +69,7 @@ public class CompetencyProfileService
     /// <summary>
     /// Get the latest competency profile for a user.
     /// </summary>
-    public async Task<CompetencyProfile?> GetLatestProfileAsync(int userId)
+    public async Task<CompetencyProfile?> GetLatestProfileAsync(string userId)
     {
         return await _context.CompetencyProfiles
             .Where(p => p.UserId == userId)
@@ -169,7 +169,7 @@ public class CompetencyProfileService
     }
 
     private async Task<List<SkillMasteryInput>> UpdateSkillMasteriesAsync(
-        int userId,
+        string userId,
         List<(int QuestionId, bool IsCorrect, int? DifficultyLevel, int? SkillId)> responses)
     {
         // Group responses by skill
@@ -178,48 +178,18 @@ public class CompetencyProfileService
             .GroupBy(r => r.SkillId!.Value)
             .ToList();
 
+        if (bySkill.Count == 0) return [];
+
         // Load existing mastery states and skill/domain metadata
         var skillIds = bySkill.Select(g => g.Key).ToList();
         var existingMasteries = await _context.UserSkillMasteries
             .Where(m => m.UserId == userId && skillIds.Contains(m.SkillId))
             .ToDictionaryAsync(m => m.SkillId);
 
-        // Load skills with domain info from the competency entities
-        // Skills table has domain_id; use raw query since Skills/Domains are in a separate schema
-        var skillInfoSql = $@"
-            SELECT s.skill_id, s.name as skill_name, s.weight,
-                   d.domain_id, d.name as domain_name
-            FROM skills s
-            JOIN domains d ON s.domain_id = d.domain_id
-            WHERE s.skill_id = ANY(@ids)";
-
-        var skillInfoMap = new Dictionary<int, (string SkillName, int DomainId, string DomainName, double Weight)>();
-        try
-        {
-            var conn = _context.Database.GetDbConnection();
-            await conn.OpenAsync();
-            await using var cmd = conn.CreateCommand();
-            cmd.CommandText = skillInfoSql;
-            var param = cmd.CreateParameter();
-            param.ParameterName = "@ids";
-            param.Value = skillIds.ToArray();
-            cmd.Parameters.Add(param);
-            await using var reader = await cmd.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                int sid = reader.GetInt32(0);
-                skillInfoMap[sid] = (
-                    reader.GetString(1),
-                    reader.GetInt32(3),
-                    reader.GetString(4),
-                    reader.IsDBNull(2) ? 1.0 : (double)reader.GetDecimal(2)
-                );
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Could not load skill metadata; using placeholders.");
-        }
+        var skills = await _context.Skills.Include(s => s.Domain)
+            .Where(s => skillIds.Contains(s.Id)).ToDictionaryAsync(s => s.Id);
+        if (skills.Count != skillIds.Count)
+            throw new InvalidOperationException("Cannot update mastery for a skill outside the competency catalogue.");
 
         var masteryInputs = new List<SkillMasteryInput>();
 
@@ -259,14 +229,14 @@ public class CompetencyProfileService
                 });
             }
 
-            skillInfoMap.TryGetValue(skillId, out var info);
+            var skill = skills[skillId];
             masteryInputs.Add(new SkillMasteryInput(
                 SkillId: skillId,
-                SkillName: info.SkillName ?? $"Skill {skillId}",
-                DomainId: info.DomainId != 0 ? info.DomainId : 1,
-                DomainName: info.DomainName ?? "Unknown",
+                SkillName: skill.Name,
+                DomainId: skill.DomainId,
+                DomainName: skill.Domain.Name,
                 MasteryProb: posteriorMastery,
-                Weight: info.Weight != 0 ? info.Weight : 1.0
+                Weight: (double)skill.Weight
             ));
         }
 
@@ -288,7 +258,7 @@ public class CompetencyProfileService
     }
 
     private async Task<CompetencyProfile?> GenerateAndPersistProfileAsync(
-        int userId, Guid sessionId, double theta, double seTheta,
+        string userId, Guid sessionId, double theta, double seTheta,
         List<SkillMasteryInput> skillMasteries)
     {
         if (skillMasteries.Count == 0)

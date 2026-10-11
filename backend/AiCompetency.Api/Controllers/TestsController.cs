@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using OpenIddict.Validation.AspNetCore;
 using AiCompetency.Api.Data;
 using AiCompetency.Api.DTOs;
 using AiCompetency.Api.Models;
@@ -7,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AiCompetency.Api.Controllers;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, Roles = "Admin")]
 [Route("api/[controller]")]
 public class TestsController : ControllerBase
 {
