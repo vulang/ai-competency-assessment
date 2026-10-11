@@ -4,6 +4,7 @@ A full-stack application for assessing AI competency, featuring a .NET backend, 
 
 ## System design assets
 - Architecture overview: `docs/architecture.md`
+- Thesis-aligned roadmap (phases to complete missing features): `docs/roadmap.md`
 - PostgreSQL schema (ERD implementation): `db/schema.sql`
 - Angular + Bootstrap UI scaffold: `frontend/ai-competency-ui`
 - .NET API scaffold: `backend/AiCompetency.Api`
