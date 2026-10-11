@@ -72,7 +72,7 @@ if docker exec -i "$container_name" psql -v ON_ERROR_STOP=1 -U postgres -d custo
   echo 'Custom mappings were incorrectly accepted.' >&2
   exit 1
 fi
-rg -q 'Existing skill mappings require reconciliation' "$validation_dir/guard.log"
+grep -q 'Existing skill mappings require reconciliation' "$validation_dir/guard.log"
 run_sql custom_mappings <<'SQL'
 DO $$ BEGIN
   IF (SELECT skill_id FROM questions WHERE content = 'custom mapping') <> 99 OR to_regclass('frameworks') IS NOT NULL THEN
