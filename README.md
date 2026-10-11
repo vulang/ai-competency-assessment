@@ -10,7 +10,7 @@ Install Docker with Docker Compose v2, then run from the repository root:
 ./scripts/dev-up.sh
 ```
 
-The script copies `infra/.env.example` to `infra/.env` if needed and builds/starts PostgreSQL, the API, frontend, ML service, question generator, MongoDB, RabbitMQ, MinIO, and Qdrant. The compose project is named `ai-cas-dev`; its volumes are separate from the old default `infra` project.
+The script copies `infra/.env.example` to `infra/.env` if needed and builds/starts PostgreSQL, the API, frontend, ML service, question generator, MongoDB, RabbitMQ, MinIO, and Qdrant. MinIO builds a pinned community release from source. The compose project is named `ai-cas-dev`; its volumes are separate from the old default `infra` project.
 
 - UI: http://localhost:4200
 - API / Swagger: http://localhost:5000/swagger
@@ -100,7 +100,7 @@ VALIDATION_REUSE_IMAGES=1 VALIDATION_TMPFS=1 ./scripts/verify-stack.sh
 
 This does not change the persistent volumes in the development compose configuration.
 
-GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build, Python lint/tests for both services, schema verification, and compose acceptance. Its first hosted run occurs after these changes are pushed.
+GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build, Python lint/tests for both services, schema verification, and compose acceptance. All four jobs passed in the [Phase 0 acceptance run](https://github.com/vulang/ai-competency-assessment/actions/runs/38152153743), including a fresh SDK 8/runtime 8 build and persistent-volume Compose startup.
 
 ## Design and research documents
 

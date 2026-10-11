@@ -211,7 +211,7 @@ flowchart LR
 
 ### Phase 0 — Ổn định nền tảng và sửa lỗi chặn
 
-**Trạng thái:** Hoàn tất triển khai và kiểm chứng cục bộ ngày 2026-10-11. CI trên GitHub chờ lần push đầu tiên; ghi chú triển khai và kiểm chứng: [phase-0-progress.md](phase-0-progress.md).
+**Trạng thái:** Hoàn tất ngày 2026-10-11. Kiểm chứng cục bộ và cả bốn job [CI trên GitHub](https://github.com/vulang/ai-competency-assessment/actions/runs/38152153743) đều đạt, gồm dựng stack từ đầu với persistent volumes; ghi chú triển khai và kiểm chứng: [phase-0-progress.md](phase-0-progress.md).
 
 **Mục tiêu:** Có nền tảng đúng và tái lập được để mọi dữ liệu thu thập về sau đều hợp lệ.
 

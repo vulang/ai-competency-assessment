@@ -1,6 +1,6 @@
 # Phase 0 — Foundation stabilization
 
-Started 2026-10-11 from the thesis roadmap. Phase 0 implementation is **complete and locally verified**. The first hosted GitHub Actions run awaits pushing the changes. Existing database reconciliation remains an operator deployment step.
+Started and completed 2026-10-11 from the thesis roadmap. Phase 0 is **complete**, with local checks and all four [hosted GitHub Actions jobs](https://github.com/vulang/ai-competency-assessment/actions/runs/38152153743) passing on branch `phase-0-foundation`. Existing database reconciliation remains an operator deployment step.
 
 This first milestone fixes assessment identity, scoring, and request lifetime defects:
 
@@ -32,6 +32,7 @@ The final milestone finishes the development baseline:
 
 - All frontend assessment requests use the shared interceptor; `/api` uses the Angular development proxy or nginx compose proxy. The unused `ng2-charts` wrapper is removed and a clean `npm ci` succeeds. Production builds no longer fetch Google Fonts during compilation.
 - API, frontend, and ML Dockerfiles, `infra/.env.example`, and `scripts/dev-up.sh` provide one-command development startup. The compose project has a separate `ai-cas-dev` identity and persistent volumes; validation uses isolated project names and random localhost ports.
+- MinIO builds the pinned community release `RELEASE.2025-10-15T17-29-55Z` from source because its public container images could not be pulled by a fresh runner. Schema verification uses standard shell tools without requiring ripgrep.
 - GitHub Actions checks .NET/Testcontainers, Angular ESLint/type checks/tests/build, Python Ruff/pytest for ML and generator helpers, schema verification, and full-stack acceptance. The EF tool is pinned in the repository manifest.
 - Unused admin/candidate screens and the obsolete FLAN CLI/package are removed. The ML methods document explicitly identifies IRT/CAT/BKT as experimental extensions; the admin IRT analysis screen has a route with that label.
 - Objective scoring resolves generator letter keys and displayed option text against the declared options. Candidate question delivery strips answer keys and hidden explanations. Results require completion. Standard-test passing thresholds round upward, including a one-question test. EF status concurrency checks allow only one competing submission to save responses and enqueue ML work.
@@ -57,6 +58,7 @@ Legacy difficulty values outside 1–5 are retained in `metadata.legacyDifficult
 - All 9 frontend unit tests pass with `npm test`, covering the registration form/service, role guards, expiry, auth interceptor, and catalogue-driven question editor. Tests run against Angular forms and HTTP testing APIs through Node; template compilation is checked by the build.
 - Frontend ESLint/type checks, a clean `npm ci`, and the default production `npm run build` pass. Font inlining is disabled to keep build-time networking unnecessary.
 - All nine compose services started successfully in isolated validation. The smoke test verified service health, frontend SPA routing and API proxy, two real candidate token/account flows, distinct histories/results, and seven-domain profiles from the running ML service. No external LLM generation request was made.
+- Hosted CI passed all four jobs: backend tests and PostgreSQL schema checks, frontend lint/tests/build, Python lint/tests, and Compose acceptance. Compose built from scratch using SDK 8/runtime 8 and persistent volumes, including the source-built MinIO service.
 - Docker’s virtual disk reached capacity during image builds. Only task-owned cache records were removed. Final local acceptance used the built SDK-10-compatible/.NET-8-runtime images and temporary memory mounts for disposable data. The development compose file retains persistent volumes and needs sufficient Docker disk space. Existing images/volumes belonging to other projects were preserved.
 
 Run:
@@ -72,6 +74,6 @@ npm run build
 
 ## Deployment follow-up and Phase 1
 
-There is no remaining Phase 0 implementation item. Before using the persistent development stack on this machine, provide additional free Docker disk space. The hosted CI workflow has not run yet; all listed local equivalents passed. Do not reuse an older application database without the reconciliation described above.
+All Phase 0 implementation and acceptance items are complete. Before using the persistent development stack on this machine, provide additional free Docker disk space; persistent startup has passed on the hosted runner. Do not reuse an older application database without the reconciliation described above.
 
 Next is Phase 1: reviewed, versioned competency groups/behavior indicators, the four-level CV label scheme, and the annotation rubric. The `p0-v1` general-skill catalogue is an operational compatibility baseline, not a reviewed CV taxonomy.
