@@ -25,6 +25,7 @@ import { adminRoleGuard } from '../../core/auth/role.guard';
            <a routerLink="/admin/questions/generate" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center rounded px-3 py-2 ps-4 small">
               <i class="bi bi-magic me-2"></i> AI Generator
            </a>
+           <a routerLink="/admin/framework" routerLinkActive="active" class="nav-link text-white-50">CV framework</a>
            <a routerLink="/admin/irt-analysis" routerLinkActive="active" class="nav-link text-white-50">Experimental IRT analysis</a>
            <a routerLink="/admin/tests" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center rounded px-3 py-2">
               <i class="bi bi-file-earmark-text me-2"></i> Tests
@@ -91,6 +92,10 @@ export const ADMIN_ROUTES: Routes = [
     canActivate: [adminRoleGuard],
     canActivateChild: [adminRoleGuard],
     children: [
+        {
+            path: 'framework',
+            loadComponent: () => import('./framework/cv-framework.component').then(m => m.CvFrameworkComponent)
+        },
         {
             path: 'irt-analysis',
             loadComponent: () => import('./analytics/irt-analysis/irt-analysis.component').then(m => m.IrtAnalysisComponent)

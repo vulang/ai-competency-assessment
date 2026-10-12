@@ -190,8 +190,8 @@ test('question editor uses catalogue skills and keeps difficulty independent of 
   const injector = createEnvironmentInjector([
     FormBuilder,
     { provide: FrameworkService, useValue: { getActive: () => of({ domains: [
-      { name: 'Data', skills: [{ id: 2, isDefault: true }] },
-      { name: 'AI Tools', skills: [{ id: 6, isDefault: true }] }
+      { code: 'DATA', name: 'Data', skills: [{ id: 2, isDefault: true }] },
+      { code: 'TOOLS', name: 'AI Tools', skills: [{ id: 6, isDefault: true }] }
     ] }) } },
     { provide: QuestionService, useValue: { createQuestion: (value: unknown) => { saved = value; return of(value); } } },
     { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({})) } },
@@ -200,11 +200,11 @@ test('question editor uses catalogue skills and keeps difficulty independent of 
   try {
     const editor = runInInjectionContext(injector, () => new QuestionFormComponent());
     editor.ngOnInit();
-    editor.form.patchValue({ prompt: 'Q', competencyGroupId: 'Data', competencyLevelId: 'Advanced' });
+    editor.form.patchValue({ prompt: 'Q', competencyGroupId: 'DATA', competencyLevelId: 'Advanced' });
     editor.changeGroup();
     assert.equal(editor.form.controls.skillId.value, 2);
     assert.equal(editor.form.controls.difficulty.value, null);
-    editor.form.patchValue({ competencyGroupId: 'AI Tools', difficulty: 1 });
+    editor.form.patchValue({ competencyGroupId: 'TOOLS', difficulty: 1 });
     editor.changeGroup();
     assert.equal(editor.form.controls.skillId.value, 6);
     assert.equal(editor.form.valid, true);
@@ -220,11 +220,11 @@ test('question editor preserves skill, difficulty, and tags when editing and sur
   const injector = createEnvironmentInjector([
     FormBuilder,
     { provide: FrameworkService, useValue: { getActive: () => of({ domains: [
-      { name: 'Data', skills: [{ id: 2, isDefault: true }] }
+      { code: 'DATA', name: 'Data', skills: [{ id: 2, isDefault: true }] }
     ] }) } },
     { provide: QuestionService, useValue: {
       getQuestion: () => of({ id: '42', prompt: 'Q', title: 'Title', type: 'mcq_single',
-        competencyGroupId: 'Data', competencyLevelId: 'Basic', skillId: 2, difficulty: 4,
+        competencyGroupId: 'DATA', competencyLevelId: 'Basic', skillId: 2, difficulty: 4,
         tags: ['keep-me'], status: 'draft', options: ['A', 'B'], answer: ['A'] }),
       updateQuestion: () => throwError(() => new HttpErrorResponse({ status: 400, error: { errors: { classification: ['Choose a supported group.'] } } }))
     } },

@@ -1,4 +1,4 @@
-Fundamental:
+FOUNDATION:
   description: >
     Hiểu các thuật ngữ AI thông dụng, sự khác biệt giữa AI và chương trình truyền thống. Giải thích vai trò của dữ liệu và thuật toán; Đánh giá ưu nhược điểm của các thuật toán AI.
   keywords: ["thuật ngữ", "LLM", "deep learning", "big data", "thuật toán", "dữ liệu", "truyền thống vs AI", "đào tạo mô hình"]
@@ -7,7 +7,7 @@ Fundamental:
     Intermediate: "Xác định quy trình phát triển AI và hiểu tài liệu khoa học/chính sách"
     Advanced: "Giải thích vai trò dữ liệu/thuật toán và đánh giá các thuật toán AI"
 
-Data:
+DATA:
   description: >
     Hiểu vai trò của dữ liệu, quy trình thu thập, làm sạch, chuẩn hóa, phân tích và trực quan hóa dữ liệu bằng các công cụ hiện đại.
   keywords: ["thu thập dữ liệu", "làm sạch", "chuẩn hóa", "phân tích", "trực quan hóa", "Tableau", "Power BI", "Python", "gắn nhãn"]
@@ -16,7 +16,7 @@ Data:
     Intermediate: "Đánh giá chất lượng dữ liệu và sử dụng công cụ phân tích cơ bản"
     Advanced: "Sử dụng công cụ chuyên sâu để thiết kế và trực quan hóa dữ liệu"
 
-Critical Thinking:
+CRITICAL_THINKING:
   description: >
     Phân tích nguồn thông tin, đánh giá độ tin cậy, so sánh kết quả từ các công cụ AI và thực hiện xác thực kết quả (fact-check).
   keywords: ["tin cậy", "so sánh", "đối chiếu", "xác thực", "fact-check", "phản biện", "kiểm tra", "tư duy"]
@@ -25,7 +25,7 @@ Critical Thinking:
     Intermediate: "So sánh kết quả từ nhiều công cụ AI và phân tích phương pháp xác thực"
     Advanced: "Sử dụng công cụ chuyên dụng để kiểm tra tính chính xác và hiệu lực của AI"
 
-AI Use Cases:
+APPLICATION:
   description: >
     Ứng dụng AI trong các lĩnh vực, hiểu công nghệ nền tảng, thách thức triển khai và đánh giá tính khả thi lâu dài.
   keywords: ["y tế", "giáo dục", "tài chính", "kỹ thuật", "lợi ích", "thách thức", "bền vững", "khả thi", "triển khai"]
@@ -34,7 +34,7 @@ AI Use Cases:
     Intermediate: "Mô tả công nghệ nền tảng và thách thức tiềm ẩn khi triển khai"
     Advanced: "Đánh giá tính phù hợp và bền vững lâu dài của giải pháp AI"
 
-AI Ethics:
+ETHICS:
   description: >
     Nhận diện rủi ro (bias, riêng tư), tuân thủ nguyên tắc đạo đức và xây dựng văn hóa sử dụng AI trách nhiệm.
   keywords: ["đạo đức", "thiên kiến", "bias", "riêng tư", "tin giả", "minh bạch", "trách nhiệm", "chính sách", "quy định"]
@@ -43,7 +43,7 @@ AI Ethics:
     Intermediate: "Đánh giá mức độ rủi ro và hạn chế của các ứng dụng AI cụ thể"
     Advanced: "Xây dựng chính sách tổ chức và tư vấn văn hóa sử dụng AI đạo đức"
 
-AI Tools:
+TOOLS:
   description: >
     Sử dụng và đánh giá các công cụ/nền tảng AI, tích hợp vào quy trình làm việc và đề xuất giải pháp cải thiện hiệu quả.
   keywords: ["công cụ AI", "nền tảng", "tích hợp", "thử nghiệm", "đánh giá", "hiệu quả", "khuyến nghị", "thích ứng"]
@@ -52,7 +52,7 @@ AI Tools:
     Intermediate: "Nguyên tắc tích hợp AI vào công việc và đánh giá lựa chọn công cụ"
     Advanced: "Đề xuất kịch bản sử dụng mới và khuyến nghị tính tiếp cận của AI"
 
-Future of Work:
+FUTURE_OF_WORK:
   description: >
     Tác động của AI đến việc làm, kỹ năng mới (upskilling), chiến lược tổ chức và thích ứng với môi trường làm việc AI.
   keywords: ["việc làm", "tác động", "tự động hóa", "tăng cường", "upskilling", "reskilling", "chiến lược", "thay đổi", "hệ sinh thái"]

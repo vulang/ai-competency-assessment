@@ -1,5 +1,9 @@
 import os
 import re
+try:
+    from .taxonomy import DISPLAY_NAMES, group_code
+except ImportError:
+    from taxonomy import DISPLAY_NAMES, group_code
 from typing import Dict, Any, Optional
 
 def _normalize_group_name(group: str) -> str:
@@ -133,16 +137,17 @@ class FrameworkParser:
         return data
 
     def get_context(self, group: str, level: str, is_scenario: bool) -> dict:
-        group_data = self.framework_data.get(group, {}).get(level, {})
+        display_group = DISPLAY_NAMES[group_code(group)]
+        group_data = self.framework_data.get(display_group, {}).get(level, {})
         definition = group_data.get("definition", f"Khái niệm về {group}")
         behaviors = group_data.get("behaviors", "- Nhận diện các khái niệm cơ bản.")
         
         # Get examples
         examples_dict = self.sit_examples if is_scenario else self.mcq_examples
-        examples_list = examples_dict.get(group, {}).get(level, [])
+        examples_list = examples_dict.get(display_group, {}).get(level, [])
         if not examples_list:
             # Fallback to any level if specific level not found
-            for lvl, ex_list in examples_dict.get(group, {}).items():
+            for lvl, ex_list in examples_dict.get(display_group, {}).items():
                 if ex_list:
                     examples_list = ex_list
                     break

@@ -107,6 +107,685 @@ namespace AiCompetency.Api.Migrations
                     b.ToTable("adaptive_test_sessions");
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.BehaviorIndicator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(96)
+                        .HasColumnType("character varying(96)");
+
+                    b.Property<int>("FrameworkVersionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GroupCode")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TextEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TextVi")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Level");
+
+                    b.HasIndex("FrameworkVersionId", "Code")
+                        .IsUnique();
+
+                    b.HasIndex("FrameworkVersionId", "GroupCode");
+
+                    b.ToTable("behavior_indicators", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_indicator_level", "\"Level\" BETWEEN 1 AND 3");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "FOUNDATION.1.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 1,
+                            TextEn = "Explain AI in a specific project",
+                            TextVi = "Giải thích AI trong một dự án cụ thể"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "FOUNDATION.1.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 1,
+                            TextEn = "Distinguish AI prediction from programmed rules",
+                            TextVi = "Phân biệt dự đoán AI với luật lập trình"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "FOUNDATION.1.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 1,
+                            TextEn = "Describe the role of input data",
+                            TextVi = "Mô tả vai trò dữ liệu đầu vào"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "FOUNDATION.2.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 2,
+                            TextEn = "Describe completed model development steps",
+                            TextVi = "Mô tả các bước phát triển mô hình đã thực hiện"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Code = "FOUNDATION.2.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 2,
+                            TextEn = "Explain a machine learning method selection",
+                            TextVi = "Giải thích lựa chọn phương pháp học máy"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Code = "FOUNDATION.2.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 2,
+                            TextEn = "Interpret model evaluation results",
+                            TextVi = "Diễn giải kết quả đánh giá mô hình"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Code = "FOUNDATION.3.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 3,
+                            TextEn = "Compare algorithms using measured criteria",
+                            TextVi = "So sánh thuật toán bằng tiêu chí đo lường"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Code = "FOUNDATION.3.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 3,
+                            TextEn = "Analyze data and algorithm tradeoffs",
+                            TextVi = "Phân tích đánh đổi dữ liệu và thuật toán"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Code = "FOUNDATION.3.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            Level = 3,
+                            TextEn = "Design an evaluation of model limitations",
+                            TextVi = "Thiết kế phương án đánh giá giới hạn mô hình"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Code = "DATA.1.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 1,
+                            TextEn = "Collect data from identified sources",
+                            TextVi = "Thu thập dữ liệu từ nguồn xác định"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Code = "DATA.1.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 1,
+                            TextEn = "Clean missing or duplicate values",
+                            TextVi = "Làm sạch giá trị thiếu hoặc trùng lặp"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Code = "DATA.1.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 1,
+                            TextEn = "Describe data using tables or charts",
+                            TextVi = "Mô tả dữ liệu bằng bảng hoặc biểu đồ"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Code = "DATA.2.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 2,
+                            TextEn = "Evaluate data quality against criteria",
+                            TextVi = "Đánh giá chất lượng dữ liệu theo tiêu chí"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Code = "DATA.2.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 2,
+                            TextEn = "Build a data normalization workflow",
+                            TextVi = "Xây dựng quy trình chuẩn hóa dữ liệu"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Code = "DATA.2.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 2,
+                            TextEn = "Analyze data to answer a project question",
+                            TextVi = "Phân tích dữ liệu để trả lời câu hỏi dự án"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Code = "DATA.3.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 3,
+                            TextEn = "Design a data pipeline with quality checks",
+                            TextVi = "Thiết kế pipeline dữ liệu có kiểm tra chất lượng"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Code = "DATA.3.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 3,
+                            TextEn = "Check data leakage across dataset splits",
+                            TextVi = "Kiểm tra rò rỉ dữ liệu giữa các tập"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Code = "DATA.3.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            Level = 3,
+                            TextEn = "Design visualizations supporting decisions",
+                            TextVi = "Thiết kế trực quan hóa hỗ trợ quyết định"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Code = "CRITICAL_THINKING.1.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 1,
+                            TextEn = "Identify sources of AI generated information",
+                            TextVi = "Xác định nguồn của thông tin do AI tạo"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Code = "CRITICAL_THINKING.1.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 1,
+                            TextEn = "Check an AI result against an independent source",
+                            TextVi = "Kiểm tra một kết quả AI bằng nguồn độc lập"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Code = "CRITICAL_THINKING.1.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 1,
+                            TextEn = "Identify limitations in an AI answer",
+                            TextVi = "Nhận diện giới hạn trong câu trả lời AI"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Code = "CRITICAL_THINKING.2.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 2,
+                            TextEn = "Compare outputs from multiple AI tools",
+                            TextVi = "So sánh đầu ra của nhiều công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Code = "CRITICAL_THINKING.2.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 2,
+                            TextEn = "Build criteria for verifying results",
+                            TextVi = "Xây dựng tiêu chí kiểm chứng kết quả"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Code = "CRITICAL_THINKING.2.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 2,
+                            TextEn = "Analyze causes of incorrect AI results",
+                            TextVi = "Phân tích nguyên nhân kết quả AI sai"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Code = "CRITICAL_THINKING.3.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 3,
+                            TextEn = "Design a reproducible AI verification workflow",
+                            TextVi = "Thiết kế quy trình kiểm chứng AI có thể tái lập"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Code = "CRITICAL_THINKING.3.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 3,
+                            TextEn = "Evaluate validity of model conclusions",
+                            TextVi = "Đánh giá tính hợp lệ của kết luận từ mô hình"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Code = "CRITICAL_THINKING.3.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 3,
+                            TextEn = "Test AI using counterexamples",
+                            TextVi = "Kiểm thử AI với các trường hợp phản ví dụ"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Code = "APPLICATION.1.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 1,
+                            TextEn = "Apply AI to a defined task",
+                            TextVi = "Áp dụng AI cho một nhiệm vụ xác định"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Code = "APPLICATION.1.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 1,
+                            TextEn = "Describe AI benefits in a work context",
+                            TextVi = "Mô tả lợi ích AI trong bối cảnh công việc"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Code = "APPLICATION.1.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 1,
+                            TextEn = "Identify obstacles to AI adoption",
+                            TextVi = "Nhận diện trở ngại khi áp dụng AI"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Code = "APPLICATION.2.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 2,
+                            TextEn = "Integrate AI into a real workflow",
+                            TextVi = "Tích hợp AI vào quy trình thực tế"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Code = "APPLICATION.2.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 2,
+                            TextEn = "Evaluate an AI solution against business criteria",
+                            TextVi = "Đánh giá giải pháp AI bằng tiêu chí nghiệp vụ"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Code = "APPLICATION.2.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 2,
+                            TextEn = "Handle errors in AI solution deployment",
+                            TextVi = "Xử lý lỗi khi triển khai giải pháp AI"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Code = "APPLICATION.3.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 3,
+                            TextEn = "Design an AI solution meeting practical constraints",
+                            TextVi = "Thiết kế giải pháp AI đáp ứng ràng buộc thực tế"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Code = "APPLICATION.3.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 3,
+                            TextEn = "Compare cost and effectiveness against a baseline",
+                            TextVi = "So sánh chi phí và hiệu quả với phương án cơ sở"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Code = "APPLICATION.3.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            Level = 3,
+                            TextEn = "Evaluate maintainability of an AI solution",
+                            TextVi = "Đánh giá khả năng duy trì giải pháp AI"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Code = "ETHICS.1.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 1,
+                            TextEn = "Identify personal data in an AI task",
+                            TextVi = "Nhận diện dữ liệu cá nhân trong tác vụ AI"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            Code = "ETHICS.1.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 1,
+                            TextEn = "Describe bias risk in an application",
+                            TextVi = "Mô tả rủi ro thiên lệch trong một ứng dụng"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            Code = "ETHICS.1.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 1,
+                            TextEn = "Disclose AI use in a deliverable",
+                            TextVi = "Ghi nhận việc sử dụng AI trong sản phẩm"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            Code = "ETHICS.2.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 2,
+                            TextEn = "Apply data protection measures when using AI",
+                            TextVi = "Áp dụng biện pháp bảo vệ dữ liệu khi dùng AI"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            Code = "ETHICS.2.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 2,
+                            TextEn = "Evaluate AI risks by affected group",
+                            TextVi = "Đánh giá rủi ro AI theo nhóm bị ảnh hưởng"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            Code = "ETHICS.2.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 2,
+                            TextEn = "Perform bias checks against criteria",
+                            TextVi = "Thực hiện kiểm tra thiên lệch có tiêu chí"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            Code = "ETHICS.3.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 3,
+                            TextEn = "Develop responsible AI usage policies",
+                            TextVi = "Xây dựng chính sách sử dụng AI có trách nhiệm"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            Code = "ETHICS.3.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 3,
+                            TextEn = "Design an AI risk monitoring process",
+                            TextVi = "Thiết kế quy trình giám sát rủi ro AI"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            Code = "ETHICS.3.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            Level = 3,
+                            TextEn = "Evaluate risk mitigation effectiveness",
+                            TextVi = "Đánh giá hiệu quả biện pháp giảm thiểu rủi ro"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            Code = "TOOLS.1.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 1,
+                            TextEn = "Use an AI tool for a specific task",
+                            TextVi = "Sử dụng công cụ AI cho tác vụ cụ thể"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Code = "TOOLS.1.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 1,
+                            TextEn = "Write a contextual instruction for an AI tool",
+                            TextVi = "Viết yêu cầu có bối cảnh cho công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Code = "TOOLS.1.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 1,
+                            TextEn = "Check output before using it",
+                            TextVi = "Kiểm tra đầu ra trước khi sử dụng"
+                        },
+                        new
+                        {
+                            Id = 49,
+                            Code = "TOOLS.2.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 2,
+                            TextEn = "Compare tools against work requirements",
+                            TextVi = "So sánh công cụ theo nhu cầu công việc"
+                        },
+                        new
+                        {
+                            Id = 50,
+                            Code = "TOOLS.2.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 2,
+                            TextEn = "Integrate an AI tool using APIs or automation",
+                            TextVi = "Tích hợp công cụ AI qua API hoặc tự động hóa"
+                        },
+                        new
+                        {
+                            Id = 51,
+                            Code = "TOOLS.2.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 2,
+                            TextEn = "Adjust a workflow based on output evaluation",
+                            TextVi = "Điều chỉnh quy trình dựa trên đánh giá đầu ra"
+                        },
+                        new
+                        {
+                            Id = 52,
+                            Code = "TOOLS.3.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 3,
+                            TextEn = "Design coordination of multiple AI tools",
+                            TextVi = "Thiết kế phối hợp nhiều công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 53,
+                            Code = "TOOLS.3.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 3,
+                            TextEn = "Measure effectiveness of an AI tool workflow",
+                            TextVi = "Đo hiệu quả quy trình dùng công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 54,
+                            Code = "TOOLS.3.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            Level = 3,
+                            TextEn = "Propose improvements to AI tool accessibility",
+                            TextVi = "Đề xuất cải tiến khả năng tiếp cận công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 55,
+                            Code = "FUTURE_OF_WORK.1.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 1,
+                            TextEn = "Identify tasks that AI may change",
+                            TextVi = "Xác định nhiệm vụ có thể thay đổi do AI"
+                        },
+                        new
+                        {
+                            Id = 56,
+                            Code = "FUTURE_OF_WORK.1.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 1,
+                            TextEn = "Describe skills needed to work with AI",
+                            TextVi = "Mô tả kỹ năng cần học để làm việc với AI"
+                        },
+                        new
+                        {
+                            Id = 57,
+                            Code = "FUTURE_OF_WORK.1.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 1,
+                            TextEn = "Participate in AI learning with specified content",
+                            TextVi = "Tham gia hoạt động học kỹ năng AI có nội dung cụ thể"
+                        },
+                        new
+                        {
+                            Id = 58,
+                            Code = "FUTURE_OF_WORK.2.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 2,
+                            TextEn = "Analyze role changes in a workflow",
+                            TextVi = "Phân tích thay đổi vai trò trong một quy trình"
+                        },
+                        new
+                        {
+                            Id = 59,
+                            Code = "FUTURE_OF_WORK.2.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 2,
+                            TextEn = "Propose training based on skill gaps",
+                            TextVi = "Đề xuất kế hoạch đào tạo theo khoảng cách kỹ năng"
+                        },
+                        new
+                        {
+                            Id = 60,
+                            Code = "FUTURE_OF_WORK.2.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 2,
+                            TextEn = "Evaluate a trial of AI assisted work",
+                            TextVi = "Đánh giá kết quả thử nghiệm cách làm việc với AI"
+                        },
+                        new
+                        {
+                            Id = 61,
+                            Code = "FUTURE_OF_WORK.3.1",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 3,
+                            TextEn = "Develop an organizational AI adaptation strategy",
+                            TextVi = "Xây dựng chiến lược thích ứng AI cho tổ chức"
+                        },
+                        new
+                        {
+                            Id = 62,
+                            Code = "FUTURE_OF_WORK.3.2",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 3,
+                            TextEn = "Evaluate AI impact on a workforce",
+                            TextVi = "Đánh giá tác động AI đến lực lượng lao động"
+                        },
+                        new
+                        {
+                            Id = 63,
+                            Code = "FUTURE_OF_WORK.3.3",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 3,
+                            TextEn = "Design criteria for tracking skill transformation",
+                            TextVi = "Thiết kế tiêu chí theo dõi chuyển đổi kỹ năng"
+                        });
+                });
+
             modelBuilder.Entity("AiCompetency.Api.Models.CompetencyCriterion", b =>
                 {
                     b.Property<int>("Id")
@@ -619,6 +1298,473 @@ namespace AiCompetency.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.CvCompetencyGroup", b =>
+                {
+                    b.Property<int>("FrameworkVersionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameVi")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FrameworkVersionId", "Code");
+
+                    b.HasIndex("FrameworkVersionId", "Order")
+                        .IsUnique();
+
+                    b.ToTable("competency_groups", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_cv_group_code", "\"Code\" IN ('FOUNDATION','DATA','CRITICAL_THINKING','APPLICATION','ETHICS','TOOLS','FUTURE_OF_WORK')");
+
+                            t.HasCheckConstraint("ck_cv_group_order", "\"Order\" BETWEEN 1 AND 7");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            FrameworkVersionId = 1,
+                            Code = "FOUNDATION",
+                            NameEn = "AI foundations",
+                            NameVi = "Nền tảng AI",
+                            Order = 1
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 1,
+                            Code = "DATA",
+                            NameEn = "Data",
+                            NameVi = "Dữ liệu",
+                            Order = 2
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 1,
+                            Code = "CRITICAL_THINKING",
+                            NameEn = "Critical thinking",
+                            NameVi = "Tư duy phản biện",
+                            Order = 3
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 1,
+                            Code = "APPLICATION",
+                            NameEn = "AI applications",
+                            NameVi = "Ứng dụng AI",
+                            Order = 4
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 1,
+                            Code = "ETHICS",
+                            NameEn = "AI ethics",
+                            NameVi = "Đạo đức AI",
+                            Order = 5
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 1,
+                            Code = "TOOLS",
+                            NameEn = "AI tools",
+                            NameVi = "Công cụ AI",
+                            Order = 6
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 1,
+                            Code = "FUTURE_OF_WORK",
+                            NameEn = "Future of work",
+                            NameVi = "Tương lai việc làm",
+                            Order = 7
+                        });
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CvFrameworkVersion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive")
+                        .IsUnique()
+                        .HasFilter("\"IsActive\" = true");
+
+                    b.HasIndex("Version")
+                        .IsUnique();
+
+                    b.ToTable("competency_framework_versions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_cv_framework_publication", "(\"Status\" = 'Draft' AND \"PublishedAt\" IS NULL AND NOT \"IsActive\") OR (\"Status\" = 'Published' AND \"PublishedAt\" IS NOT NULL)");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsActive = false,
+                            Source = "Proposed from repository Phase 0 catalogue and thesis roadmap; not a verbatim thesis appendix. Expert review pending.",
+                            Status = "Draft",
+                            Version = "cv-v1-draft"
+                        });
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CvRubricRule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AcceptedEvidence")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Example")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("FrameworkVersionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GroupCode")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("InsufficientEvidence")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Level");
+
+                    b.HasIndex("FrameworkVersionId", "GroupCode", "Level")
+                        .IsUnique();
+
+                    b.ToTable("cv_rubric_rules");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AcceptedEvidence = "No valid span supports any indicator.",
+                            Example = "Skills: ChatGPT, Python.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AcceptedEvidence = "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Explain AI in a specific project' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AcceptedEvidence = "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Describe completed model development steps' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AcceptedEvidence = "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Compare algorithms using measured criteria' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FOUNDATION",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AcceptedEvidence = "No valid span supports any indicator.",
+                            Example = "Skills: ChatGPT, Python.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AcceptedEvidence = "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Collect data from identified sources' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AcceptedEvidence = "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Evaluate data quality against criteria' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AcceptedEvidence = "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Design a data pipeline with quality checks' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "DATA",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 9,
+                            AcceptedEvidence = "No valid span supports any indicator.",
+                            Example = "Skills: ChatGPT, Python.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 10,
+                            AcceptedEvidence = "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Identify sources of AI generated information' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 11,
+                            AcceptedEvidence = "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Compare outputs from multiple AI tools' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 12,
+                            AcceptedEvidence = "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Design a reproducible AI verification workflow' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "CRITICAL_THINKING",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 13,
+                            AcceptedEvidence = "No valid span supports any indicator.",
+                            Example = "Skills: ChatGPT, Python.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AcceptedEvidence = "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Apply AI to a defined task' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AcceptedEvidence = "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Integrate AI into a real workflow' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 16,
+                            AcceptedEvidence = "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Design an AI solution meeting practical constraints' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "APPLICATION",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 17,
+                            AcceptedEvidence = "No valid span supports any indicator.",
+                            Example = "Skills: ChatGPT, Python.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 18,
+                            AcceptedEvidence = "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Identify personal data in an AI task' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 19,
+                            AcceptedEvidence = "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Apply data protection measures when using AI' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 20,
+                            AcceptedEvidence = "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Develop responsible AI usage policies' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "ETHICS",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 21,
+                            AcceptedEvidence = "No valid span supports any indicator.",
+                            Example = "Skills: ChatGPT, Python.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 22,
+                            AcceptedEvidence = "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Use an AI tool for a specific task' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 23,
+                            AcceptedEvidence = "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Compare tools against work requirements' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 24,
+                            AcceptedEvidence = "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Design coordination of multiple AI tools' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "TOOLS",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 25,
+                            AcceptedEvidence = "No valid span supports any indicator.",
+                            Example = "Skills: ChatGPT, Python.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 26,
+                            AcceptedEvidence = "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Identify tasks that AI may change' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 27,
+                            AcceptedEvidence = "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Analyze role changes in a workflow' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 28,
+                            AcceptedEvidence = "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+                            Example = "Synthetic annotation prompt: find a CV passage that demonstrates 'Develop an organizational AI adaptation strategy' and states the task context and candidate contribution. This prompt is not evidence itself.",
+                            FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            InsufficientEvidence = "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+                            Level = 3
+                        });
+                });
+
             modelBuilder.Entity("AiCompetency.Api.Models.Exam", b =>
                 {
                     b.Property<int>("Id")
@@ -747,6 +1893,65 @@ namespace AiCompetency.Api.Migrations
                     b.ToTable("test_sessions");
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.ProficiencyLevel", b =>
+                {
+                    b.Property<int>("Ordinal")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NameVi")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Ordinal");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("proficiency_levels", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_proficiency_level_code", "(\"Ordinal\" = 0 AND \"Code\" = 'NO_EVIDENCE') OR (\"Ordinal\" = 1 AND \"Code\" = 'BASIC') OR (\"Ordinal\" = 2 AND \"Code\" = 'INTERMEDIATE') OR (\"Ordinal\" = 3 AND \"Code\" = 'ADVANCED')");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Ordinal = 0,
+                            Code = "NO_EVIDENCE",
+                            NameEn = "No evidence",
+                            NameVi = "Không đủ bằng chứng"
+                        },
+                        new
+                        {
+                            Ordinal = 1,
+                            Code = "BASIC",
+                            NameEn = "Basic",
+                            NameVi = "Cơ bản"
+                        },
+                        new
+                        {
+                            Ordinal = 2,
+                            Code = "INTERMEDIATE",
+                            NameEn = "Intermediate",
+                            NameVi = "Trung cấp"
+                        },
+                        new
+                        {
+                            Ordinal = 3,
+                            Code = "ADVANCED",
+                            NameEn = "Advanced",
+                            NameVi = "Nâng cao"
+                        });
+                });
+
             modelBuilder.Entity("AiCompetency.Api.Models.Question", b =>
                 {
                     b.Property<int>("Id")
@@ -764,6 +1969,11 @@ namespace AiCompetency.Api.Migrations
                     b.Property<int?>("DifficultyLevel")
                         .HasColumnType("integer")
                         .HasColumnName("difficulty_level");
+
+                    b.Property<string>("GroupCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("group_code");
 
                     b.Property<JsonDocument>("Metadata")
                         .IsRequired()
@@ -783,6 +1993,10 @@ namespace AiCompetency.Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("status");
 
+                    b.Property<int?>("TargetLevel")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_level");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -796,6 +2010,12 @@ namespace AiCompetency.Api.Migrations
                     b.ToTable("questions", null, t =>
                         {
                             t.HasCheckConstraint("ck_questions_difficulty", "difficulty_level IS NULL OR difficulty_level BETWEEN 1 AND 5");
+
+                            t.HasCheckConstraint("ck_questions_group_code", "group_code IS NULL OR group_code IN ('FOUNDATION','DATA','CRITICAL_THINKING','APPLICATION','ETHICS','TOOLS','FUTURE_OF_WORK')");
+
+                            t.HasCheckConstraint("ck_questions_published_classification", "status <> 'Published' OR (group_code IS NOT NULL AND target_level IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_questions_target_level", "target_level IS NULL OR target_level BETWEEN 1 AND 3");
                         });
                 });
 
@@ -1379,6 +2599,21 @@ namespace AiCompetency.Api.Migrations
                     b.Navigation("Session");
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.BehaviorIndicator", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.ProficiencyLevel", null)
+                        .WithMany()
+                        .HasForeignKey("Level")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AiCompetency.Api.Models.CvCompetencyGroup", null)
+                        .WithMany("Indicators")
+                        .HasForeignKey("FrameworkVersionId", "GroupCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("AiCompetency.Api.Models.CompetencyCriterion", b =>
                 {
                     b.HasOne("AiCompetency.Api.Models.CompetencySkill", "Skill")
@@ -1410,6 +2645,30 @@ namespace AiCompetency.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Domain");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CvCompetencyGroup", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.CvFrameworkVersion", null)
+                        .WithMany("Groups")
+                        .HasForeignKey("FrameworkVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CvRubricRule", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.ProficiencyLevel", null)
+                        .WithMany()
+                        .HasForeignKey("Level")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("AiCompetency.Api.Models.CvCompetencyGroup", null)
+                        .WithMany("RubricRules")
+                        .HasForeignKey("FrameworkVersionId", "GroupCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.ExamQuestion", b =>
@@ -1586,6 +2845,18 @@ namespace AiCompetency.Api.Migrations
             modelBuilder.Entity("AiCompetency.Api.Models.CompetencySkill", b =>
                 {
                     b.Navigation("Criteria");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CvCompetencyGroup", b =>
+                {
+                    b.Navigation("Indicators");
+
+                    b.Navigation("RubricRules");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CvFrameworkVersion", b =>
+                {
+                    b.Navigation("Groups");
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.Exam", b =>

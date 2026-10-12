@@ -52,7 +52,9 @@ services:
 
   question-generator:
     image: ai-cas-generator:dev
-    build: ../src/question-generator
+    build:
+      context: ..
+      dockerfile: src/question-generator/Dockerfile
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}

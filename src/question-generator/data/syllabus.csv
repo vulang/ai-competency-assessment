@@ -1,6 +1,8 @@
 group,level,topic,description
-NhanThucAI,NenTang,Vai tro AI trong cong viec,"Khai niem co ban ve AI, tu dong hoa, ra quyet dinh ho tro"
-DaoDucQuanTri,ApDung,Quyen rieng tu & tuan thu,"Nguyen tac bao ve du lieu, an toan, quy dinh phap ly"
-KyThuatUngDung,ApDung,Ung dung AI trong quy trinh,"Tich hop AI vao quy trinh phan mem, CI/CD, A/B test"
-ThietKeHeThong,KienTao,Thiet ke he thong AI co trach nhiem,"Kien truc, giam rui ro, giai thich duoc"
-DanhGiaChatLuong,ApDung,Danh gia do chinh xac & thien lech,"Metric, fairness, do tin cay, robust"
+FOUNDATION,Basic,Vai trò AI trong công việc,Khái niệm AI và hỗ trợ quyết định
+DATA,Intermediate,Chất lượng dữ liệu,Làm sạch và đánh giá chất lượng dữ liệu
+CRITICAL_THINKING,Intermediate,Kiểm chứng đầu ra AI,Đối chiếu với nguồn độc lập
+APPLICATION,Intermediate,Ứng dụng AI trong quy trình,Tích hợp và đánh giá kết quả
+ETHICS,Intermediate,Quyền riêng tư và tuân thủ,Bảo vệ dữ liệu và đánh giá rủi ro
+TOOLS,Basic,Công cụ AI,Sử dụng và kiểm tra đầu ra
+FUTURE_OF_WORK,Advanced,Thích ứng kỹ năng,Chiến lược đào tạo và đánh giá tác động

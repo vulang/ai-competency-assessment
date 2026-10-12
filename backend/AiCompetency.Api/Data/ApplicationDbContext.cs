@@ -16,6 +16,11 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<CompetencyDomain> Domains { get; set; }
     public DbSet<CompetencySkill> Skills { get; set; }
     public DbSet<CompetencyCriterion> Criteria { get; set; }
+    public DbSet<CvFrameworkVersion> CvFrameworkVersions { get; set; }
+    public DbSet<ProficiencyLevel> ProficiencyLevels { get; set; }
+    public DbSet<CvCompetencyGroup> CvCompetencyGroups { get; set; }
+    public DbSet<BehaviorIndicator> BehaviorIndicators { get; set; }
+    public DbSet<CvRubricRule> CvRubricRules { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Exam> Exams { get; set; }
     public DbSet<ExamQuestion> ExamQuestions { get; set; }
@@ -53,8 +58,15 @@ public class ApplicationDbContext : IdentityDbContext
         builder.Entity<CompetencySkill>().ToTable("skills", t => t.HasCheckConstraint("ck_skills_weight", "weight > 0"));
         builder.Entity<Question>().HasOne(q => q.Skill).WithMany().HasForeignKey(q => q.SkillId)
             .OnDelete(DeleteBehavior.Restrict);
-        builder.Entity<Question>().ToTable("questions", t => t.HasCheckConstraint("ck_questions_difficulty", "difficulty_level IS NULL OR difficulty_level BETWEEN 1 AND 5"));
+        builder.Entity<Question>().ToTable("questions", t =>
+        {
+            t.HasCheckConstraint("ck_questions_difficulty", "difficulty_level IS NULL OR difficulty_level BETWEEN 1 AND 5");
+            t.HasCheckConstraint("ck_questions_group_code", "group_code IS NULL OR group_code IN ('FOUNDATION','DATA','CRITICAL_THINKING','APPLICATION','ETHICS','TOOLS','FUTURE_OF_WORK')");
+            t.HasCheckConstraint("ck_questions_target_level", "target_level IS NULL OR target_level BETWEEN 1 AND 3");
+            t.HasCheckConstraint("ck_questions_published_classification", "status <> 'Published' OR (group_code IS NOT NULL AND target_level IS NOT NULL)");
+        });
         CompetencyCatalog.Seed(builder);
+        CvFrameworkCatalog.Configure(builder);
 
         builder.Entity<Question>()
             .Property(q => q.Status)

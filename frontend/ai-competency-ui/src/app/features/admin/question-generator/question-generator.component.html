@@ -17,6 +17,7 @@
                     </div>
                 </div>
 
+                <p class="alert alert-danger" *ngIf="errorMessage()">{{ errorMessage() }}</p>
                 <form [formGroup]="form" (ngSubmit)="generate()">
                     <div formArrayName="mix">
                         <div *ngFor="let item of mixControls; let i = index" [formGroupName]="i"
@@ -37,13 +38,7 @@
                                 <div class="col-6">
                                     <label class="form-label small">Group</label>
                                     <select class="form-select form-select-sm" formControlName="group">
-                                        <option value="Fundamental">Fundamental</option>
-                                        <option value="Data">Data</option>
-                                        <option value="Critical Thinking">Critical Thinking</option>
-                                        <option value="AI Use Cases">AI Use Cases</option>
-                                        <option value="AI Ethics">AI Ethics</option>
-                                        <option value="AI Tools">AI Tools</option>
-                                        <option value="Future of Work">Future of Work</option>
+                                        <option *ngFor="let domain of domains()" [value]="domain.code">{{ domain.name }}</option>
                                     </select>
                                 </div>
                                 <div class="col-6">

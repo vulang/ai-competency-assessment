@@ -9,5 +9,4 @@
 **/.env
 **/out
 frontend
-src
 services

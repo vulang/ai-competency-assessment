@@ -88,7 +88,7 @@ export class QuestionFormComponent implements OnInit {
   }
 
   get skills() {
-    return this.domains().find(d => d.name === this.form.controls.competencyGroupId.value)?.skills ?? [];
+    return this.domains().find(d => d.code === this.form.controls.competencyGroupId.value)?.skills ?? [];
   }
 
   changeGroup(): void {

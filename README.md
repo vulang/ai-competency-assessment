@@ -1,6 +1,6 @@
 # AI Competency Assessment
 
-.NET 8 API, Angular 17 UI, and Python services for assessing AI competency. Phase 0 establishes the working development baseline; the thesis-aligned CV/CTT work starts in Phase 1. IRT/CAT/BKT profiles are experimental extensions.
+.NET 8 API, Angular 17 UI, and Python services for assessing AI competency. Phase 0 establishes the working development baseline; the thesis-aligned CV/CTT work starts in Phase 1, which is now in progress. IRT/CAT/BKT profiles are experimental extensions.
 
 ## Start the development stack
 
@@ -107,7 +107,9 @@ GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build
 - [Architecture](docs/architecture.md)
 - [Thesis roadmap](docs/roadmap.md)
 - [Phase 0 implementation and verification](docs/phase-0-progress.md)
+- [Phase 1 progress](docs/phase-1-progress.md)
+- [Draft CV annotation guide](docs/annotation-guide.md)
 - [Experimental IRT/CAT/BKT methods](docs/ml-methods.md)
 - [Generated PostgreSQL migration script](db/schema.sql)
 
-The `p0-v1` catalogue is a compatibility seed sourced from the generator's seven-group mapping. Phase 1 introduces the reviewed behavior indicators, four-level label scheme, and versioned CV rubric. `db/schema.sql` is generated with `dotnet ef migrations script --idempotent`; EF migrations are the schema source of truth.
+The `p0-v1` catalogue is a compatibility seed sourced from the generator's seven-group mapping. Phase 1 adds structured question group/level fields and a separate `cv-v1-draft` with 63 proposed bilingual behavior indicators and four-level CV rubric rules. Admins can edit and copy drafts at `/admin/framework`, then publish a reviewed copy. The seed draft stays unpublished; expert review of Appendices A/B is pending. Existing published questions with unmapped legacy labels stop the migration for reconciliation. `db/schema.sql` is generated with `dotnet ef migrations script --idempotent`; EF migrations are the schema source of truth.

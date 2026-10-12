@@ -1,5 +1,6 @@
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Encodings.Web;
 using AiCompetency.Api.Controllers;
 using AiCompetency.Api.Data;
@@ -41,7 +42,7 @@ public class AuthorizationTests
             app.UseEndpoints(e => e.MapControllers());
         }));
         using var client = server.CreateClient();
-        foreach (var route in new[] { "/api/questions", "/api/tests", "/api/competency/admin/irt-stats" })
+        foreach (var route in new[] { "/api/questions", "/api/tests", "/api/competency/admin/irt-stats", "/api/framework/cv/versions" })
         {
             client.DefaultRequestHeaders.Remove("Test-Role");
             Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(route)).StatusCode);
@@ -51,6 +52,12 @@ public class AuthorizationTests
             client.DefaultRequestHeaders.Add("Test-Role", "Admin");
             Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(route)).StatusCode);
         }
+        client.DefaultRequestHeaders.Remove("Test-Role");
+        using var body = new StringContent("{\"version\":\"cv-v1\"}", Encoding.UTF8, "application/json");
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsync("/api/framework/cv/cv-v1-draft/drafts", body)).StatusCode);
+        client.DefaultRequestHeaders.Add("Test-Role", "Candidate");
+        using var candidateBody = new StringContent("{\"version\":\"cv-v1\"}", Encoding.UTF8, "application/json");
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsync("/api/framework/cv/cv-v1-draft/drafts", candidateBody)).StatusCode);
     }
 
     private sealed class HeaderAuthenticationHandler(

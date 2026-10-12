@@ -31,4 +31,44 @@ public sealed class FrameworkController(ApplicationDbContext context) : Controll
             })
         });
     }
+
+    [HttpGet("cv/versions")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetCvVersions() => Ok(await context.CvFrameworkVersions.AsNoTracking()
+        .OrderBy(v => v.Id).Select(v => new { v.Version, v.Status, v.IsActive, v.PublishedAt, v.Source }).ToListAsync());
+
+    [HttpGet("cv/active")]
+    public async Task<IActionResult> GetActiveCv()
+    {
+        var version = await context.CvFrameworkVersions.AsNoTracking()
+            .SingleOrDefaultAsync(v => v.IsActive && v.Status == "Published");
+        return version == null ? NotFound("No reviewed CV framework has been published.") : await GetIndicators(version.Version);
+    }
+
+    [HttpGet("{version}/indicators")]
+    public async Task<IActionResult> GetIndicators(string version)
+    {
+        var framework = await context.CvFrameworkVersions.AsNoTracking()
+            .Include(v => v.Groups).ThenInclude(g => g.Indicators)
+            .Include(v => v.Groups).ThenInclude(g => g.RubricRules)
+            .SingleOrDefaultAsync(v => v.Version == version);
+        if (framework == null || (framework.Status != "Published" && !User.IsInRole("Admin")))
+            return NotFound("CV framework version not found.");
+        var levels = await context.ProficiencyLevels.AsNoTracking().OrderBy(l => l.Ordinal)
+            .Select(l => new { l.Code, l.Ordinal, l.NameVi, l.NameEn }).ToListAsync();
+        return Ok(new
+        {
+            framework.Version, framework.Status, framework.IsActive, framework.PublishedAt, framework.Source,
+            Levels = levels,
+            Groups = framework.Groups.OrderBy(g => g.Order).Select(g => new
+            {
+                g.Code, g.NameVi, g.NameEn, g.Order,
+                Indicators = g.Indicators.OrderBy(i => i.Level).ThenBy(i => i.Code)
+                    .Select(i => new { i.Code, i.Level, i.TextVi, i.TextEn }),
+                RubricRules = g.RubricRules.OrderBy(r => r.Level)
+                    .Select(r => new { r.Level, r.AcceptedEvidence, r.InsufficientEvidence, r.Example })
+            })
+        });
+    }
+
 }

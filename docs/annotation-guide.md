@@ -1,0 +1,60 @@
+# CV annotation guide — draft v1
+
+Status: proposed for expert review, not approved for research data collection.
+Framework: `cv-v1-draft`, in [the framework seed](../data/frameworks/cv-v1-draft.yaml).
+The seed uses JSON syntax, a subset of YAML 1.2, and is embedded directly in the
+API assembly. It contains proposed indicators derived from the existing catalogue
+and roadmap; the thesis appendices themselves were not available for verification.
+
+## Labels and evidence
+
+Annotate each of the seven groups independently. Use 0 (`NO_EVIDENCE`), 1 (`BASIC`),
+2 (`INTERMEDIATE`), or 3 (`ADVANCED`). Level 0 means insufficient CV evidence;
+it does not mean the candidate has no ability. Do not convert a test score into a CV label.
+
+For every label 1–3, record at least one exact span from the preprocessed CV,
+its section, start/end offsets, and the matching indicator code. Offsets use
+half-open intervals in the stored normalized text; never calculate them on the raw
+PDF or a differently normalized copy. Record framework and preprocessing versions.
+A job title, tool list, self rating, or certificate name alone is insufficient.
+Coursework can support a label when it describes a concrete action by the candidate.
+
+Choose the highest level supported by concrete actions, task context, and the
+candidate's contribution. Do not require a metric for every Basic example. A metric
+alone does not establish Advanced competence. Do not infer personal contributions
+from a team's achievements, or use education prestige or demographic attributes.
+Evidence may support multiple groups only when each mapping is justified separately.
+Missing evidence and contradictory evidence should be recorded for adjudication.
+
+## Boundary examples
+
+These synthetic examples illustrate decisions; they are not training records.
+
+- “Skills: ChatGPT, Python.” → TOOLS 0: names alone show no action.
+- “Used ChatGPT to draft product descriptions and checked each output.” → TOOLS 1:
+  concrete use and checking, without evidence of workflow integration.
+- “Integrated an AI API into support triage and compared errors with the manual
+  workflow.” → TOOLS 2 / APPLICATION 2 if the candidate's contribution is explicit.
+- “Designed a monitored triage workflow; compared quality, cost and maintenance
+  against manual triage before choosing the deployment.” → APPLICATION 3; verify
+  the passage establishes design and evaluation rather than repeating a role title.
+- “Developed an organizational AI policy and evaluated whether its controls reduced
+  privacy incidents.” → ETHICS 3; use the full action/outcome passage as evidence.
+- “Managed an AI team.” → no automatic Advanced label for any group.
+
+The seed includes group-specific annotation prompts. They describe the evidence
+annotators should look for; they are not real CV passages or approved boundary examples.
+Experts must refine these prompts into accepted/rejected examples for every group
+and settle whether particular higher-level indicators require multiple spans.
+
+## Pilot and review
+
+Have two annotators label the same 20 deidentified CVs independently. Keep their
+labels/spans separate. Discuss disagreements with an adjudicator, revise ambiguous
+indicators and rubric examples, and record review decisions. Measure agreement in
+Phase 4; do not claim this draft has validated agreement or coverage.
+
+Approve Appendices A/B before publishing an immutable reviewed version. Retain the
+old version and all indicator codes so existing annotations remain interpretable.
+The initial migration stores a draft and does not activate it. The current API only
+reads versions; editing, publication and revision workflows remain Phase 1 work.

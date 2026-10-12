@@ -4,6 +4,7 @@ import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angula
 
 import { environment } from '../../../../environments/environment';
 import { AiService } from '../../../core/ai/ai.service';
+import { FrameworkService, FrameworkDomain } from '../../../core/competency/framework.service';
 
 interface GeneratedQuestion {
   question: string;
@@ -22,6 +23,16 @@ interface GeneratedQuestion {
 export class QuestionGeneratorComponent {
    private aiService = inject(AiService);
    private fb = inject(FormBuilder);
+   private frameworkService = inject(FrameworkService);
+   domains = signal<FrameworkDomain[]>([]);
+   errorMessage = signal<string | null>(null);
+
+   constructor() {
+     this.frameworkService.getActive().subscribe({
+       next: framework => this.domains.set(framework.domains),
+       error: () => this.errorMessage.set("Could not load competency groups.")
+     });
+   }
    
    isGenerating = false;
    questions = signal<any[]>([]);
@@ -37,7 +48,7 @@ export class QuestionGeneratorComponent {
    createMixItem() {
      return this.fb.group({
        topic: ['', Validators.required],
-       group: ['Fundamental', Validators.required],
+       group: ['FOUNDATION', Validators.required],
        level: ['Basic', Validators.required],
        type: ['mcq_single', Validators.required],
        count: [5, [Validators.required, Validators.min(1), Validators.max(20)]]
@@ -55,39 +66,39 @@ export class QuestionGeneratorComponent {
    autoSuggestPlan() {
      const suggestedMix = [
        // 1. Fundamental
-       { topic: 'AI vs ML vs DL', group: 'Fundamental', level: 'Basic', type: 'mcq_single', count: 2 },
-       { topic: 'AI Training Lifecycle', group: 'Fundamental', level: 'Intermediate', type: 'mcq_multi', count: 2 },
-       { topic: 'Model Architecture Trade-offs', group: 'Fundamental', level: 'Advanced', type: 'scenario', count: 1 },
+       { topic: 'AI vs ML vs DL', group: 'FOUNDATION', level: 'Basic', type: 'mcq_single', count: 2 },
+       { topic: 'AI Training Lifecycle', group: 'FOUNDATION', level: 'Intermediate', type: 'mcq_multi', count: 2 },
+       { topic: 'Model Architecture Trade-offs', group: 'FOUNDATION', level: 'Advanced', type: 'scenario', count: 1 },
        
        // 2. Data
-       { topic: 'Data Types and Sources', group: 'Data', level: 'Basic', type: 'tf', count: 2 },
-       { topic: 'Data Quality and EDA', group: 'Data', level: 'Intermediate', type: 'short', count: 2 },
-       { topic: 'Data Pipelines in Production', group: 'Data', level: 'Advanced', type: 'scenario', count: 1 },
+       { topic: 'Data Types and Sources', group: 'DATA', level: 'Basic', type: 'tf', count: 2 },
+       { topic: 'Data Quality and EDA', group: 'DATA', level: 'Intermediate', type: 'short', count: 2 },
+       { topic: 'Data Pipelines in Production', group: 'DATA', level: 'Advanced', type: 'scenario', count: 1 },
        
        // 3. Critical Thinking
-       { topic: 'AI Hallucination vs Facts', group: 'Critical Thinking', level: 'Basic', type: 'tf', count: 2 },
-       { topic: 'Fact-checking and Verification', group: 'Critical Thinking', level: 'Intermediate', type: 'mcq_multi', count: 2 },
-       { topic: 'Designing Verification Frameworks', group: 'Critical Thinking', level: 'Advanced', type: 'scenario', count: 1 },
+       { topic: 'AI Hallucination vs Facts', group: 'CRITICAL_THINKING', level: 'Basic', type: 'tf', count: 2 },
+       { topic: 'Fact-checking and Verification', group: 'CRITICAL_THINKING', level: 'Intermediate', type: 'mcq_multi', count: 2 },
+       { topic: 'Designing Verification Frameworks', group: 'CRITICAL_THINKING', level: 'Advanced', type: 'scenario', count: 1 },
        
        // 4. AI Use Cases
-       { topic: 'Coding Assistants (Copilot, Cursor)', group: 'AI Use Cases', level: 'Basic', type: 'mcq_single', count: 2 },
-       { topic: 'RAG and API Integration', group: 'AI Use Cases', level: 'Intermediate', type: 'mcq_multi', count: 2 },
-       { topic: 'Designing Multi-agent Systems', group: 'AI Use Cases', level: 'Advanced', type: 'scenario', count: 1 },
+       { topic: 'Coding Assistants (Copilot, Cursor)', group: 'APPLICATION', level: 'Basic', type: 'mcq_single', count: 2 },
+       { topic: 'RAG and API Integration', group: 'APPLICATION', level: 'Intermediate', type: 'mcq_multi', count: 2 },
+       { topic: 'Designing Multi-agent Systems', group: 'APPLICATION', level: 'Advanced', type: 'scenario', count: 1 },
        
        // 5. AI Ethics
-       { topic: 'AI Risks and Principles', group: 'AI Ethics', level: 'Basic', type: 'tf', count: 2 },
-       { topic: 'Bias Mitigation and Privacy', group: 'AI Ethics', level: 'Intermediate', type: 'short', count: 2 },
-       { topic: 'AI Policy and Governance', group: 'AI Ethics', level: 'Advanced', type: 'scenario', count: 1 },
+       { topic: 'AI Risks and Principles', group: 'ETHICS', level: 'Basic', type: 'tf', count: 2 },
+       { topic: 'Bias Mitigation and Privacy', group: 'ETHICS', level: 'Intermediate', type: 'short', count: 2 },
+       { topic: 'AI Policy and Governance', group: 'ETHICS', level: 'Advanced', type: 'scenario', count: 1 },
        
        // 6. AI Tools
-       { topic: 'Prompt Engineering Basics', group: 'AI Tools', level: 'Basic', type: 'mcq_single', count: 2 },
-       { topic: 'Advanced Prompting and Tools', group: 'AI Tools', level: 'Intermediate', type: 'mcq_multi', count: 2 },
-       { topic: 'Automated Workflows and MCP', group: 'AI Tools', level: 'Advanced', type: 'scenario', count: 1 },
+       { topic: 'Prompt Engineering Basics', group: 'TOOLS', level: 'Basic', type: 'mcq_single', count: 2 },
+       { topic: 'Advanced Prompting and Tools', group: 'TOOLS', level: 'Intermediate', type: 'mcq_multi', count: 2 },
+       { topic: 'Automated Workflows and MCP', group: 'TOOLS', level: 'Advanced', type: 'scenario', count: 1 },
        
        // 7. Future of Work
-       { topic: 'Automating vs Augmenting', group: 'Future of Work', level: 'Basic', type: 'mcq_single', count: 2 },
-       { topic: 'Upskilling Strategies', group: 'Future of Work', level: 'Intermediate', type: 'short', count: 2 },
-       { topic: 'Workforce Transformation', group: 'Future of Work', level: 'Advanced', type: 'scenario', count: 1 }
+       { topic: 'Automating vs Augmenting', group: 'FUTURE_OF_WORK', level: 'Basic', type: 'mcq_single', count: 2 },
+       { topic: 'Upskilling Strategies', group: 'FUTURE_OF_WORK', level: 'Intermediate', type: 'short', count: 2 },
+       { topic: 'Workforce Transformation', group: 'FUTURE_OF_WORK', level: 'Advanced', type: 'scenario', count: 1 }
      ];
 
      const mixArray = this.form.get('mix') as FormArray;

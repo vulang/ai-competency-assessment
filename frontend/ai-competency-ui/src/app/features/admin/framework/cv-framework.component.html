@@ -1,0 +1,63 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div><h2>CV competency framework</h2><p class="text-muted">Edit a draft, then record expert review before publication.</p></div>
+</div>
+<p class="alert alert-danger" role="alert" *ngIf="error()">{{ error() }}</p>
+<p class="alert alert-success" role="status" *ngIf="success()">{{ success() }}</p>
+<div class="card p-3 mb-3">
+  <label for="version" class="form-label">Version</label>
+  <select id="version" class="form-select" [value]="framework()?.version ?? ''" (change)="select($any($event.target).value)">
+    <option *ngFor="let v of versions()" [value]="v.version">{{ v.version }} — {{ v.status }}{{ v.isActive ? ' (active)' : '' }}</option>
+  </select>
+  <p class="small text-muted mt-2 mb-0" *ngIf="framework()">{{ framework()?.source }}</p>
+</div>
+<div *ngIf="framework() as selected">
+  <div class="card p-3 mb-3">
+    <h5>Copy to a new draft</h5>
+    <form [formGroup]="cloneForm" (ngSubmit)="clone()" class="d-flex gap-2">
+      <input class="form-control" aria-label="New version name" placeholder="e.g. cv-v1" formControlName="version">
+      <button class="btn btn-outline-primary" type="submit" [disabled]="cloneForm.invalid || busy()">Copy</button>
+    </form>
+  </div>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div formArrayName="groups">
+      <section class="card p-3 mb-3" *ngFor="let group of groups.controls; let gi = index" [formGroupName]="gi">
+        <h5>{{ group.controls.code.value }}</h5>
+        <div class="row g-2 mb-3">
+          <div class="col-md-6"><label class="form-label">Vietnamese name<input class="form-control" formControlName="nameVi" [readOnly]="selected.status !== 'Draft'"></label></div>
+          <div class="col-md-6"><label class="form-label">English name<input class="form-control" formControlName="nameEn" [readOnly]="selected.status !== 'Draft'"></label></div>
+        </div>
+        <div formArrayName="indicators">
+          <h6>Behavior indicators</h6>
+          <div class="row g-2 align-items-center mb-2" *ngFor="let item of indicators(gi).controls; let ii = index" [formGroupName]="ii">
+            <div class="col-md-2"><code>{{ item.controls.code.value }}</code></div>
+            <div class="col-md-4"><input class="form-control" aria-label="Vietnamese indicator" formControlName="textVi" [readOnly]="selected.status !== 'Draft'"></div>
+            <div class="col-md-4"><input class="form-control" aria-label="English indicator" formControlName="textEn" [readOnly]="selected.status !== 'Draft'"></div>
+            <div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-danger" *ngIf="selected.status === 'Draft'" (click)="removeIndicator(gi, ii)">Remove</button></div>
+          </div>
+          <div class="d-flex gap-2 mb-3" *ngIf="selected.status === 'Draft'">
+            <button type="button" class="btn btn-sm btn-outline-secondary" *ngFor="let level of [1, 2, 3]" (click)="addIndicator(gi, level)">Add level {{ level }}</button>
+          </div>
+        </div>
+        <div formArrayName="rubricRules">
+          <h6>CV rubric</h6>
+          <div class="border rounded p-2 mb-2" *ngFor="let rule of rubricRules(gi).controls; let ri = index" [formGroupName]="ri">
+            <strong>Level {{ rule.controls.level.value }}</strong>
+            <label class="d-block">Accepted evidence<textarea class="form-control" formControlName="acceptedEvidence" [readOnly]="selected.status !== 'Draft'"></textarea></label>
+            <label class="d-block">Insufficient evidence<textarea class="form-control" formControlName="insufficientEvidence" [readOnly]="selected.status !== 'Draft'"></textarea></label>
+            <label class="d-block">Example<textarea class="form-control" formControlName="example" [readOnly]="selected.status !== 'Draft'"></textarea></label>
+          </div>
+        </div>
+      </section>
+    </div>
+    <button class="btn btn-primary" type="submit" *ngIf="selected.status === 'Draft'" [disabled]="form.invalid || busy()">Save draft</button>
+  </form>
+  <div class="card p-3 mt-3" *ngIf="selected.status === 'Draft'">
+    <h5>Publish reviewed version</h5>
+    <p class="small text-muted">Save edits first. Publishing makes this version active and read only. The seed version named cv-v1-draft cannot be published.</p>
+    <form [formGroup]="reviewForm" (ngSubmit)="publish()">
+      <label class="d-block mb-2">Expert reviewer<input class="form-control" formControlName="reviewedBy"></label>
+      <label class="d-block mb-2">Review decision and reference<textarea class="form-control" formControlName="reviewNotes"></textarea></label>
+      <button class="btn btn-success" [disabled]="reviewForm.invalid || form.dirty || busy() || selected.version.endsWith('-draft')">Publish version</button>
+    </form>
+  </div>
+</div>

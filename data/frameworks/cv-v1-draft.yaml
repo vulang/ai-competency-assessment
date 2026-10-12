@@ -1,0 +1,649 @@
+{
+  "version": "cv-v1-draft",
+  "status": "Draft",
+  "source": "Proposed from repository Phase 0 catalogue and thesis roadmap; not a verbatim thesis appendix. Expert review pending.",
+  "levels": [
+    {
+      "code": "NO_EVIDENCE",
+      "ordinal": 0,
+      "nameVi": "Không đủ bằng chứng",
+      "nameEn": "No evidence"
+    },
+    {
+      "code": "BASIC",
+      "ordinal": 1,
+      "nameVi": "Cơ bản",
+      "nameEn": "Basic"
+    },
+    {
+      "code": "INTERMEDIATE",
+      "ordinal": 2,
+      "nameVi": "Trung cấp",
+      "nameEn": "Intermediate"
+    },
+    {
+      "code": "ADVANCED",
+      "ordinal": 3,
+      "nameVi": "Nâng cao",
+      "nameEn": "Advanced"
+    }
+  ],
+  "groups": [
+    {
+      "code": "FOUNDATION",
+      "nameVi": "Nền tảng AI",
+      "nameEn": "AI foundations",
+      "order": 1,
+      "indicators": [
+        {
+          "code": "FOUNDATION.1.1",
+          "level": 1,
+          "textVi": "Giải thích AI trong một dự án cụ thể",
+          "textEn": "Explain AI in a specific project"
+        },
+        {
+          "code": "FOUNDATION.1.2",
+          "level": 1,
+          "textVi": "Phân biệt dự đoán AI với luật lập trình",
+          "textEn": "Distinguish AI prediction from programmed rules"
+        },
+        {
+          "code": "FOUNDATION.1.3",
+          "level": 1,
+          "textVi": "Mô tả vai trò dữ liệu đầu vào",
+          "textEn": "Describe the role of input data"
+        },
+        {
+          "code": "FOUNDATION.2.1",
+          "level": 2,
+          "textVi": "Mô tả các bước phát triển mô hình đã thực hiện",
+          "textEn": "Describe completed model development steps"
+        },
+        {
+          "code": "FOUNDATION.2.2",
+          "level": 2,
+          "textVi": "Giải thích lựa chọn phương pháp học máy",
+          "textEn": "Explain a machine learning method selection"
+        },
+        {
+          "code": "FOUNDATION.2.3",
+          "level": 2,
+          "textVi": "Diễn giải kết quả đánh giá mô hình",
+          "textEn": "Interpret model evaluation results"
+        },
+        {
+          "code": "FOUNDATION.3.1",
+          "level": 3,
+          "textVi": "So sánh thuật toán bằng tiêu chí đo lường",
+          "textEn": "Compare algorithms using measured criteria"
+        },
+        {
+          "code": "FOUNDATION.3.2",
+          "level": 3,
+          "textVi": "Phân tích đánh đổi dữ liệu và thuật toán",
+          "textEn": "Analyze data and algorithm tradeoffs"
+        },
+        {
+          "code": "FOUNDATION.3.3",
+          "level": 3,
+          "textVi": "Thiết kế phương án đánh giá giới hạn mô hình",
+          "textEn": "Design an evaluation of model limitations"
+        }
+      ],
+      "rubricRules": [
+        {
+          "level": 0,
+          "acceptedEvidence": "No valid span supports any indicator.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Skills: ChatGPT, Python."
+        },
+        {
+          "level": 1,
+          "acceptedEvidence": "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Explain AI in a specific project' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 2,
+          "acceptedEvidence": "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Describe completed model development steps' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 3,
+          "acceptedEvidence": "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Compare algorithms using measured criteria' and states the task context and candidate contribution. This prompt is not evidence itself."
+        }
+      ]
+    },
+    {
+      "code": "DATA",
+      "nameVi": "Dữ liệu",
+      "nameEn": "Data",
+      "order": 2,
+      "indicators": [
+        {
+          "code": "DATA.1.1",
+          "level": 1,
+          "textVi": "Thu thập dữ liệu từ nguồn xác định",
+          "textEn": "Collect data from identified sources"
+        },
+        {
+          "code": "DATA.1.2",
+          "level": 1,
+          "textVi": "Làm sạch giá trị thiếu hoặc trùng lặp",
+          "textEn": "Clean missing or duplicate values"
+        },
+        {
+          "code": "DATA.1.3",
+          "level": 1,
+          "textVi": "Mô tả dữ liệu bằng bảng hoặc biểu đồ",
+          "textEn": "Describe data using tables or charts"
+        },
+        {
+          "code": "DATA.2.1",
+          "level": 2,
+          "textVi": "Đánh giá chất lượng dữ liệu theo tiêu chí",
+          "textEn": "Evaluate data quality against criteria"
+        },
+        {
+          "code": "DATA.2.2",
+          "level": 2,
+          "textVi": "Xây dựng quy trình chuẩn hóa dữ liệu",
+          "textEn": "Build a data normalization workflow"
+        },
+        {
+          "code": "DATA.2.3",
+          "level": 2,
+          "textVi": "Phân tích dữ liệu để trả lời câu hỏi dự án",
+          "textEn": "Analyze data to answer a project question"
+        },
+        {
+          "code": "DATA.3.1",
+          "level": 3,
+          "textVi": "Thiết kế pipeline dữ liệu có kiểm tra chất lượng",
+          "textEn": "Design a data pipeline with quality checks"
+        },
+        {
+          "code": "DATA.3.2",
+          "level": 3,
+          "textVi": "Kiểm tra rò rỉ dữ liệu giữa các tập",
+          "textEn": "Check data leakage across dataset splits"
+        },
+        {
+          "code": "DATA.3.3",
+          "level": 3,
+          "textVi": "Thiết kế trực quan hóa hỗ trợ quyết định",
+          "textEn": "Design visualizations supporting decisions"
+        }
+      ],
+      "rubricRules": [
+        {
+          "level": 0,
+          "acceptedEvidence": "No valid span supports any indicator.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Skills: ChatGPT, Python."
+        },
+        {
+          "level": 1,
+          "acceptedEvidence": "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Collect data from identified sources' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 2,
+          "acceptedEvidence": "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Evaluate data quality against criteria' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 3,
+          "acceptedEvidence": "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Design a data pipeline with quality checks' and states the task context and candidate contribution. This prompt is not evidence itself."
+        }
+      ]
+    },
+    {
+      "code": "CRITICAL_THINKING",
+      "nameVi": "Tư duy phản biện",
+      "nameEn": "Critical thinking",
+      "order": 3,
+      "indicators": [
+        {
+          "code": "CRITICAL_THINKING.1.1",
+          "level": 1,
+          "textVi": "Xác định nguồn của thông tin do AI tạo",
+          "textEn": "Identify sources of AI generated information"
+        },
+        {
+          "code": "CRITICAL_THINKING.1.2",
+          "level": 1,
+          "textVi": "Kiểm tra một kết quả AI bằng nguồn độc lập",
+          "textEn": "Check an AI result against an independent source"
+        },
+        {
+          "code": "CRITICAL_THINKING.1.3",
+          "level": 1,
+          "textVi": "Nhận diện giới hạn trong câu trả lời AI",
+          "textEn": "Identify limitations in an AI answer"
+        },
+        {
+          "code": "CRITICAL_THINKING.2.1",
+          "level": 2,
+          "textVi": "So sánh đầu ra của nhiều công cụ AI",
+          "textEn": "Compare outputs from multiple AI tools"
+        },
+        {
+          "code": "CRITICAL_THINKING.2.2",
+          "level": 2,
+          "textVi": "Xây dựng tiêu chí kiểm chứng kết quả",
+          "textEn": "Build criteria for verifying results"
+        },
+        {
+          "code": "CRITICAL_THINKING.2.3",
+          "level": 2,
+          "textVi": "Phân tích nguyên nhân kết quả AI sai",
+          "textEn": "Analyze causes of incorrect AI results"
+        },
+        {
+          "code": "CRITICAL_THINKING.3.1",
+          "level": 3,
+          "textVi": "Thiết kế quy trình kiểm chứng AI có thể tái lập",
+          "textEn": "Design a reproducible AI verification workflow"
+        },
+        {
+          "code": "CRITICAL_THINKING.3.2",
+          "level": 3,
+          "textVi": "Đánh giá tính hợp lệ của kết luận từ mô hình",
+          "textEn": "Evaluate validity of model conclusions"
+        },
+        {
+          "code": "CRITICAL_THINKING.3.3",
+          "level": 3,
+          "textVi": "Kiểm thử AI với các trường hợp phản ví dụ",
+          "textEn": "Test AI using counterexamples"
+        }
+      ],
+      "rubricRules": [
+        {
+          "level": 0,
+          "acceptedEvidence": "No valid span supports any indicator.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Skills: ChatGPT, Python."
+        },
+        {
+          "level": 1,
+          "acceptedEvidence": "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Identify sources of AI generated information' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 2,
+          "acceptedEvidence": "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Compare outputs from multiple AI tools' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 3,
+          "acceptedEvidence": "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Design a reproducible AI verification workflow' and states the task context and candidate contribution. This prompt is not evidence itself."
+        }
+      ]
+    },
+    {
+      "code": "APPLICATION",
+      "nameVi": "Ứng dụng AI",
+      "nameEn": "AI applications",
+      "order": 4,
+      "indicators": [
+        {
+          "code": "APPLICATION.1.1",
+          "level": 1,
+          "textVi": "Áp dụng AI cho một nhiệm vụ xác định",
+          "textEn": "Apply AI to a defined task"
+        },
+        {
+          "code": "APPLICATION.1.2",
+          "level": 1,
+          "textVi": "Mô tả lợi ích AI trong bối cảnh công việc",
+          "textEn": "Describe AI benefits in a work context"
+        },
+        {
+          "code": "APPLICATION.1.3",
+          "level": 1,
+          "textVi": "Nhận diện trở ngại khi áp dụng AI",
+          "textEn": "Identify obstacles to AI adoption"
+        },
+        {
+          "code": "APPLICATION.2.1",
+          "level": 2,
+          "textVi": "Tích hợp AI vào quy trình thực tế",
+          "textEn": "Integrate AI into a real workflow"
+        },
+        {
+          "code": "APPLICATION.2.2",
+          "level": 2,
+          "textVi": "Đánh giá giải pháp AI bằng tiêu chí nghiệp vụ",
+          "textEn": "Evaluate an AI solution against business criteria"
+        },
+        {
+          "code": "APPLICATION.2.3",
+          "level": 2,
+          "textVi": "Xử lý lỗi khi triển khai giải pháp AI",
+          "textEn": "Handle errors in AI solution deployment"
+        },
+        {
+          "code": "APPLICATION.3.1",
+          "level": 3,
+          "textVi": "Thiết kế giải pháp AI đáp ứng ràng buộc thực tế",
+          "textEn": "Design an AI solution meeting practical constraints"
+        },
+        {
+          "code": "APPLICATION.3.2",
+          "level": 3,
+          "textVi": "So sánh chi phí và hiệu quả với phương án cơ sở",
+          "textEn": "Compare cost and effectiveness against a baseline"
+        },
+        {
+          "code": "APPLICATION.3.3",
+          "level": 3,
+          "textVi": "Đánh giá khả năng duy trì giải pháp AI",
+          "textEn": "Evaluate maintainability of an AI solution"
+        }
+      ],
+      "rubricRules": [
+        {
+          "level": 0,
+          "acceptedEvidence": "No valid span supports any indicator.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Skills: ChatGPT, Python."
+        },
+        {
+          "level": 1,
+          "acceptedEvidence": "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Apply AI to a defined task' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 2,
+          "acceptedEvidence": "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Integrate AI into a real workflow' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 3,
+          "acceptedEvidence": "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Design an AI solution meeting practical constraints' and states the task context and candidate contribution. This prompt is not evidence itself."
+        }
+      ]
+    },
+    {
+      "code": "ETHICS",
+      "nameVi": "Đạo đức AI",
+      "nameEn": "AI ethics",
+      "order": 5,
+      "indicators": [
+        {
+          "code": "ETHICS.1.1",
+          "level": 1,
+          "textVi": "Nhận diện dữ liệu cá nhân trong tác vụ AI",
+          "textEn": "Identify personal data in an AI task"
+        },
+        {
+          "code": "ETHICS.1.2",
+          "level": 1,
+          "textVi": "Mô tả rủi ro thiên lệch trong một ứng dụng",
+          "textEn": "Describe bias risk in an application"
+        },
+        {
+          "code": "ETHICS.1.3",
+          "level": 1,
+          "textVi": "Ghi nhận việc sử dụng AI trong sản phẩm",
+          "textEn": "Disclose AI use in a deliverable"
+        },
+        {
+          "code": "ETHICS.2.1",
+          "level": 2,
+          "textVi": "Áp dụng biện pháp bảo vệ dữ liệu khi dùng AI",
+          "textEn": "Apply data protection measures when using AI"
+        },
+        {
+          "code": "ETHICS.2.2",
+          "level": 2,
+          "textVi": "Đánh giá rủi ro AI theo nhóm bị ảnh hưởng",
+          "textEn": "Evaluate AI risks by affected group"
+        },
+        {
+          "code": "ETHICS.2.3",
+          "level": 2,
+          "textVi": "Thực hiện kiểm tra thiên lệch có tiêu chí",
+          "textEn": "Perform bias checks against criteria"
+        },
+        {
+          "code": "ETHICS.3.1",
+          "level": 3,
+          "textVi": "Xây dựng chính sách sử dụng AI có trách nhiệm",
+          "textEn": "Develop responsible AI usage policies"
+        },
+        {
+          "code": "ETHICS.3.2",
+          "level": 3,
+          "textVi": "Thiết kế quy trình giám sát rủi ro AI",
+          "textEn": "Design an AI risk monitoring process"
+        },
+        {
+          "code": "ETHICS.3.3",
+          "level": 3,
+          "textVi": "Đánh giá hiệu quả biện pháp giảm thiểu rủi ro",
+          "textEn": "Evaluate risk mitigation effectiveness"
+        }
+      ],
+      "rubricRules": [
+        {
+          "level": 0,
+          "acceptedEvidence": "No valid span supports any indicator.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Skills: ChatGPT, Python."
+        },
+        {
+          "level": 1,
+          "acceptedEvidence": "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Identify personal data in an AI task' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 2,
+          "acceptedEvidence": "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Apply data protection measures when using AI' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 3,
+          "acceptedEvidence": "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Develop responsible AI usage policies' and states the task context and candidate contribution. This prompt is not evidence itself."
+        }
+      ]
+    },
+    {
+      "code": "TOOLS",
+      "nameVi": "Công cụ AI",
+      "nameEn": "AI tools",
+      "order": 6,
+      "indicators": [
+        {
+          "code": "TOOLS.1.1",
+          "level": 1,
+          "textVi": "Sử dụng công cụ AI cho tác vụ cụ thể",
+          "textEn": "Use an AI tool for a specific task"
+        },
+        {
+          "code": "TOOLS.1.2",
+          "level": 1,
+          "textVi": "Viết yêu cầu có bối cảnh cho công cụ AI",
+          "textEn": "Write a contextual instruction for an AI tool"
+        },
+        {
+          "code": "TOOLS.1.3",
+          "level": 1,
+          "textVi": "Kiểm tra đầu ra trước khi sử dụng",
+          "textEn": "Check output before using it"
+        },
+        {
+          "code": "TOOLS.2.1",
+          "level": 2,
+          "textVi": "So sánh công cụ theo nhu cầu công việc",
+          "textEn": "Compare tools against work requirements"
+        },
+        {
+          "code": "TOOLS.2.2",
+          "level": 2,
+          "textVi": "Tích hợp công cụ AI qua API hoặc tự động hóa",
+          "textEn": "Integrate an AI tool using APIs or automation"
+        },
+        {
+          "code": "TOOLS.2.3",
+          "level": 2,
+          "textVi": "Điều chỉnh quy trình dựa trên đánh giá đầu ra",
+          "textEn": "Adjust a workflow based on output evaluation"
+        },
+        {
+          "code": "TOOLS.3.1",
+          "level": 3,
+          "textVi": "Thiết kế phối hợp nhiều công cụ AI",
+          "textEn": "Design coordination of multiple AI tools"
+        },
+        {
+          "code": "TOOLS.3.2",
+          "level": 3,
+          "textVi": "Đo hiệu quả quy trình dùng công cụ AI",
+          "textEn": "Measure effectiveness of an AI tool workflow"
+        },
+        {
+          "code": "TOOLS.3.3",
+          "level": 3,
+          "textVi": "Đề xuất cải tiến khả năng tiếp cận công cụ AI",
+          "textEn": "Propose improvements to AI tool accessibility"
+        }
+      ],
+      "rubricRules": [
+        {
+          "level": 0,
+          "acceptedEvidence": "No valid span supports any indicator.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Skills: ChatGPT, Python."
+        },
+        {
+          "level": 1,
+          "acceptedEvidence": "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Use an AI tool for a specific task' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 2,
+          "acceptedEvidence": "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Compare tools against work requirements' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 3,
+          "acceptedEvidence": "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Design coordination of multiple AI tools' and states the task context and candidate contribution. This prompt is not evidence itself."
+        }
+      ]
+    },
+    {
+      "code": "FUTURE_OF_WORK",
+      "nameVi": "Tương lai việc làm",
+      "nameEn": "Future of work",
+      "order": 7,
+      "indicators": [
+        {
+          "code": "FUTURE_OF_WORK.1.1",
+          "level": 1,
+          "textVi": "Xác định nhiệm vụ có thể thay đổi do AI",
+          "textEn": "Identify tasks that AI may change"
+        },
+        {
+          "code": "FUTURE_OF_WORK.1.2",
+          "level": 1,
+          "textVi": "Mô tả kỹ năng cần học để làm việc với AI",
+          "textEn": "Describe skills needed to work with AI"
+        },
+        {
+          "code": "FUTURE_OF_WORK.1.3",
+          "level": 1,
+          "textVi": "Tham gia hoạt động học kỹ năng AI có nội dung cụ thể",
+          "textEn": "Participate in AI learning with specified content"
+        },
+        {
+          "code": "FUTURE_OF_WORK.2.1",
+          "level": 2,
+          "textVi": "Phân tích thay đổi vai trò trong một quy trình",
+          "textEn": "Analyze role changes in a workflow"
+        },
+        {
+          "code": "FUTURE_OF_WORK.2.2",
+          "level": 2,
+          "textVi": "Đề xuất kế hoạch đào tạo theo khoảng cách kỹ năng",
+          "textEn": "Propose training based on skill gaps"
+        },
+        {
+          "code": "FUTURE_OF_WORK.2.3",
+          "level": 2,
+          "textVi": "Đánh giá kết quả thử nghiệm cách làm việc với AI",
+          "textEn": "Evaluate a trial of AI assisted work"
+        },
+        {
+          "code": "FUTURE_OF_WORK.3.1",
+          "level": 3,
+          "textVi": "Xây dựng chiến lược thích ứng AI cho tổ chức",
+          "textEn": "Develop an organizational AI adaptation strategy"
+        },
+        {
+          "code": "FUTURE_OF_WORK.3.2",
+          "level": 3,
+          "textVi": "Đánh giá tác động AI đến lực lượng lao động",
+          "textEn": "Evaluate AI impact on a workforce"
+        },
+        {
+          "code": "FUTURE_OF_WORK.3.3",
+          "level": 3,
+          "textVi": "Thiết kế tiêu chí theo dõi chuyển đổi kỹ năng",
+          "textEn": "Design criteria for tracking skill transformation"
+        }
+      ],
+      "rubricRules": [
+        {
+          "level": 0,
+          "acceptedEvidence": "No valid span supports any indicator.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Skills: ChatGPT, Python."
+        },
+        {
+          "level": 1,
+          "acceptedEvidence": "A concrete action matching a level 1 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Identify tasks that AI may change' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 2,
+          "acceptedEvidence": "A concrete action matching a level 2 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Analyze role changes in a workflow' and states the task context and candidate contribution. This prompt is not evidence itself."
+        },
+        {
+          "level": 3,
+          "acceptedEvidence": "A concrete action matching a level 3 indicator, with task context and candidate contribution. At least one exact source span is required.",
+          "insufficientEvidence": "Tool lists, job titles, self ratings, course titles alone, or vague claims without a concrete action.",
+          "example": "Synthetic annotation prompt: find a CV passage that demonstrates 'Develop an organizational AI adaptation strategy' and states the task context and candidate contribution. This prompt is not evidence itself."
+        }
+      ]
+    }
+  ]
+}

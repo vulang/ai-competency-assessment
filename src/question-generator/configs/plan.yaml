@@ -1,42 +1,42 @@
 total: 100
 mix:
-  - group: Fundamental
+  - group: FOUNDATION
     level: Basic
     type: mcq_single
     difficulty: [1,2]
     topic: "AI vs Traditional Programming"
     count: 20
-  - group: Data
+  - group: DATA
     level: Intermediate
     type: case
     difficulty: [2,3]
     topic: "Data Cleaning & Normalization"
     count: 15
-  - group: Critical Thinking
+  - group: CRITICAL_THINKING
     level: Advanced
     type: mcq_multi
     difficulty: [3]
     topic: "Verifying AI outputs"
     count: 15
-  - group: AI Use Cases
+  - group: APPLICATION
     level: Basic
     type: mcq_single
     difficulty: [1]
     topic: "AI in Healthcare"
     count: 15
-  - group: AI Ethics
+  - group: ETHICS
     level: Intermediate
     type: case
     difficulty: [2,3]
     topic: "Algorithmic Bias"
     count: 15
-  - group: AI Tools
+  - group: TOOLS
     level: Basic
     type: mcq_single
     difficulty: [1,2]
     topic: "LLM Platforms"
     count: 10
-  - group: Future of Work
+  - group: FUTURE_OF_WORK
     level: Advanced
     type: short
     difficulty: [3]

@@ -1,5 +1,9 @@
 import argparse, json, os, glob, re
 from dotenv import load_dotenv
+try:
+    from .taxonomy import group_code
+except ImportError:
+    from taxonomy import group_code
 
 try:
     from .openai_helper import create_openai_client
@@ -15,15 +19,15 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def load_context(topic_or_group):
     ctx_dir = os.path.join(ROOT_DIR, "data", "contexts")
     mapping = {
-    "Fundamental": "01_nhan_thuc_ai_co_ban.md",
-    "Data": "01_nhan_thuc_ai_co_ban.md", # placeholder
-    "Critical Thinking": "05_danh_gia_chat_luong.md",
-    "AI Use Cases": "03_ung_dung_ai_quy_trinh.md",
-    "AI Ethics": "02_quyen_rieng_tu.md",
-    "AI Tools": "01_nhan_thuc_ai_co_ban.md", # placeholder
-    "Future of Work": "01_nhan_thuc_ai_co_ban.md", # placeholder
+        "FOUNDATION": "01_nhan_thuc_ai_co_ban.md",
+        "DATA": "05_danh_gia_chat_luong.md",
+        "CRITICAL_THINKING": "05_danh_gia_chat_luong.md",
+        "APPLICATION": "03_ung_dung_ai_quy_trinh.md",
+        "ETHICS": "02_quyen_rieng_tu.md",
+        "TOOLS": "08_prompt_engineering.md",
+        "FUTURE_OF_WORK": "03_ung_dung_ai_quy_trinh.md",
     }
-    filename = mapping.get(topic_or_group, None)
+    filename = mapping.get(group_code(topic_or_group), None)
     if filename:
         return read_file(os.path.join(ctx_dir, filename)), os.path.join(ctx_dir, filename)
     any_ctx = sorted(glob.glob(os.path.join(ctx_dir, "*.md")))

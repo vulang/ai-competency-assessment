@@ -238,24 +238,28 @@ flowchart LR
 
 ### Phase 1 — Khung năng lực, lược đồ nhãn 4 mức và taxonomy thống nhất
 
+**Trạng thái:** Phần mềm và tài liệu bản nháp hoàn thành ngày 2026-10-12. Chưa đạt cổng nghiệm thu vì cần chuyên gia duyệt Phụ lục A/B và xác nhận ví dụ biên giới. Chi tiết: [phase-1-progress.md](phase-1-progress.md).
+
 **Liên hệ luận văn:** §1.2, §1.2.1, §2.3, Phụ lục A, B, D.
 
 **Mục tiêu:** Có một nguồn sự thật duy nhất (single source of truth) cho 7 nhóm × 3 mức, chỉ báo hành vi và thang 4 mức, có quản lý phiên bản, dùng chung cho cả nhánh CV và nhánh trắc nghiệm.
 
 **Công việc**
 
-- [ ] **Mô hình dữ liệu** (EF + migration):
+- [x] **Mô hình dữ liệu** (EF + migration):
   - `competency_framework_versions (id, version, published_at, is_active)`
   - `competency_groups (code, name_vi, name_en, order)` với 7 mã cố định: `FOUNDATION`, `DATA`, `CRITICAL_THINKING`, `APPLICATION`, `ETHICS`, `TOOLS`, `FUTURE_OF_WORK`
   - `proficiency_levels (code, ordinal)`: `0 = NO_EVIDENCE`, `1 = BASIC`, `2 = INTERMEDIATE`, `3 = ADVANCED`
   - `behavior_indicators (id, group_code, level, text_vi, text_en, framework_version)`
   - `cv_rubric_rules (group_code, level, accepted_evidence, insufficient_evidence, examples)`, tương ứng bảng ở §2.3
-- [ ] **Thống nhất mã (B12):** viết script migrate `metadata.group/level` của câu hỏi hiện có sang mã chuẩn và thêm cột `group_code`, `target_level` có cấu trúc cho `questions`; cập nhật `framework_mapping.yaml`, `syllabus.csv` và prompt của question-generator; cập nhật model frontend (`Foundation/Apply/Create` → `Basic/Intermediate/Advanced`).
-- [ ] **Hệ chỉ báo hành vi:** soạn 3–6 chỉ báo cho mỗi nhóm × mức (≈ 60–120 chỉ báo); nhập liệu qua file YAML có version và seed vào DB. Dùng làm Phụ lục A.
-- [ ] **Rubric gán nhãn CV và sổ tay** (Phụ lục B): quy tắc "mọi nhãn 1–3 phải có ít nhất 1 span", kèm ví dụ biên giới giữa các mức. Lưu ở `docs/annotation-guide.md` và trong DB.
-- [ ] **Từ điển công cụ/kỹ năng AI có phiên bản** (Phụ lục D, bản khởi tạo): `data/dictionary/ai_tools_vX.yaml` gồm tên chuẩn, alias, nhóm liên quan và cờ tín hiệu mạnh/yếu.
-- [ ] **UI admin "Khung năng lực":** xem và sửa nhóm, chỉ báo, rubric; xuất bản phiên bản mới.
-- [ ] **API:** `GET /api/framework/active`, `GET /api/framework/{version}/indicators`.
+- [x] **Thống nhất mã (B12):** viết script migrate `metadata.group/level` của câu hỏi hiện có sang mã chuẩn và thêm cột `group_code`, `target_level` có cấu trúc cho `questions`; cập nhật `framework_mapping.yaml`, `syllabus.csv` và prompt của question-generator; cập nhật model frontend (`Foundation/Apply/Create` → `Basic/Intermediate/Advanced`).
+- [x] **Hệ chỉ báo hành vi:** soạn 3–6 chỉ báo cho mỗi nhóm × mức (≈ 60–120 chỉ báo); nhập liệu qua file YAML có version và seed vào DB. Dùng làm Phụ lục A.
+- [x] **Rubric gán nhãn CV và sổ tay** (Phụ lục B): quy tắc "mọi nhãn 1–3 phải có ít nhất 1 span", kèm ví dụ biên giới giữa các mức. Lưu ở `docs/annotation-guide.md` và trong DB.
+- [x] **Từ điển công cụ/kỹ năng AI có phiên bản** (Phụ lục D, bản khởi tạo): `data/dictionary/ai_tools_vX.yaml` gồm tên chuẩn, alias, nhóm liên quan và cờ tín hiệu mạnh/yếu.
+- [x] **UI admin "Khung năng lực":** xem và sửa nhóm, chỉ báo, rubric; xuất bản phiên bản mới.
+- [x] **API:** `GET /api/framework/active`, `GET /api/framework/{version}/indicators`.
+
+**Cổng còn chờ:** chuyên gia duyệt Phụ lục A/B và ví dụ biên giới. Không xuất bản seed draft như một rubric đã được xác nhận.
 
 **Tiêu chí hoàn thành:** mọi câu hỏi đã publish có `group_code` và `target_level` hợp lệ; thay đổi khung tạo phiên bản mới mà không phá dữ liệu cũ; chuyên gia duyệt Phụ lục A và B bản 1.0.
 

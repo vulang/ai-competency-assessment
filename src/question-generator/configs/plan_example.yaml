@@ -1,12 +1,12 @@
 total: 10
 mix:
-  - group: Fundamental
+  - group: FOUNDATION
     level: Basic
     type: mcq_single
     difficulty: [1]
     topic: "AI Definition"
     count: 5
-  - group: AI Ethics
+  - group: ETHICS
     level: Intermediate
     type: mcq_single
     difficulty: [2]
