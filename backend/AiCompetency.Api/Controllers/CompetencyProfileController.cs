@@ -25,11 +25,8 @@ public class CompetencyProfileController : ControllerBase
         _profileService = profileService;
     }
 
-    private int GetCurrentUserId()
-    {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return int.TryParse(userIdString, out var id) ? id : 1;
-    }
+    private string GetCurrentUserId() => CurrentUser.GetRequiredId(User);
+
 
     // ── Candidate endpoints ───────────────────────────────────────────────────
 
@@ -72,7 +69,9 @@ public class CompetencyProfileController : ControllerBase
     [HttpGet("sessions/{sessionId}/irt")]
     public async Task<IActionResult> GetSessionIrt(Guid sessionId)
     {
-        var estimate = await _context.SessionIrtEstimates.FindAsync(sessionId);
+        var userId = GetCurrentUserId();
+        var estimate = await _context.SessionIrtEstimates
+            .FirstOrDefaultAsync(e => e.SessionId == sessionId && e.Session!.UserId == userId);
         if (estimate == null)
             return NotFound(new { Message = "No IRT estimate for this session." });
 
@@ -116,8 +115,9 @@ public class CompetencyProfileController : ControllerBase
     /// GET /api/competency/admin/candidates/{userId}/profile
     /// Admin: view any candidate's latest competency profile.
     /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpGet("admin/candidates/{userId}/profile")]
-    public async Task<IActionResult> GetCandidateProfile(int userId)
+    public async Task<IActionResult> GetCandidateProfile(string userId)
     {
         var profile = await _profileService.GetLatestProfileAsync(userId);
         if (profile == null)
@@ -130,6 +130,7 @@ public class CompetencyProfileController : ControllerBase
     /// GET /api/competency/admin/irt-stats
     /// Admin: IRT parameter statistics across all questions.
     /// </summary>
+    [Authorize(Roles = "Admin")]
     [HttpGet("admin/irt-stats")]
     public async Task<IActionResult> GetIrtStats()
     {

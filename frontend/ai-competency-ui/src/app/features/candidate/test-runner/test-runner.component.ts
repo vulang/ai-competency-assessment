@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-test-runner',
@@ -25,7 +24,6 @@ export class TestRunnerComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
 
   ngOnInit() {
     this.sessionId = this.route.snapshot.paramMap.get('sessionId') || '';
@@ -34,15 +32,9 @@ export class TestRunnerComponent implements OnInit {
     }
   }
 
-  get headers() {
-    const user = this.authService.currentUser();
-    return {
-      Authorization: `Bearer ${user?.accessToken || sessionStorage.getItem('access_token')}`
-    };
-  }
 
   loadSession() {
-    this.http.get<any>(`${environment.apiUrl}/api/candidate/tests/sessions/${this.sessionId}`, { headers: this.headers })
+    this.http.get<any>(`${environment.apiUrl}/api/candidate/tests/sessions/${this.sessionId}`)
       .subscribe({
         next: (data) => {
           this.session = data;
@@ -114,7 +106,7 @@ export class TestRunnerComponent implements OnInit {
         })
       };
 
-      this.http.post<any>(`${environment.apiUrl}/api/candidate/tests/sessions/${this.sessionId}/submit`, payload, { headers: this.headers })
+      this.http.post<any>(`${environment.apiUrl}/api/candidate/tests/sessions/${this.sessionId}/submit`, payload)
         .subscribe({
           next: () => {
             this.router.navigate(['/candidate/results', this.sessionId]);

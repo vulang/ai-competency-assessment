@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
-import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-adaptive-runner',
@@ -24,7 +23,6 @@ export class AdaptiveRunnerComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
 
   ngOnInit() {
     this.sessionId = this.route.snapshot.paramMap.get('sessionId') || '';
@@ -33,12 +31,6 @@ export class AdaptiveRunnerComponent implements OnInit {
     }
   }
 
-  get headers() {
-    const user = this.authService.currentUser();
-    return {
-      Authorization: `Bearer ${user?.accessToken || sessionStorage.getItem('access_token')}`
-    };
-  }
 
   get currentQuestion() {
     return this.questionData?.question;
@@ -55,7 +47,7 @@ export class AdaptiveRunnerComponent implements OnInit {
     this.isLoading = true;
     this.response = ''; // Reset input
     
-    this.http.get<any>(`${environment.apiUrl}/api/adaptivetests/${this.sessionId}/next`, { headers: this.headers })
+    this.http.get<any>(`${environment.apiUrl}/api/adaptivetests/${this.sessionId}/next`)
       .subscribe({
         next: (data) => {
           this.questionData = data;
@@ -117,7 +109,7 @@ export class AdaptiveRunnerComponent implements OnInit {
         answer: answerStr
     };
 
-    this.http.post<any>(`${environment.apiUrl}/api/adaptivetests/${this.sessionId}/submit`, payload, { headers: this.headers })
+    this.http.post<any>(`${environment.apiUrl}/api/adaptivetests/${this.sessionId}/submit`, payload)
       .subscribe({
         next: (result) => {
             this.isSubmitting = false;

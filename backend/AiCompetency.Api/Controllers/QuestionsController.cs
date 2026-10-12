@@ -1,3 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+using AiCompetency.Api.Services;
+using Microsoft.AspNetCore.Authorization;
+using OpenIddict.Validation.AspNetCore;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AiCompetency.Api.Data;
@@ -8,20 +12,23 @@ using Microsoft.EntityFrameworkCore;
 namespace AiCompetency.Api.Controllers;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, Roles = "Admin")]
 [Route("api/[controller]")]
 public class QuestionsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly QuestionClassificationService _classification;
 
-    public QuestionsController(ApplicationDbContext context)
+    public QuestionsController(ApplicationDbContext context, QuestionClassificationService classification)
     {
         _context = context;
+        _classification = classification;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetQuestions()
     {
-        var questions = await _context.Questions.ToListAsync();
+        var questions = await _context.Questions.Include(q => q.Skill).ThenInclude(s => s!.Domain).ToListAsync();
         var dtos = questions.Select(MapToDto).ToList();
         return Ok(dtos);
     }
@@ -29,7 +36,7 @@ public class QuestionsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetQuestion(int id)
     {
-        var question = await _context.Questions.FindAsync(id);
+        var question = await _context.Questions.Include(q => q.Skill).ThenInclude(s => s!.Domain).SingleOrDefaultAsync(q => q.Id == id);
         if (question == null)
             return NotFound();
 
@@ -39,14 +46,17 @@ public class QuestionsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateQuestion([FromBody] QuestionDto dto)
     {
+        QuestionClassification classification;
+        try { classification = await _classification.ResolveAsync(dto.CompetencyGroupId, dto.CompetencyLevelId, dto.SkillId, dto.Difficulty); }
+        catch (ValidationException error) { ModelState.AddModelError("classification", error.Message); return ValidationProblem(statusCode: 400, modelStateDictionary: ModelState); }
         var dict = new Dictionary<string, object>
         {
             ["topic"] = dto.Title,
-            ["group"] = dto.CompetencyGroupId,
-            ["level"] = dto.CompetencyLevelId,
+            ["group"] = classification.Group,
+            ["level"] = classification.Level,
             ["tags"] = dto.Tags,
             ["options"] = dto.Options,
-            ["answer"] = dto.Answer,
+            ["answer"] = ParseAnswer(dto.Answer),
             ["context"] = dto.Context,
             ["responseStructure"] = dto.ResponseStructure,
             ["rubric"] = dto.Rubric,
@@ -56,7 +66,8 @@ public class QuestionsController : ControllerBase
 
         var question = new Question
         {
-            Type = dto.Type,
+            SkillId = classification.SkillId,
+            Type = QuestionClassificationService.NormalizeType(dto.Type),
             Content = dto.Prompt,
             DifficultyLevel = dto.Difficulty,
             Status = Enum.TryParse<QuestionStatus>(dto.Status, true, out var status) ? status : QuestionStatus.Draft,
@@ -73,11 +84,15 @@ public class QuestionsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateQuestion(int id, [FromBody] QuestionDto dto)
     {
-        var question = await _context.Questions.FindAsync(id);
+        var question = await _context.Questions.Include(q => q.Skill).ThenInclude(s => s!.Domain).SingleOrDefaultAsync(q => q.Id == id);
         if (question == null)
             return NotFound();
 
-        question.Type = dto.Type;
+        QuestionClassification classification;
+        try { classification = await _classification.ResolveAsync(dto.CompetencyGroupId, dto.CompetencyLevelId, dto.SkillId, dto.Difficulty); }
+        catch (ValidationException error) { ModelState.AddModelError("classification", error.Message); return ValidationProblem(statusCode: 400, modelStateDictionary: ModelState); }
+        question.SkillId = classification.SkillId;
+        question.Type = QuestionClassificationService.NormalizeType(dto.Type);
         question.Content = dto.Prompt;
         question.DifficultyLevel = dto.Difficulty;
         if (Enum.TryParse<QuestionStatus>(dto.Status, true, out var status))
@@ -87,11 +102,11 @@ public class QuestionsController : ControllerBase
         var existingMetadata = question.Metadata.RootElement.Clone();
         var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(existingMetadata.GetRawText()) ?? new Dictionary<string, object>();
         dict["topic"] = dto.Title;
-        dict["group"] = dto.CompetencyGroupId;
-        dict["level"] = dto.CompetencyLevelId;
+        dict["group"] = classification.Group;
+        dict["level"] = classification.Level;
         dict["tags"] = dto.Tags;
         dict["options"] = dto.Options;
-        dict["answer"] = dto.Answer;
+        dict["answer"] = ParseAnswer(dto.Answer);
         dict["context"] = dto.Context;
         dict["responseStructure"] = dto.ResponseStructure;
         dict["rubric"] = dto.Rubric;
@@ -108,7 +123,7 @@ public class QuestionsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteQuestion(int id)
     {
-        var question = await _context.Questions.FindAsync(id);
+        var question = await _context.Questions.Include(q => q.Skill).ThenInclude(s => s!.Domain).SingleOrDefaultAsync(q => q.Id == id);
         if (question == null)
             return NotFound();
 
@@ -126,28 +141,37 @@ public class QuestionsController : ControllerBase
             return BadRequest("No questions provided.");
         }
 
-        var entities = questions.Select(q => new Question
+        var entities = new List<Question>();
+        for (var index = 0; index < questions.Count; index++)
         {
-            Content = !string.IsNullOrEmpty(q.Stem) ? q.Stem : (q.Question ?? string.Empty),
-            Type = !string.IsNullOrEmpty(q.Type) ? q.Type : "mcq_single",
-            DifficultyLevel = TransformLevel(q.Level),
-            Status = QuestionStatus.Draft,
-            Metadata = JsonSerializer.SerializeToDocument(new
+            var q = questions[index];
+            QuestionClassification classification;
+            try { classification = await _classification.ResolveAsync(q.Group, q.Level, q.SkillId, q.Difficulty); }
+            catch (ValidationException error) { ModelState.AddModelError($"questions[{index}]", error.Message); return ValidationProblem(statusCode: 400, modelStateDictionary: ModelState); }
+            entities.Add(new Question
             {
-                options = q.Options ?? new List<string>(),
-                answer = q.Answer ?? string.Empty,
-                explanation = !string.IsNullOrEmpty(q.RationaleHidden) ? q.RationaleHidden : (q.Explanation ?? string.Empty),
-                group = q.Group,
-                topic = q.Title ?? q.Topic,
-                level = q.Level,
-                context = q.Context ?? string.Empty,
-                responseStructure = q.ResponseStructure ?? new List<string>(),
-                rubric = q.Rubric ?? new List<string>(),
-                judgePromptHints = q.JudgePromptHints ?? string.Empty,
-                behaviorsAddressed = q.BehaviorsAddressed ?? new List<string>()
-            }),
-            RubricScoring = q.Rubric != null && q.Rubric.Any() ? string.Join("\n", q.Rubric) : null
-        }).ToList();
+                SkillId = classification.SkillId,
+                Content = !string.IsNullOrEmpty(q.Stem) ? q.Stem : (q.Question ?? string.Empty),
+                Type = QuestionClassificationService.NormalizeType(!string.IsNullOrEmpty(q.Type) ? q.Type : "mcq_single"),
+                DifficultyLevel = q.Difficulty,
+                Status = QuestionStatus.Draft,
+                Metadata = JsonSerializer.SerializeToDocument(new
+                {
+                    options = q.Options ?? new List<string>(),
+                    answer = q.Answer ?? string.Empty,
+                    explanation = !string.IsNullOrEmpty(q.RationaleHidden) ? q.RationaleHidden : (q.Explanation ?? string.Empty),
+                    group = classification.Group,
+                    topic = q.Title ?? q.Topic,
+                    level = classification.Level,
+                    context = q.Context ?? string.Empty,
+                    responseStructure = q.ResponseStructure ?? new List<string>(),
+                    rubric = q.Rubric ?? new List<string>(),
+                    judgePromptHints = q.JudgePromptHints ?? string.Empty,
+                    behaviorsAddressed = q.BehaviorsAddressed ?? new List<string>()
+                }),
+                RubricScoring = q.Rubric != null && q.Rubric.Any() ? string.Join("\n", q.Rubric) : null
+            });
+        }
 
         _context.Questions.AddRange(entities);
         await _context.SaveChangesAsync();
@@ -155,15 +179,14 @@ public class QuestionsController : ControllerBase
         return Ok(new { count = entities.Count });
     }
 
-    private int TransformLevel(string? level)
+    private static object ParseAnswer(string answer)
     {
-        return level switch
+        if (answer.TrimStart().StartsWith('['))
         {
-            "NenTang" => 1,
-            "ApDung" => 2,
-            "KienTao" => 3,
-            _ => 1
-        };
+            try { return JsonSerializer.Deserialize<string[]>(answer) ?? []; }
+            catch (JsonException) { }
+        }
+        return answer;
     }
 
     private QuestionDto MapToDto(Question q)
@@ -172,12 +195,13 @@ public class QuestionsController : ControllerBase
         return new QuestionDto
         {
             Id = q.Id.ToString(),
+            SkillId = q.SkillId,
             Title = root.TryGetProperty("topic", out var topicProp) && topicProp.ValueKind == JsonValueKind.String ? topicProp.GetString() ?? "Untitled" : "Untitled",
             Prompt = q.Content,
             Type = q.Type,
-            CompetencyGroupId = root.TryGetProperty("group", out var groupProp) && groupProp.ValueKind == JsonValueKind.String ? groupProp.GetString() ?? string.Empty : string.Empty,
-            CompetencyLevelId = root.TryGetProperty("level", out var levelProp) && levelProp.ValueKind == JsonValueKind.String ? levelProp.GetString() ?? string.Empty : string.Empty,
-            Difficulty = q.DifficultyLevel ?? 1,
+            CompetencyGroupId = q.Skill?.Domain.Name ?? (root.TryGetProperty("group", out var groupProp) && groupProp.ValueKind == JsonValueKind.String ? groupProp.GetString() ?? string.Empty : string.Empty),
+            CompetencyLevelId = root.TryGetProperty("level", out var levelProp) && levelProp.ValueKind == JsonValueKind.String ? CompetencyCatalog.LevelName(levelProp.GetString()) ?? levelProp.GetString() ?? string.Empty : string.Empty,
+            Difficulty = q.DifficultyLevel,
             Tags = root.TryGetProperty("tags", out var tagsProp) && tagsProp.ValueKind == JsonValueKind.Array ? tagsProp.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : new List<string>(),
             Options = root.TryGetProperty("options", out var optionsProp) && optionsProp.ValueKind == JsonValueKind.Array ? optionsProp.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : new List<string>(),
             Answer = root.TryGetProperty("answer", out var answerProp) ? (answerProp.ValueKind == JsonValueKind.String ? answerProp.GetString() ?? string.Empty : answerProp.GetRawText()) : string.Empty,
@@ -200,7 +224,9 @@ public class QuestionDto
     public string Type { get; set; } = string.Empty;
     public string CompetencyGroupId { get; set; } = string.Empty;
     public string CompetencyLevelId { get; set; } = string.Empty;
-    public int Difficulty { get; set; } = 1;
+    [Range(1, 5)]
+    public int? Difficulty { get; set; }
+    public int? SkillId { get; set; }
     public List<string> Tags { get; set; } = new();
     public List<string> Options { get; set; } = new();
     public string Answer { get; set; } = string.Empty;
@@ -215,6 +241,12 @@ public class QuestionDto
 
 public class BatchQuestionInput
 {
+    [JsonPropertyName("difficulty"), Range(1, 5)]
+    public int? Difficulty { get; set; }
+
+    [JsonPropertyName("skill_id")]
+    public int? SkillId { get; set; }
+
     [JsonPropertyName("type")]
     public string? Type { get; set; }
     

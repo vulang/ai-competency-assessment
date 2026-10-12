@@ -97,13 +97,370 @@ namespace AiCompetency.Api.Migrations
                         .HasColumnType("character varying(32)")
                         .HasColumnName("status");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
                     b.ToTable("adaptive_test_sessions");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencyCriterion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("criteria_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("integer")
+                        .HasColumnName("level");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SkillId")
+                        .HasColumnType("integer")
+                        .HasColumnName("skill_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SkillId", "Name", "Level")
+                        .IsUnique();
+
+                    b.ToTable("criteria", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_criteria_level", "level BETWEEN 1 AND 3");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Hiểu thuật ngữ AI thông dụng và phân biệt AI với chương trình truyền thống",
+                            Level = 1,
+                            Name = "Basic",
+                            SkillId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Xác định quy trình phát triển AI và hiểu tài liệu khoa học/chính sách",
+                            Level = 2,
+                            Name = "Intermediate",
+                            SkillId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Giải thích vai trò dữ liệu/thuật toán và đánh giá các thuật toán AI",
+                            Level = 3,
+                            Name = "Advanced",
+                            SkillId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Hiểu vai trò dữ liệu và nguồn thu thập, làm sạch cơ bản",
+                            Level = 1,
+                            Name = "Basic",
+                            SkillId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Đánh giá chất lượng dữ liệu và sử dụng công cụ phân tích cơ bản",
+                            Level = 2,
+                            Name = "Intermediate",
+                            SkillId = 2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Sử dụng công cụ chuyên sâu để thiết kế và trực quan hóa dữ liệu",
+                            Level = 3,
+                            Name = "Advanced",
+                            SkillId = 2
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Xác định nguồn thông tin và đánh giá độ tin cậy cơ bản",
+                            Level = 1,
+                            Name = "Basic",
+                            SkillId = 3
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "So sánh kết quả từ nhiều công cụ AI và phân tích phương pháp xác thực",
+                            Level = 2,
+                            Name = "Intermediate",
+                            SkillId = 3
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Sử dụng công cụ chuyên dụng để kiểm tra tính chính xác và hiệu lực của AI",
+                            Level = 3,
+                            Name = "Advanced",
+                            SkillId = 3
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "Liệt kê ví dụ ứng dụng AI và xác định lợi ích/thách thức theo ngành",
+                            Level = 1,
+                            Name = "Basic",
+                            SkillId = 4
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Description = "Mô tả công nghệ nền tảng và thách thức tiềm ẩn khi triển khai",
+                            Level = 2,
+                            Name = "Intermediate",
+                            SkillId = 4
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Description = "Đánh giá tính phù hợp và bền vững lâu dài của giải pháp AI",
+                            Level = 3,
+                            Name = "Advanced",
+                            SkillId = 4
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Description = "Liệt kê rủi ro AI và hiểu các nguyên tắc đạo đức cơ bản",
+                            Level = 1,
+                            Name = "Basic",
+                            SkillId = 5
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Description = "Đánh giá mức độ rủi ro và hạn chế của các ứng dụng AI cụ thể",
+                            Level = 2,
+                            Name = "Intermediate",
+                            SkillId = 5
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Description = "Xây dựng chính sách tổ chức và tư vấn văn hóa sử dụng AI đạo đức",
+                            Level = 3,
+                            Name = "Advanced",
+                            SkillId = 5
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Description = "Liệt kê các công cụ AI và xác định lợi ích/hạn chế cơ bản",
+                            Level = 1,
+                            Name = "Basic",
+                            SkillId = 6
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Description = "Nguyên tắc tích hợp AI vào công việc và đánh giá lựa chọn công cụ",
+                            Level = 2,
+                            Name = "Intermediate",
+                            SkillId = 6
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Description = "Đề xuất kịch bản sử dụng mới và khuyến nghị tính tiếp cận của AI",
+                            Level = 3,
+                            Name = "Advanced",
+                            SkillId = 6
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Description = "Xác định vai trò dễ bị tác động và nhận biết lợi ích/thách thức chung",
+                            Level = 1,
+                            Name = "Basic",
+                            SkillId = 7
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Description = "Liên hệ thay đổi công nghệ quá khứ và đề xuất can thiệp đào tạo",
+                            Level = 2,
+                            Name = "Intermediate",
+                            SkillId = 7
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Description = "Đánh giá tác động rộng lớn và phát triển chiến lược thích ứng của tổ chức",
+                            Level = 3,
+                            Name = "Advanced",
+                            SkillId = 7
+                        });
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencyDomain", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("domain_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("code");
+
+                    b.Property<int>("FrameworkId")
+                        .HasColumnType("integer")
+                        .HasColumnName("framework_id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Weight")
+                        .HasColumnType("numeric")
+                        .HasColumnName("weight");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FrameworkId", "Code")
+                        .IsUnique();
+
+                    b.HasIndex("FrameworkId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("domains", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_domains_weight", "weight > 0");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "FOUNDATION",
+                            FrameworkId = 1,
+                            Name = "Fundamental",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "DATA",
+                            FrameworkId = 1,
+                            Name = "Data",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "CRITICAL_THINKING",
+                            FrameworkId = 1,
+                            Name = "Critical Thinking",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "APPLICATION",
+                            FrameworkId = 1,
+                            Name = "AI Use Cases",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Code = "ETHICS",
+                            FrameworkId = 1,
+                            Name = "AI Ethics",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Code = "TOOLS",
+                            FrameworkId = 1,
+                            Name = "AI Tools",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Code = "FUTURE_OF_WORK",
+                            FrameworkId = 1,
+                            Name = "Future of Work",
+                            Weight = 1m
+                        });
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencyFramework", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("framework_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive")
+                        .IsUnique()
+                        .HasFilter("is_active = true");
+
+                    b.HasIndex("Version")
+                        .IsUnique();
+
+                    b.ToTable("frameworks");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsActive = true,
+                            Name = "AI competency compatibility framework",
+                            Version = "p0-v1"
+                        });
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.CompetencyProfile", b =>
@@ -140,13 +497,126 @@ namespace AiCompetency.Api.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("theta");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("user_id");
 
                     b.HasKey("ProfileId");
 
                     b.ToTable("competency_profiles");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencySkill", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("skill_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<int>("DomainId")
+                        .HasColumnType("integer")
+                        .HasColumnName("domain_id");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Weight")
+                        .HasColumnType("numeric")
+                        .HasColumnName("weight");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DomainId")
+                        .IsUnique()
+                        .HasFilter("is_default = true");
+
+                    b.HasIndex("DomainId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("skills", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_skills_weight", "weight > 0");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Hiểu các thuật ngữ AI thông dụng, sự khác biệt giữa AI và chương trình truyền thống. Giải thích vai trò của dữ liệu và thuật toán; Đánh giá ưu nhược điểm của các thuật toán AI.",
+                            DomainId = 1,
+                            IsDefault = true,
+                            Name = "Fundamental",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Hiểu vai trò của dữ liệu, quy trình thu thập, làm sạch, chuẩn hóa, phân tích và trực quan hóa dữ liệu bằng các công cụ hiện đại.",
+                            DomainId = 2,
+                            IsDefault = true,
+                            Name = "Data",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Phân tích nguồn thông tin, đánh giá độ tin cậy, so sánh kết quả từ các công cụ AI và thực hiện xác thực kết quả (fact-check).",
+                            DomainId = 3,
+                            IsDefault = true,
+                            Name = "Critical Thinking",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Ứng dụng AI trong các lĩnh vực, hiểu công nghệ nền tảng, thách thức triển khai và đánh giá tính khả thi lâu dài.",
+                            DomainId = 4,
+                            IsDefault = true,
+                            Name = "AI Use Cases",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Nhận diện rủi ro (bias, riêng tư), tuân thủ nguyên tắc đạo đức và xây dựng văn hóa sử dụng AI trách nhiệm.",
+                            DomainId = 5,
+                            IsDefault = true,
+                            Name = "AI Ethics",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Sử dụng và đánh giá các công cụ/nền tảng AI, tích hợp vào quy trình làm việc và đề xuất giải pháp cải thiện hiệu quả.",
+                            DomainId = 6,
+                            IsDefault = true,
+                            Name = "AI Tools",
+                            Weight = 1m
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Tác động của AI đến việc làm, kỹ năng mới (upskilling), chiến lược tổ chức và thích ứng với môi trường làm việc AI.",
+                            DomainId = 7,
+                            IsDefault = true,
+                            Name = "Future of Work",
+                            Weight = 1m
+                        });
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.Exam", b =>
@@ -255,6 +725,7 @@ namespace AiCompetency.Api.Migrations
                         .HasColumnName("start_time");
 
                     b.Property<string>("Status")
+                        .IsConcurrencyToken()
                         .IsRequired()
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
@@ -264,8 +735,9 @@ namespace AiCompetency.Api.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("total_score");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
                         .HasColumnName("user_id");
 
                     b.HasKey("Id");
@@ -319,7 +791,12 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("questions");
+                    b.HasIndex("SkillId");
+
+                    b.ToTable("questions", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_questions_difficulty", "difficulty_level IS NULL OR difficulty_level BETWEEN 1 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.QuestionGenerationPlan", b =>
@@ -454,8 +931,8 @@ namespace AiCompetency.Api.Migrations
 
             modelBuilder.Entity("AiCompetency.Api.Models.UserSkillMastery", b =>
                 {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
                         .HasColumnName("user_id");
 
                     b.Property<int>("SkillId")
@@ -902,6 +1379,39 @@ namespace AiCompetency.Api.Migrations
                     b.Navigation("Session");
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencyCriterion", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.CompetencySkill", "Skill")
+                        .WithMany("Criteria")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Skill");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencyDomain", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.CompetencyFramework", "Framework")
+                        .WithMany("Domains")
+                        .HasForeignKey("FrameworkId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Framework");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencySkill", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.CompetencyDomain", "Domain")
+                        .WithMany("Skills")
+                        .HasForeignKey("DomainId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Domain");
+                });
+
             modelBuilder.Entity("AiCompetency.Api.Models.ExamQuestion", b =>
                 {
                     b.HasOne("AiCompetency.Api.Models.Exam", "Exam")
@@ -930,6 +1440,16 @@ namespace AiCompetency.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Exam");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.Question", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.CompetencySkill", "Skill")
+                        .WithMany()
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Skill");
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.QuestionIrtParams", b =>
@@ -1051,6 +1571,21 @@ namespace AiCompetency.Api.Migrations
             modelBuilder.Entity("AiCompetency.Api.Models.AdaptiveTestSession", b =>
                 {
                     b.Navigation("Responses");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencyDomain", b =>
+                {
+                    b.Navigation("Skills");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencyFramework", b =>
+                {
+                    b.Navigation("Domains");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.CompetencySkill", b =>
+                {
+                    b.Navigation("Criteria");
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.Exam", b =>

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { delay, Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { TestBlueprint } from '../../models/test.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TestService {
-  private apiUrl = '/api/tests';
+  private readonly apiUrl = `${environment.apiUrl}/api/tests`;
 
   constructor(private http: HttpClient) {}
 

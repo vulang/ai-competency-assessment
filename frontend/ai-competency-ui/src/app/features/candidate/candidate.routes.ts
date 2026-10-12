@@ -4,6 +4,10 @@ import { candidateAuthGuard } from '../../core/auth/candidate-auth.guard';
 
 export const CANDIDATE_ROUTES: Routes = [
   {
+    path: 'register',
+    loadComponent: () => import('./register/candidate-register.component').then(m => m.CandidateRegisterComponent)
+  },
+  {
     path: 'login',
     loadComponent: () => import('./login/candidate-login.component').then(m => m.CandidateLoginComponent)
   },
@@ -11,6 +15,7 @@ export const CANDIDATE_ROUTES: Routes = [
     path: '',
     loadComponent: () => import('../../layouts/candidate-layout/candidate-layout.component').then(m => m.CandidateLayoutComponent),
     canActivate: [candidateAuthGuard],
+    canActivateChild: [candidateAuthGuard],
     children: [
       {
         path: 'home',

@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5000',
+  apiUrl: '',
   oidc: {
     authority: 'http://localhost:5000',
     client_id: 'ai-competency-ui',

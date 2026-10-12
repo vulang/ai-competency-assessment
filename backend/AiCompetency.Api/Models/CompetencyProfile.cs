@@ -16,7 +16,7 @@ public class CompetencyProfile
     public Guid ProfileId { get; set; } = Guid.NewGuid();
 
     [Column("user_id")]
-    public int UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 
     [Column("session_id")]
     public Guid? SessionId { get; set; }

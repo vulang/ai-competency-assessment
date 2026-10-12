@@ -1,0 +1,13 @@
+.git
+.agent
+.venv
+**/bin
+**/obj
+**/node_modules
+**/.cache
+**/__pycache__
+**/.env
+**/out
+frontend
+src
+services

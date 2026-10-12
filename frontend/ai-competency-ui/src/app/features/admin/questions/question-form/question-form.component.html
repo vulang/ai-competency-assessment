@@ -16,6 +16,8 @@
     </div>
 </div>
 
+<p class="alert alert-danger" role="alert" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+
 <form [formGroup]="form" class="row g-4">
     <!-- Main Details -->
     <div class="col-lg-8">
@@ -167,35 +169,37 @@
 
             <div class="mb-3">
                 <label class="form-label">Competency Group</label>
-                <select class="form-select" formControlName="competencyGroupId">
-                    <option value="cg1">AI Fundamentals (Legacy)</option>
-                    <option value="cg2">Machine Learning (Legacy)</option>
-                    <option value="Fundamental">Fundamental</option>
-                    <option value="Data">Data</option>
-                    <option value="CriticalThinking">Critical Thinking</option>
-                    <option value="AIUseCases">AI Use Cases</option>
-                    <option value="AIEthics">AI Ethics</option>
-                    <option value="AITools">AI Tools</option>
-                    <option value="FutureOfWork">Future of Work</option>
+                <select class="form-select" formControlName="competencyGroupId" (change)="changeGroup()">
+                    <option value="">Choose a competency group</option>
+                    <option *ngFor="let domain of domains()" [value]="domain.name">{{ domain.name }}</option>
                 </select>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Competency Level</label>
                 <select class="form-select" formControlName="competencyLevelId">
-                    <option value="cl1">Level 1: Foundation (Legacy)</option>
-                    <option value="cl2">Level 2: Apply (Legacy)</option>
-                    <option value="cl3">Level 3: Create (Legacy)</option>
-                    <option value="Foundation">Level 1: Foundation</option>
-                    <option value="Apply">Level 2: Apply</option>
-                    <option value="Create">Level 3: Create</option>
-                    <option value="NenTang">Level 1: Foundation (NenTang)</option>
-                    <option value="ApDung">Level 2: Apply (ApDung)</option>
-                    <option value="KienTao">Level 3: Create (KienTao)</option>
-                    <option value="Basic">Level 1: Foundation (Basic)</option>
-                    <option value="Intermediate">Level 2: Apply (Intermediate)</option>
-                    <option value="Advanced">Level 3: Create (Advanced)</option>
+                    <option value="">Choose a competency level</option>
+                    <option value="Basic">Basic</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
                 </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="skill" class="form-label">Skill</label>
+                <select id="skill" class="form-select" formControlName="skillId">
+                    <option [ngValue]="null">Choose a skill</option>
+                    <option *ngFor="let skill of skills" [ngValue]="skill.id">{{ skill.name }}</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="difficulty" class="form-label">Item difficulty</label>
+                <select id="difficulty" class="form-select" formControlName="difficulty">
+                    <option [ngValue]="null">Unknown</option>
+                    <option *ngFor="let value of [1, 2, 3, 4, 5]" [ngValue]="value">{{ value }}</option>
+                </select>
+                <small class="text-muted">Difficulty is recorded separately from the competency level.</small>
             </div>
 
             <div class="mb-3">
