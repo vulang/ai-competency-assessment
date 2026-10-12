@@ -3,7 +3,7 @@
 Framework version: `cv-v1` · Status: Published
 
 The supplied thesis v8.1 names Appendices A/B under “PHỤ LỤC DỰ KIẾN” but does not contain their full text.
-These indicators align to §1.2 and the rubric boundaries follow §2.3. Project owner approval: 2026-10-12.
+These indicators align to §1.2 and the rubric boundaries follow §2.3. Expert review and approval were confirmed by the project owner on 2026-10-12.
 
 For every positive CV label, the annotator must cite at least one exact span. Level 0 means insufficient CV evidence.
 
@@ -176,6 +176,7 @@ The examples below are synthetic. A title, tenure, self rating, or tool list alo
 
 ## Approval record
 
-- Decision: approved by the project owner in conversation on 2026-10-12.
+- Decision: expert review and approval confirmed by the project owner in conversation on 2026-10-12.
+- Reviewer name and review date: not supplied.
 - Basis: proposed indicators and rubric reviewed against the supplied thesis v8.1 §1.2 and §2.3.
 - Validation of annotation agreement remains a Phase 4 pilot task.

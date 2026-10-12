@@ -2131,7 +2131,7 @@ namespace AiCompetency.Api.Migrations
                             Id = 2,
                             IsActive = true,
                             PublishedAt = new DateTimeOffset(new DateTime(2026, 10, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Source = "Project owner approval on 2026-10-12 of the proposed indicators and rubric aligned to thesis v8.1 sections 1.2 and 2.3. The supplied thesis lists Appendices A/B as planned without their full text.",
+                            Source = "Proposed indicators and rubric aligned to thesis v8.1 sections 1.2 and 2.3. Expert review and approval were confirmed by the project owner on 2026-10-12; the reviewer name and review date were not supplied. The thesis lists Appendices A/B as planned without their full text.",
                             Status = "Published",
                             Version = "cv-v1"
                         });

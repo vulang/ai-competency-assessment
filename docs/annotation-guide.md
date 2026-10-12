@@ -1,12 +1,13 @@
 # CV annotation guide — v1
 
-Status: project owner approved on 2026-10-12; annotation agreement has not been measured.
+Status: expert review and approval confirmed by the project owner on 2026-10-12;
+annotation agreement has not been measured.
 Framework: `cv-v1`, in [the published framework seed](../data/frameworks/cv-v1.yaml).
 The seed uses JSON syntax, a subset of YAML 1.2, and is embedded directly in the
 API assembly. It contains proposed indicators derived from the existing catalogue
 and aligned to thesis v8.1 §1.2 and §2.3. The thesis lists Appendices A and B as
-planned, without their full indicator set or annotation handbook. No separate expert
-reviewer identity has been supplied.
+planned, without their full indicator set or annotation handbook. The expert's name
+and review date were not supplied.
 
 ## Labels and evidence
 
@@ -60,6 +61,6 @@ labels/spans separate. Discuss disagreements with an adjudicator, revise ambiguo
 indicators and rubric examples, and record review decisions. Measure agreement in
 Phase 4; do not claim validated agreement or coverage yet.
 
-The project owner approved Appendices A/B and `cv-v1` is published as the active CV
+The project owner confirmed expert approval of Appendices A/B; `cv-v1` is the active CV
 version. Retain the draft and all indicator codes so existing annotations remain
 interpretable. Use the admin editor to copy and review any later rubric revision.

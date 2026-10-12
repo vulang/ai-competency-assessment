@@ -2115,3 +2115,25 @@ BEGIN
     END IF;
 END $EF$;
 COMMIT;
+
+START TRANSACTION;
+
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012145135_RecordExpertReviewOfCvV1') THEN
+    UPDATE competency_framework_versions
+    SET "Source" = 'Proposed indicators and rubric aligned to thesis v8.1 sections 1.2 and 2.3. Expert review and approval were confirmed by the project owner on 2026-10-12; the reviewer name and review date were not supplied. The thesis lists Appendices A/B as planned without their full text.'
+    WHERE "Id" = 2 AND "Version" = 'cv-v1' AND "Status" = 'Published'
+      AND "Source" = 'Project owner approval on 2026-10-12 of the proposed indicators and rubric aligned to thesis v8.1 sections 1.2 and 2.3. The supplied thesis lists Appendices A/B as planned without their full text.';
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012145135_RecordExpertReviewOfCvV1') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20261012145135_RecordExpertReviewOfCvV1', '8.0.21');
+    END IF;
+END $EF$;
+COMMIT;

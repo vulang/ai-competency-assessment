@@ -17,6 +17,7 @@ dotnet ef migrations script UseIdentitySubjectIds AddCompetencyCatalog --project
 dotnet ef migrations script AddCompetencyCatalog AddQuestionTaxonomy --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/taxonomy.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 dotnet ef migrations script AddQuestionTaxonomy AlignCvDraftRubricWithThesis --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/rubric.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 dotnet ef migrations script AlignCvDraftRubricWithThesis PublishCvFrameworkV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/release.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
+dotnet ef migrations script PublishCvFrameworkV1 RecordExpertReviewOfCvV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/review.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 
 docker run --rm --detach --network none --tmpfs /var/lib/postgresql/data:rw,size=512m --name "$container_name" -e POSTGRES_PASSWORD=schema-validation postgres:16 > /dev/null
 for attempt in {1..30}; do
@@ -46,6 +47,7 @@ DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM proficiency_levels WHERE "Ordinal" = 0 AND "Code" = 'NO_EVIDENCE')
       OR (SELECT count(*) FROM competency_framework_versions WHERE "IsActive") <> 1
       OR NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1' AND "Status" = 'Published' AND "IsActive")
+      OR NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1' AND "Source" LIKE '%Expert review and approval were confirmed%')
       OR NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1-draft' AND "Status" = 'Draft' AND NOT "IsActive") THEN
     RAISE EXCEPTION 'Level zero or CV publication state is incorrect';
   END IF;
@@ -107,6 +109,7 @@ UPDATE cv_rubric_rules SET "Example" = 'Expert edit retained' WHERE "Id" = 2;
 SQL
 run_sql legacy < "$validation_dir/rubric.sql"
 run_sql legacy < "$validation_dir/release.sql"
+run_sql legacy < "$validation_dir/review.sql"
 run_sql legacy <<'SQL'
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM cv_rubric_rules WHERE "Id" = 2 AND "Example" = 'Expert edit retained')
@@ -114,7 +117,7 @@ DO $$ BEGIN
     RAISE EXCEPTION 'Thesis rubric migration overwrote an edited draft or missed seed rows';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM cv_rubric_rules WHERE "FrameworkVersionId" = 2 AND "GroupCode" = 'FOUNDATION' AND "Level" = 1 AND "AcceptedEvidence" LIKE '%học phần/chứng chỉ có sản phẩm%')
-    OR NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1' AND "IsActive") THEN
+    OR NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1' AND "IsActive" AND "Source" LIKE '%Expert review and approval were confirmed%') THEN
     RAISE EXCEPTION 'Published CV framework was not seeded independently of the edited draft';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM questions WHERE content = 'recognized group' AND skill_id = 6 AND difficulty_level IS NULL
