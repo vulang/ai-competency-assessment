@@ -238,7 +238,7 @@ flowchart LR
 
 ### Phase 1 — Khung năng lực, lược đồ nhãn 4 mức và taxonomy thống nhất
 
-**Trạng thái:** Phần mềm và bộ CV `cv-v1` đã xuất bản ngày 2026-10-12. Chủ dự án xác nhận chuyên gia đã duyệt bộ chỉ báo và rubric. Đã đối chiếu với §1.2 và §2.3 của bản luận văn v8.1 được cung cấp; Phụ lục A/B trong tài liệu chỉ là mục dự kiến. Chưa có tên/ngày phản biện của chuyên gia hoặc kết quả đo độ nhất quán gán nhãn. Chi tiết: [phase-1-progress.md](phase-1-progress.md).
+**Trạng thái: Hoàn thành ngày 2026-10-12.** Bộ CV `cv-v1` đã xuất bản; chủ dự án xác nhận chuyên gia đã duyệt bộ chỉ báo và rubric. Đã đối chiếu với §1.2 và §2.3 của bản luận văn v8.1 được cung cấp; Phụ lục A/B trong tài liệu chỉ là mục dự kiến. Tên/ngày phản biện của chuyên gia chưa được cung cấp. Đo độ nhất quán gán nhãn thuộc Phase 4. Chi tiết: [phase-1-progress.md](phase-1-progress.md).
 
 **Liên hệ luận văn:** §1.2, §1.2.1, §2.3, Phụ lục A, B, D.
 
@@ -261,7 +261,7 @@ flowchart LR
 
 **Phê duyệt:** chủ dự án xác nhận chuyên gia đã duyệt Phụ lục A/B và ví dụ biên giới cho bản `cv-v1`; chưa cung cấp tên/ngày phản biện. Seed draft vẫn không được xuất bản.
 
-**Tiêu chí hoàn thành:** mọi câu hỏi đã publish có `group_code` và `target_level` hợp lệ; thay đổi khung tạo phiên bản mới mà không phá dữ liệu cũ; chuyên gia duyệt Phụ lục A và B bản 1.0.
+**Tiêu chí hoàn thành — đã đạt:** câu hỏi đã publish phải có `group_code` và `target_level` hợp lệ (ràng buộc DB và migration kiểm tra dữ liệu cũ); phiên bản CV mới giữ nguyên bản cũ (workflow test và migration guard); chủ dự án xác nhận chuyên gia duyệt Phụ lục A/B bản 1.0. Chưa có tên/ngày ký duyệt để dùng làm hồ sơ phản biện chính thức.
 
 ---
 
