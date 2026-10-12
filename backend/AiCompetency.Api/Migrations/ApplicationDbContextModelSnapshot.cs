@@ -783,6 +783,636 @@ namespace AiCompetency.Api.Migrations
                             Level = 3,
                             TextEn = "Design criteria for tracking skill transformation",
                             TextVi = "Thiết kế tiêu chí theo dõi chuyển đổi kỹ năng"
+                        },
+                        new
+                        {
+                            Id = 64,
+                            Code = "FOUNDATION.1.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 1,
+                            TextEn = "Explain AI in a specific project",
+                            TextVi = "Giải thích AI trong một dự án cụ thể"
+                        },
+                        new
+                        {
+                            Id = 65,
+                            Code = "FOUNDATION.1.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 1,
+                            TextEn = "Distinguish AI prediction from programmed rules",
+                            TextVi = "Phân biệt dự đoán AI với luật lập trình"
+                        },
+                        new
+                        {
+                            Id = 66,
+                            Code = "FOUNDATION.1.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 1,
+                            TextEn = "Describe the role of input data",
+                            TextVi = "Mô tả vai trò dữ liệu đầu vào"
+                        },
+                        new
+                        {
+                            Id = 67,
+                            Code = "FOUNDATION.2.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 2,
+                            TextEn = "Describe completed model development steps",
+                            TextVi = "Mô tả các bước phát triển mô hình đã thực hiện"
+                        },
+                        new
+                        {
+                            Id = 68,
+                            Code = "FOUNDATION.2.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 2,
+                            TextEn = "Explain a machine learning method selection",
+                            TextVi = "Giải thích lựa chọn phương pháp học máy"
+                        },
+                        new
+                        {
+                            Id = 69,
+                            Code = "FOUNDATION.2.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 2,
+                            TextEn = "Interpret model evaluation results",
+                            TextVi = "Diễn giải kết quả đánh giá mô hình"
+                        },
+                        new
+                        {
+                            Id = 70,
+                            Code = "FOUNDATION.3.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 3,
+                            TextEn = "Compare algorithms using measured criteria",
+                            TextVi = "So sánh thuật toán bằng tiêu chí đo lường"
+                        },
+                        new
+                        {
+                            Id = 71,
+                            Code = "FOUNDATION.3.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 3,
+                            TextEn = "Analyze data and algorithm tradeoffs",
+                            TextVi = "Phân tích đánh đổi dữ liệu và thuật toán"
+                        },
+                        new
+                        {
+                            Id = 72,
+                            Code = "FOUNDATION.3.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            Level = 3,
+                            TextEn = "Design an evaluation of model limitations",
+                            TextVi = "Thiết kế phương án đánh giá giới hạn mô hình"
+                        },
+                        new
+                        {
+                            Id = 73,
+                            Code = "DATA.1.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 1,
+                            TextEn = "Collect data from identified sources",
+                            TextVi = "Thu thập dữ liệu từ nguồn xác định"
+                        },
+                        new
+                        {
+                            Id = 74,
+                            Code = "DATA.1.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 1,
+                            TextEn = "Clean missing or duplicate values",
+                            TextVi = "Làm sạch giá trị thiếu hoặc trùng lặp"
+                        },
+                        new
+                        {
+                            Id = 75,
+                            Code = "DATA.1.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 1,
+                            TextEn = "Describe data using tables or charts",
+                            TextVi = "Mô tả dữ liệu bằng bảng hoặc biểu đồ"
+                        },
+                        new
+                        {
+                            Id = 76,
+                            Code = "DATA.2.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 2,
+                            TextEn = "Evaluate data quality against criteria",
+                            TextVi = "Đánh giá chất lượng dữ liệu theo tiêu chí"
+                        },
+                        new
+                        {
+                            Id = 77,
+                            Code = "DATA.2.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 2,
+                            TextEn = "Build a data normalization workflow",
+                            TextVi = "Xây dựng quy trình chuẩn hóa dữ liệu"
+                        },
+                        new
+                        {
+                            Id = 78,
+                            Code = "DATA.2.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 2,
+                            TextEn = "Analyze data to answer a project question",
+                            TextVi = "Phân tích dữ liệu để trả lời câu hỏi dự án"
+                        },
+                        new
+                        {
+                            Id = 79,
+                            Code = "DATA.3.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 3,
+                            TextEn = "Design a data pipeline with quality checks",
+                            TextVi = "Thiết kế pipeline dữ liệu có kiểm tra chất lượng"
+                        },
+                        new
+                        {
+                            Id = 80,
+                            Code = "DATA.3.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 3,
+                            TextEn = "Check data leakage across dataset splits",
+                            TextVi = "Kiểm tra rò rỉ dữ liệu giữa các tập"
+                        },
+                        new
+                        {
+                            Id = 81,
+                            Code = "DATA.3.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            Level = 3,
+                            TextEn = "Design visualizations supporting decisions",
+                            TextVi = "Thiết kế trực quan hóa hỗ trợ quyết định"
+                        },
+                        new
+                        {
+                            Id = 82,
+                            Code = "CRITICAL_THINKING.1.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 1,
+                            TextEn = "Identify sources of AI generated information",
+                            TextVi = "Xác định nguồn của thông tin do AI tạo"
+                        },
+                        new
+                        {
+                            Id = 83,
+                            Code = "CRITICAL_THINKING.1.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 1,
+                            TextEn = "Check an AI result against an independent source",
+                            TextVi = "Kiểm tra một kết quả AI bằng nguồn độc lập"
+                        },
+                        new
+                        {
+                            Id = 84,
+                            Code = "CRITICAL_THINKING.1.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 1,
+                            TextEn = "Identify limitations in an AI answer",
+                            TextVi = "Nhận diện giới hạn trong câu trả lời AI"
+                        },
+                        new
+                        {
+                            Id = 85,
+                            Code = "CRITICAL_THINKING.2.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 2,
+                            TextEn = "Compare outputs from multiple AI tools",
+                            TextVi = "So sánh đầu ra của nhiều công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 86,
+                            Code = "CRITICAL_THINKING.2.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 2,
+                            TextEn = "Build criteria for verifying results",
+                            TextVi = "Xây dựng tiêu chí kiểm chứng kết quả"
+                        },
+                        new
+                        {
+                            Id = 87,
+                            Code = "CRITICAL_THINKING.2.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 2,
+                            TextEn = "Analyze causes of incorrect AI results",
+                            TextVi = "Phân tích nguyên nhân kết quả AI sai"
+                        },
+                        new
+                        {
+                            Id = 88,
+                            Code = "CRITICAL_THINKING.3.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 3,
+                            TextEn = "Design a reproducible AI verification workflow",
+                            TextVi = "Thiết kế quy trình kiểm chứng AI có thể tái lập"
+                        },
+                        new
+                        {
+                            Id = 89,
+                            Code = "CRITICAL_THINKING.3.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 3,
+                            TextEn = "Evaluate validity of model conclusions",
+                            TextVi = "Đánh giá tính hợp lệ của kết luận từ mô hình"
+                        },
+                        new
+                        {
+                            Id = 90,
+                            Code = "CRITICAL_THINKING.3.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            Level = 3,
+                            TextEn = "Test AI using counterexamples",
+                            TextVi = "Kiểm thử AI với các trường hợp phản ví dụ"
+                        },
+                        new
+                        {
+                            Id = 91,
+                            Code = "APPLICATION.1.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 1,
+                            TextEn = "Apply AI to a defined task",
+                            TextVi = "Áp dụng AI cho một nhiệm vụ xác định"
+                        },
+                        new
+                        {
+                            Id = 92,
+                            Code = "APPLICATION.1.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 1,
+                            TextEn = "Describe AI benefits in a work context",
+                            TextVi = "Mô tả lợi ích AI trong bối cảnh công việc"
+                        },
+                        new
+                        {
+                            Id = 93,
+                            Code = "APPLICATION.1.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 1,
+                            TextEn = "Identify obstacles to AI adoption",
+                            TextVi = "Nhận diện trở ngại khi áp dụng AI"
+                        },
+                        new
+                        {
+                            Id = 94,
+                            Code = "APPLICATION.2.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 2,
+                            TextEn = "Integrate AI into a real workflow",
+                            TextVi = "Tích hợp AI vào quy trình thực tế"
+                        },
+                        new
+                        {
+                            Id = 95,
+                            Code = "APPLICATION.2.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 2,
+                            TextEn = "Evaluate an AI solution against business criteria",
+                            TextVi = "Đánh giá giải pháp AI bằng tiêu chí nghiệp vụ"
+                        },
+                        new
+                        {
+                            Id = 96,
+                            Code = "APPLICATION.2.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 2,
+                            TextEn = "Handle errors in AI solution deployment",
+                            TextVi = "Xử lý lỗi khi triển khai giải pháp AI"
+                        },
+                        new
+                        {
+                            Id = 97,
+                            Code = "APPLICATION.3.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 3,
+                            TextEn = "Design an AI solution meeting practical constraints",
+                            TextVi = "Thiết kế giải pháp AI đáp ứng ràng buộc thực tế"
+                        },
+                        new
+                        {
+                            Id = 98,
+                            Code = "APPLICATION.3.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 3,
+                            TextEn = "Compare cost and effectiveness against a baseline",
+                            TextVi = "So sánh chi phí và hiệu quả với phương án cơ sở"
+                        },
+                        new
+                        {
+                            Id = 99,
+                            Code = "APPLICATION.3.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            Level = 3,
+                            TextEn = "Evaluate maintainability of an AI solution",
+                            TextVi = "Đánh giá khả năng duy trì giải pháp AI"
+                        },
+                        new
+                        {
+                            Id = 100,
+                            Code = "ETHICS.1.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 1,
+                            TextEn = "Identify personal data in an AI task",
+                            TextVi = "Nhận diện dữ liệu cá nhân trong tác vụ AI"
+                        },
+                        new
+                        {
+                            Id = 101,
+                            Code = "ETHICS.1.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 1,
+                            TextEn = "Describe bias risk in an application",
+                            TextVi = "Mô tả rủi ro thiên lệch trong một ứng dụng"
+                        },
+                        new
+                        {
+                            Id = 102,
+                            Code = "ETHICS.1.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 1,
+                            TextEn = "Disclose AI use in a deliverable",
+                            TextVi = "Ghi nhận việc sử dụng AI trong sản phẩm"
+                        },
+                        new
+                        {
+                            Id = 103,
+                            Code = "ETHICS.2.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 2,
+                            TextEn = "Apply data protection measures when using AI",
+                            TextVi = "Áp dụng biện pháp bảo vệ dữ liệu khi dùng AI"
+                        },
+                        new
+                        {
+                            Id = 104,
+                            Code = "ETHICS.2.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 2,
+                            TextEn = "Evaluate AI risks by affected group",
+                            TextVi = "Đánh giá rủi ro AI theo nhóm bị ảnh hưởng"
+                        },
+                        new
+                        {
+                            Id = 105,
+                            Code = "ETHICS.2.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 2,
+                            TextEn = "Perform bias checks against criteria",
+                            TextVi = "Thực hiện kiểm tra thiên lệch có tiêu chí"
+                        },
+                        new
+                        {
+                            Id = 106,
+                            Code = "ETHICS.3.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 3,
+                            TextEn = "Develop responsible AI usage policies",
+                            TextVi = "Xây dựng chính sách sử dụng AI có trách nhiệm"
+                        },
+                        new
+                        {
+                            Id = 107,
+                            Code = "ETHICS.3.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 3,
+                            TextEn = "Design an AI risk monitoring process",
+                            TextVi = "Thiết kế quy trình giám sát rủi ro AI"
+                        },
+                        new
+                        {
+                            Id = 108,
+                            Code = "ETHICS.3.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            Level = 3,
+                            TextEn = "Evaluate risk mitigation effectiveness",
+                            TextVi = "Đánh giá hiệu quả biện pháp giảm thiểu rủi ro"
+                        },
+                        new
+                        {
+                            Id = 109,
+                            Code = "TOOLS.1.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 1,
+                            TextEn = "Use an AI tool for a specific task",
+                            TextVi = "Sử dụng công cụ AI cho tác vụ cụ thể"
+                        },
+                        new
+                        {
+                            Id = 110,
+                            Code = "TOOLS.1.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 1,
+                            TextEn = "Write a contextual instruction for an AI tool",
+                            TextVi = "Viết yêu cầu có bối cảnh cho công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 111,
+                            Code = "TOOLS.1.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 1,
+                            TextEn = "Check output before using it",
+                            TextVi = "Kiểm tra đầu ra trước khi sử dụng"
+                        },
+                        new
+                        {
+                            Id = 112,
+                            Code = "TOOLS.2.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 2,
+                            TextEn = "Compare tools against work requirements",
+                            TextVi = "So sánh công cụ theo nhu cầu công việc"
+                        },
+                        new
+                        {
+                            Id = 113,
+                            Code = "TOOLS.2.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 2,
+                            TextEn = "Integrate an AI tool using APIs or automation",
+                            TextVi = "Tích hợp công cụ AI qua API hoặc tự động hóa"
+                        },
+                        new
+                        {
+                            Id = 114,
+                            Code = "TOOLS.2.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 2,
+                            TextEn = "Adjust a workflow based on output evaluation",
+                            TextVi = "Điều chỉnh quy trình dựa trên đánh giá đầu ra"
+                        },
+                        new
+                        {
+                            Id = 115,
+                            Code = "TOOLS.3.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 3,
+                            TextEn = "Design coordination of multiple AI tools",
+                            TextVi = "Thiết kế phối hợp nhiều công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 116,
+                            Code = "TOOLS.3.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 3,
+                            TextEn = "Measure effectiveness of an AI tool workflow",
+                            TextVi = "Đo hiệu quả quy trình dùng công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 117,
+                            Code = "TOOLS.3.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            Level = 3,
+                            TextEn = "Propose improvements to AI tool accessibility",
+                            TextVi = "Đề xuất cải tiến khả năng tiếp cận công cụ AI"
+                        },
+                        new
+                        {
+                            Id = 118,
+                            Code = "FUTURE_OF_WORK.1.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 1,
+                            TextEn = "Identify tasks that AI may change",
+                            TextVi = "Xác định nhiệm vụ có thể thay đổi do AI"
+                        },
+                        new
+                        {
+                            Id = 119,
+                            Code = "FUTURE_OF_WORK.1.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 1,
+                            TextEn = "Describe skills needed to work with AI",
+                            TextVi = "Mô tả kỹ năng cần học để làm việc với AI"
+                        },
+                        new
+                        {
+                            Id = 120,
+                            Code = "FUTURE_OF_WORK.1.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 1,
+                            TextEn = "Participate in AI learning with specified content",
+                            TextVi = "Tham gia hoạt động học kỹ năng AI có nội dung cụ thể"
+                        },
+                        new
+                        {
+                            Id = 121,
+                            Code = "FUTURE_OF_WORK.2.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 2,
+                            TextEn = "Analyze role changes in a workflow",
+                            TextVi = "Phân tích thay đổi vai trò trong một quy trình"
+                        },
+                        new
+                        {
+                            Id = 122,
+                            Code = "FUTURE_OF_WORK.2.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 2,
+                            TextEn = "Propose training based on skill gaps",
+                            TextVi = "Đề xuất kế hoạch đào tạo theo khoảng cách kỹ năng"
+                        },
+                        new
+                        {
+                            Id = 123,
+                            Code = "FUTURE_OF_WORK.2.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 2,
+                            TextEn = "Evaluate a trial of AI assisted work",
+                            TextVi = "Đánh giá kết quả thử nghiệm cách làm việc với AI"
+                        },
+                        new
+                        {
+                            Id = 124,
+                            Code = "FUTURE_OF_WORK.3.1",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 3,
+                            TextEn = "Develop an organizational AI adaptation strategy",
+                            TextVi = "Xây dựng chiến lược thích ứng AI cho tổ chức"
+                        },
+                        new
+                        {
+                            Id = 125,
+                            Code = "FUTURE_OF_WORK.3.2",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 3,
+                            TextEn = "Evaluate AI impact on a workforce",
+                            TextVi = "Đánh giá tác động AI đến lực lượng lao động"
+                        },
+                        new
+                        {
+                            Id = 126,
+                            Code = "FUTURE_OF_WORK.3.3",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            Level = 3,
+                            TextEn = "Design criteria for tracking skill transformation",
+                            TextVi = "Thiết kế tiêu chí theo dõi chuyển đổi kỹ năng"
                         });
                 });
 
@@ -1386,6 +2016,62 @@ namespace AiCompetency.Api.Migrations
                             NameEn = "Future of work",
                             NameVi = "Tương lai việc làm",
                             Order = 7
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 2,
+                            Code = "FOUNDATION",
+                            NameEn = "AI foundations",
+                            NameVi = "Nền tảng AI",
+                            Order = 1
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 2,
+                            Code = "DATA",
+                            NameEn = "Data",
+                            NameVi = "Dữ liệu",
+                            Order = 2
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 2,
+                            Code = "CRITICAL_THINKING",
+                            NameEn = "Critical thinking",
+                            NameVi = "Tư duy phản biện",
+                            Order = 3
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 2,
+                            Code = "APPLICATION",
+                            NameEn = "AI applications",
+                            NameVi = "Ứng dụng AI",
+                            Order = 4
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 2,
+                            Code = "ETHICS",
+                            NameEn = "AI ethics",
+                            NameVi = "Đạo đức AI",
+                            Order = 5
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 2,
+                            Code = "TOOLS",
+                            NameEn = "AI tools",
+                            NameVi = "Công cụ AI",
+                            Order = 6
+                        },
+                        new
+                        {
+                            FrameworkVersionId = 2,
+                            Code = "FUTURE_OF_WORK",
+                            NameEn = "Future of work",
+                            NameVi = "Tương lai việc làm",
+                            Order = 7
                         });
                 });
 
@@ -1439,6 +2125,15 @@ namespace AiCompetency.Api.Migrations
                             Source = "Proposed indicators aligned to thesis v8.1 sections 1.2 and 2.3; Appendices A/B are listed as planned but contain no full text in this file. Expert review pending.",
                             Status = "Draft",
                             Version = "cv-v1-draft"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IsActive = true,
+                            PublishedAt = new DateTimeOffset(new DateTime(2026, 10, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Source = "Project owner approval on 2026-10-12 of the proposed indicators and rubric aligned to thesis v8.1 sections 1.2 and 2.3. The supplied thesis lists Appendices A/B as planned without their full text.",
+                            Status = "Published",
+                            Version = "cv-v1"
                         });
                 });
 
@@ -1759,6 +2454,286 @@ namespace AiCompetency.Api.Migrations
                             AcceptedEvidence = "Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.",
                             Example = "Xây chiến lược thích ứng AI cho tổ chức, theo dõi tác động tới vai trò và kết quả đào tạo.",
                             FrameworkVersionId = 1,
+                            GroupCode = "FUTURE_OF_WORK",
+                            InsufficientEvidence = "Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 29,
+                            AcceptedEvidence = "Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.",
+                            Example = "Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            InsufficientEvidence = "Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 30,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.",
+                            Example = "Hoàn thành bài tập giải thích khác biệt giữa luật lập trình và dự đoán AI, kèm sản phẩm nộp.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            InsufficientEvidence = "Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 31,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.",
+                            Example = "Trong dự án phân loại văn bản, tự chọn phương pháp học máy và giải thích kết quả đánh giá.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            InsufficientEvidence = "Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 32,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.",
+                            Example = "Thiết kế quy trình so sánh hai mô hình, phân tích đánh đổi dữ liệu và phương pháp cho nhóm triển khai.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FOUNDATION",
+                            InsufficientEvidence = "Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 33,
+                            AcceptedEvidence = "Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.",
+                            Example = "Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            InsufficientEvidence = "Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 34,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.",
+                            Example = "Trong học phần dữ liệu, làm sạch dữ liệu trùng và nộp bảng kết quả trước/sau.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            InsufficientEvidence = "Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 35,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.",
+                            Example = "Tự thiết kế bước kiểm tra dữ liệu thiếu cho dự án dự báo và đối chiếu chất lượng đầu ra.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            InsufficientEvidence = "Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 36,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.",
+                            Example = "Thiết kế pipeline dữ liệu có kiểm soát chất lượng và kiểm tra rò rỉ giữa các tập huấn luyện/kiểm định.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "DATA",
+                            InsufficientEvidence = "Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 37,
+                            AcceptedEvidence = "Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.",
+                            Example = "Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            InsufficientEvidence = "Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 38,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.",
+                            Example = "Đối chiếu câu trả lời của trợ lý AI với một nguồn độc lập trong bài tập và ghi lại sai khác.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            InsufficientEvidence = "Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 39,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.",
+                            Example = "Tự lập tiêu chí kiểm chứng, so sánh đầu ra hai công cụ AI và phân tích nguyên nhân lỗi.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            InsufficientEvidence = "Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 40,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.",
+                            Example = "Thiết kế quy trình kiểm chứng đầu ra AI cho nhóm, dùng phản ví dụ để đánh giá độ tin cậy.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "CRITICAL_THINKING",
+                            InsufficientEvidence = "Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 41,
+                            AcceptedEvidence = "Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.",
+                            Example = "Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            InsufficientEvidence = "Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 42,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.",
+                            Example = "Dùng trợ lý AI để soạn bản nháp cho một tác vụ cụ thể và kiểm tra sản phẩm trước khi nộp.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            InsufficientEvidence = "Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 43,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.",
+                            Example = "Tự tích hợp API AI vào quy trình phân loại yêu cầu và so sánh kết quả với cách làm thủ công.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            InsufficientEvidence = "Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 44,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.",
+                            Example = "Thiết kế giải pháp AI cho quy trình hỗ trợ, đánh giá chất lượng, chi phí và khả năng vận hành.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "APPLICATION",
+                            InsufficientEvidence = "Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 45,
+                            AcceptedEvidence = "Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.",
+                            Example = "Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            InsufficientEvidence = "Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 46,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.",
+                            Example = "Trong bài tập ứng dụng AI, nhận diện dữ liệu cá nhân và mô tả biện pháp che thông tin.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            InsufficientEvidence = "Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 47,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.",
+                            Example = "Tự đánh giá rủi ro thiên lệch của hệ thống theo nhóm bị ảnh hưởng và kiểm tra biện pháp giảm thiểu.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            InsufficientEvidence = "Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 48,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.",
+                            Example = "Xây chính sách sử dụng AI cho đơn vị, thiết kế giám sát rủi ro và đánh giá hiệu quả biện pháp bảo vệ.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "ETHICS",
+                            InsufficientEvidence = "Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 49,
+                            AcceptedEvidence = "Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.",
+                            Example = "Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            InsufficientEvidence = "Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 50,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.",
+                            Example = "Dùng công cụ AI cho một tác vụ cụ thể, kiểm tra đầu ra và nộp sản phẩm đã sửa.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            InsufficientEvidence = "Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 51,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.",
+                            Example = "Tự chọn và tích hợp công cụ AI vào luồng hỗ trợ, đo lỗi trước và sau khi áp dụng.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            InsufficientEvidence = "Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 52,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.",
+                            Example = "Thiết kế luồng phối hợp nhiều công cụ AI cho nhóm và đánh giá hiệu quả, chi phí, khả năng tiếp cận.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "TOOLS",
+                            InsufficientEvidence = "Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.",
+                            Level = 3
+                        },
+                        new
+                        {
+                            Id = 53,
+                            AcceptedEvidence = "Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.",
+                            Example = "Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            InsufficientEvidence = "Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.",
+                            Level = 0
+                        },
+                        new
+                        {
+                            Id = 54,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.",
+                            Example = "Hoàn thành học phần về AI với sản phẩm mô tả nhiệm vụ công việc có thể thay đổi.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            InsufficientEvidence = "Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.",
+                            Level = 1
+                        },
+                        new
+                        {
+                            Id = 55,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.",
+                            Example = "Tự phân tích khoảng cách kỹ năng trong nhóm và thử nghiệm kế hoạch đào tạo dùng AI.",
+                            FrameworkVersionId = 2,
+                            GroupCode = "FUTURE_OF_WORK",
+                            InsufficientEvidence = "Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.",
+                            Level = 2
+                        },
+                        new
+                        {
+                            Id = 56,
+                            AcceptedEvidence = "Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.",
+                            Example = "Xây chiến lược thích ứng AI cho tổ chức, theo dõi tác động tới vai trò và kết quả đào tạo.",
+                            FrameworkVersionId = 2,
                             GroupCode = "FUTURE_OF_WORK",
                             InsufficientEvidence = "Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.",
                             Level = 3

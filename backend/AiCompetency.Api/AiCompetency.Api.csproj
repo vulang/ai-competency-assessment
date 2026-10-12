@@ -22,5 +22,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Data/competency-framework.json" />
     <EmbeddedResource Include="../../data/frameworks/cv-v1-draft.yaml" LogicalName="AiCompetency.Api.Data.cv-v1-draft.yaml" />
+    <EmbeddedResource Include="../../data/frameworks/cv-v1.yaml" LogicalName="AiCompetency.Api.Data.cv-v1.yaml" />
   </ItemGroup>
 </Project>

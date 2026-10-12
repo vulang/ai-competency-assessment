@@ -1,58 +1,16 @@
 # Phase 1 — Competency taxonomy and CV labels
 
-Started 2026-10-12. The software and draft research materials are implemented.
-**Phase 1 acceptance still requires expert review of Appendices A/B**; no expert
-approval or CV annotation pilot has been supplied.
+Implemented 2026-10-12. The project owner approved the proposed indicators and CV rubric in conversation on 2026-10-12. This records project approval; no separate expert reviewer identity or annotation pilot result was supplied. The active CV framework is `cv-v1`. The earlier `cv-v1-draft` remains inactive for traceability.
 
-- Add separate, versioned CV framework tables with seven bilingual groups, levels
-  0–3, 63 proposed bilingual indicators, and 28 rubric rules. The initial
-  `cv-v1-draft` is inactive. Level 0 means insufficient CV evidence, not low ability.
-- Add Admin APIs to copy versions, edit draft groups/indicators/rubric, and publish a
-  reviewed copy with reviewer and decision recorded. Published content is read only
-  through the API. Active versions switch in one transaction. Candidate reads expose
-  published versions only.
-- Add the admin framework editor at `/admin/framework` for viewing, editing,
-  copying and publishing versions. The seeded draft name cannot be published.
-- Add `questions.group_code` and `questions.target_level`; new manual and batch
-  saves resolve them with the active skill. Migrate recognized legacy metadata to
-  canonical codes while retaining original values in `legacyGroup`/`legacyLevel`.
-  Ambiguous drafts remain for review. An unclassified published question stops the
-  migration with a reconciliation error. Database constraints reject future
-  published questions without a valid group and target level.
-- Use the same codes in the Angular question editor and generator, generator plans,
-  mapping, syllabus and prompt. `src/question-generator/src/taxonomy.py` reads the
-  shared draft file for group/level validation; legacy display names remain accepted
-  at generator ingress during transition. Item difficulty stays independent.
-- Add [annotation guide](annotation-guide.md), [expert review copy of Appendices A/B](appendix-a-b-draft.md), and an initial versioned tool/action
-  dictionary at `data/dictionary/ai_tools_v1.yaml`. Tool names alone count as weak
-  signals. The 63 indicators are proposals. The rubric boundaries and synthetic examples
-  now follow thesis v8.1 §2.3; Appendix A/B contents are not present in the supplied
-  manuscript, which lists them under “PHỤ LỤC DỰ KIẾN”.
+- Add seven bilingual groups, four CV levels (0–3), 63 bilingual behavior indicators, and 28 group-level rubric rules. Level 0 means insufficient CV evidence, not low ability.
+- Add Admin APIs and an editor at `/admin/framework` to clone, edit and publish later versions. Candidate reads expose published CV versions only. The Phase 0 `p0-v1` assessment skill catalogue remains active for existing question mappings.
+- Add structured `questions.group_code` and `questions.target_level`. Legacy metadata with recognized labels is migrated; ambiguous drafts remain for review. Published questions with unresolved labels stop migration for reconciliation.
+- Use canonical group and level codes in the question editor and generator, including the [published framework seed](../data/frameworks/cv-v1.yaml).
+- Add the [annotation guide](annotation-guide.md), [approved Appendix A/B packet](appendix-a-b-v1.md), and versioned [AI tool dictionary](../data/dictionary/ai_tools_v1.yaml). The seed and packet are proposals aligned to the supplied thesis v8.1 §1.2 and §2.3; the manuscript lists Appendices A/B as planned but does not provide their full text.
 
-The Phase 0 catalogue remains active for existing assessment skill mappings. Its
-seven group codes now match the CV draft. Switching the old catalogue itself to a
-reviewed version awaits expert approval; existing assessments retain their skill IDs.
+The published version is a separate immutable copy of the seed content. A deployment with an existing `cv-v1`, conflicting seed IDs, or an already active CV version stops at the release migration for reconciliation; it does not replace that deployment's content. The owner approval is recorded in the seed and generated appendix packet. Independent expert credentials were not verified, so any research protocol requiring an external expert sign-off must obtain that separately. Double annotation of 20 deidentified CVs and agreement measurement remain in Phase 4.
 
 ## Verification
 
-- All 47 backend tests pass, including PostgreSQL integration and version workflow
-  tests. The full schema script passes fresh and repeated application, recognized
-  legacy backfill, constraints and reconciliation guards in disposable PostgreSQL 16.
-- Frontend lint, nine unit tests and production build pass. All 24 Python tests and
-  Ruff checks pass. Compose configuration validates.
-- Schema verification uses a temporary memory mount for its disposable database to
-  avoid the host Docker disk limit. No existing application database was modified.
-
-## Expert review handoff
-
-Review [the proposed Appendices A/B](appendix-a-b-draft.md),
-[the indicator seed](../data/frameworks/cv-v1-draft.yaml), and
-[the annotation guide](annotation-guide.md) against the thesis v8.1 chapter text
-and the future full Appendices A/B. The supplied manuscript currently only names
-those appendices as planned. Regenerate the review copy from the seed with
-`python scripts/export-framework-appendices.py`; CI checks that it stays in sync.
-Confirm level boundaries, at least one source span for each positive CV label,
-and accepted/rejected examples for each group. Record the reviewer and decision in
-the admin editor, copy the draft to a release name such as `cv-v1`, revise the copy,
-and publish it only after review. Pilot double annotation on 20 deidentified CVs
-belongs to Phase 4; low agreement should trigger another rubric version.
+- All 47 backend tests, nine frontend tests, 24 Python tests, frontend lint/build, Ruff and the appendix freshness check pass.
+- The disposable PostgreSQL schema check passes fresh and repeated application, an edited legacy draft, sequence values, constraints, legacy question backfill, and reconciliation guards for an existing active CV release.

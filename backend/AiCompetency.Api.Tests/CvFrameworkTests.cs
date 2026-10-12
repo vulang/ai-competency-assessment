@@ -49,21 +49,22 @@ public sealed class CvFrameworkTests
             });
             Assert.Equal(4, group.GetProperty("RubricRules").GetArrayLength());
         }
-        Assert.Equal(63, await db.BehaviorIndicators.CountAsync());
-        Assert.Equal(28, await db.CvRubricRules.CountAsync());
+        Assert.Equal(126, await db.BehaviorIndicators.CountAsync());
+        Assert.Equal(56, await db.CvRubricRules.CountAsync());
         Assert.Contains("học phần/chứng chỉ có sản phẩm", (await db.CvRubricRules.SingleAsync(r => r.FrameworkVersionId == 1 && r.GroupCode == "FOUNDATION" && r.Level == 1)).AcceptedEvidence);
         Assert.Contains("vận dụng độc lập", (await db.CvRubricRules.SingleAsync(r => r.FrameworkVersionId == 1 && r.GroupCode == "DATA" && r.Level == 2)).AcceptedEvidence);
         Assert.Contains("phạm vi rộng", (await db.CvRubricRules.SingleAsync(r => r.FrameworkVersionId == 1 && r.GroupCode == "ETHICS" && r.Level == 3)).AcceptedEvidence);
     }
 
     [Fact]
-    public async Task CandidatesCannotReadDraftAndCompatibilityCatalogueStaysActive()
+    public async Task CandidatesReadPublishedCvWhileDraftStaysPrivate()
     {
         await using var db = await CreateDb();
         var controller = Controller(db, "Candidate");
         Assert.IsType<NotFoundObjectResult>(await controller.GetIndicators("cv-v1-draft"));
         Assert.IsType<NotFoundObjectResult>(await controller.GetIndicators("missing"));
-        Assert.IsType<NotFoundObjectResult>(await controller.GetActiveCv());
+        var active = Assert.IsType<OkObjectResult>(await controller.GetActiveCv());
+        Assert.Equal("cv-v1", JsonSerializer.SerializeToElement(active.Value).GetProperty("Version").GetString());
         var compatibility = Assert.IsType<OkObjectResult>(await controller.GetActive());
         Assert.Equal("p0-v1", JsonSerializer.SerializeToElement(compatibility.Value).GetProperty("Version").GetString());
     }
@@ -72,14 +73,10 @@ public sealed class CvFrameworkTests
     public async Task PublishedVersionIsReadableByCandidatesWithRubricAndIndicators()
     {
         await using var db = await CreateDb();
-        var version = await db.CvFrameworkVersions.SingleAsync();
-        version.Status = "Published";
-        version.PublishedAt = DateTimeOffset.UtcNow;
-        version.IsActive = true;
-        await db.SaveChangesAsync();
         var result = Assert.IsType<OkObjectResult>(await Controller(db, "Candidate").GetActiveCv());
         var payload = JsonSerializer.SerializeToElement(result.Value);
         Assert.Equal("Published", payload.GetProperty("Status").GetString());
+        Assert.Equal("cv-v1", payload.GetProperty("Version").GetString());
         Assert.Equal(7, payload.GetProperty("Groups").GetArrayLength());
     }
 }

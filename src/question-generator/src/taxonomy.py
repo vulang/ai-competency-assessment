@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-FRAMEWORK_PATH = Path(__file__).resolve().parents[3] / "data" / "frameworks" / "cv-v1-draft.yaml"
+FRAMEWORK_PATH = Path(__file__).resolve().parents[3] / "data" / "frameworks" / "cv-v1.yaml"
 FRAMEWORK = json.loads(FRAMEWORK_PATH.read_text(encoding="utf-8"))
 GROUPS = {group["code"]: group for group in FRAMEWORK["groups"]}
 DISPLAY_NAMES = {

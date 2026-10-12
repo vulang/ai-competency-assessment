@@ -1,6 +1,6 @@
 # AI Competency Assessment
 
-.NET 8 API, Angular 17 UI, and Python services for assessing AI competency. Phase 0 establishes the working development baseline; the thesis-aligned CV/CTT work starts in Phase 1, which is now in progress. IRT/CAT/BKT profiles are experimental extensions.
+.NET 8 API, Angular 17 UI, and Python services for assessing AI competency. Phase 0 establishes the working development baseline; Phase 1 adds the thesis-aligned competency taxonomy and CV rubric. IRT/CAT/BKT profiles are experimental extensions.
 
 ## Start the development stack
 
@@ -113,4 +113,4 @@ GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build
 - [Experimental IRT/CAT/BKT methods](docs/ml-methods.md)
 - [Generated PostgreSQL migration script](db/schema.sql)
 
-The `p0-v1` catalogue is a compatibility seed sourced from the generator's seven-group mapping. Phase 1 adds structured question group/level fields and a separate `cv-v1-draft` with 63 proposed bilingual behavior indicators and four-level CV rubric rules. Admins can edit and copy drafts at `/admin/framework`, then publish a reviewed copy. The seed draft stays unpublished; expert review of Appendices A/B is pending. Existing published questions with unmapped legacy labels stop the migration for reconciliation. `db/schema.sql` is generated with `dotnet ef migrations script --idempotent`; EF migrations are the schema source of truth.
+The `p0-v1` catalogue is a compatibility seed for existing assessment skill mappings. Phase 1 adds structured question group/level fields and active `cv-v1` with 63 bilingual behavior indicators and four-level CV rubric rules. The project owner approved the proposed CV framework on 2026-10-12; the earlier draft remains inactive. Admins can edit copied drafts at `/admin/framework` and publish later versions. Existing published questions with unmapped legacy labels stop migration for reconciliation. `db/schema.sql` is generated with `dotnet ef migrations script --idempotent`; EF migrations are the schema source of truth.

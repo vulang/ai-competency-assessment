@@ -1,12 +1,12 @@
-# CV annotation guide — draft v1
+# CV annotation guide — v1
 
-Status: proposed for expert review, not approved for research data collection.
-Framework: `cv-v1-draft`, in [the framework seed](../data/frameworks/cv-v1-draft.yaml).
+Status: project owner approved on 2026-10-12; annotation agreement has not been measured.
+Framework: `cv-v1`, in [the published framework seed](../data/frameworks/cv-v1.yaml).
 The seed uses JSON syntax, a subset of YAML 1.2, and is embedded directly in the
 API assembly. It contains proposed indicators derived from the existing catalogue
 and aligned to thesis v8.1 §1.2 and §2.3. The thesis lists Appendices A and B as
-planned, without their full indicator set or annotation handbook; expert review
-remains necessary.
+planned, without their full indicator set or annotation handbook. No separate expert
+reviewer identity has been supplied.
 
 ## Labels and evidence
 
@@ -49,18 +49,17 @@ These synthetic examples illustrate decisions; they are not training records.
 - “Managed an AI team.” → no automatic Advanced label for any group.
 
 The seed includes group-specific synthetic CV examples at levels 1–3. They illustrate
-application of the thesis rules and are not real CV passages or approved examples.
-Experts must review accepted/rejected examples for every group and settle whether
-particular higher-level indicators require multiple spans.
+application of the thesis rules and are not real CV passages or pilot-validated examples.
+Adjudication may refine accepted/rejected examples and determine whether particular
+higher-level indicators require multiple spans.
 
 ## Pilot and review
 
 Have two annotators label the same 20 deidentified CVs independently. Keep their
 labels/spans separate. Discuss disagreements with an adjudicator, revise ambiguous
 indicators and rubric examples, and record review decisions. Measure agreement in
-Phase 4; do not claim this draft has validated agreement or coverage.
+Phase 4; do not claim validated agreement or coverage yet.
 
-Approve Appendices A/B before publishing an immutable reviewed version. Retain the
-old version and all indicator codes so existing annotations remain interpretable.
-The initial migration stores a draft and does not activate it. The current API only
-reads versions; editing, publication and revision workflows remain Phase 1 work.
+The project owner approved Appendices A/B and `cv-v1` is published as the active CV
+version. Retain the draft and all indicator codes so existing annotations remain
+interpretable. Use the admin editor to copy and review any later rubric revision.

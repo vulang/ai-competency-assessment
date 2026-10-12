@@ -1827,3 +1827,291 @@ BEGIN
     END IF;
 END $EF$;
 COMMIT;
+
+START TRANSACTION;
+
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012133413_PublishCvFrameworkV1') THEN
+    DO $$ BEGIN
+        IF EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Id" = 2 OR "Version" = 'cv-v1' OR "IsActive")
+            OR EXISTS (SELECT 1 FROM behavior_indicators WHERE "Id" BETWEEN 64 AND 126)
+            OR EXISTS (SELECT 1 FROM cv_rubric_rules WHERE "Id" BETWEEN 29 AND 56) THEN
+            RAISE EXCEPTION 'CV v1 release conflicts with existing framework data; reconcile version IDs and the active release before applying this migration';
+        END IF;
+    END $$;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012133413_PublishCvFrameworkV1') THEN
+    INSERT INTO competency_framework_versions ("Id", "IsActive", "PublishedAt", "Source", "Status", "Version")
+    VALUES (2, TRUE, TIMESTAMPTZ '2026-10-12T00:00:00+00:00', 'Project owner approval on 2026-10-12 of the proposed indicators and rubric aligned to thesis v8.1 sections 1.2 and 2.3. The supplied thesis lists Appendices A/B as planned without their full text.', 'Published', 'cv-v1');
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012133413_PublishCvFrameworkV1') THEN
+    INSERT INTO competency_groups ("Code", "FrameworkVersionId", "NameEn", "NameVi", "Order")
+    VALUES ('APPLICATION', 2, 'AI applications', 'Ứng dụng AI', 4);
+    INSERT INTO competency_groups ("Code", "FrameworkVersionId", "NameEn", "NameVi", "Order")
+    VALUES ('CRITICAL_THINKING', 2, 'Critical thinking', 'Tư duy phản biện', 3);
+    INSERT INTO competency_groups ("Code", "FrameworkVersionId", "NameEn", "NameVi", "Order")
+    VALUES ('DATA', 2, 'Data', 'Dữ liệu', 2);
+    INSERT INTO competency_groups ("Code", "FrameworkVersionId", "NameEn", "NameVi", "Order")
+    VALUES ('ETHICS', 2, 'AI ethics', 'Đạo đức AI', 5);
+    INSERT INTO competency_groups ("Code", "FrameworkVersionId", "NameEn", "NameVi", "Order")
+    VALUES ('FOUNDATION', 2, 'AI foundations', 'Nền tảng AI', 1);
+    INSERT INTO competency_groups ("Code", "FrameworkVersionId", "NameEn", "NameVi", "Order")
+    VALUES ('FUTURE_OF_WORK', 2, 'Future of work', 'Tương lai việc làm', 7);
+    INSERT INTO competency_groups ("Code", "FrameworkVersionId", "NameEn", "NameVi", "Order")
+    VALUES ('TOOLS', 2, 'AI tools', 'Công cụ AI', 6);
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012133413_PublishCvFrameworkV1') THEN
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (64, 'FOUNDATION.1.1', 2, 'FOUNDATION', 1, 'Explain AI in a specific project', 'Giải thích AI trong một dự án cụ thể');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (65, 'FOUNDATION.1.2', 2, 'FOUNDATION', 1, 'Distinguish AI prediction from programmed rules', 'Phân biệt dự đoán AI với luật lập trình');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (66, 'FOUNDATION.1.3', 2, 'FOUNDATION', 1, 'Describe the role of input data', 'Mô tả vai trò dữ liệu đầu vào');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (67, 'FOUNDATION.2.1', 2, 'FOUNDATION', 2, 'Describe completed model development steps', 'Mô tả các bước phát triển mô hình đã thực hiện');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (68, 'FOUNDATION.2.2', 2, 'FOUNDATION', 2, 'Explain a machine learning method selection', 'Giải thích lựa chọn phương pháp học máy');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (69, 'FOUNDATION.2.3', 2, 'FOUNDATION', 2, 'Interpret model evaluation results', 'Diễn giải kết quả đánh giá mô hình');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (70, 'FOUNDATION.3.1', 2, 'FOUNDATION', 3, 'Compare algorithms using measured criteria', 'So sánh thuật toán bằng tiêu chí đo lường');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (71, 'FOUNDATION.3.2', 2, 'FOUNDATION', 3, 'Analyze data and algorithm tradeoffs', 'Phân tích đánh đổi dữ liệu và thuật toán');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (72, 'FOUNDATION.3.3', 2, 'FOUNDATION', 3, 'Design an evaluation of model limitations', 'Thiết kế phương án đánh giá giới hạn mô hình');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (73, 'DATA.1.1', 2, 'DATA', 1, 'Collect data from identified sources', 'Thu thập dữ liệu từ nguồn xác định');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (74, 'DATA.1.2', 2, 'DATA', 1, 'Clean missing or duplicate values', 'Làm sạch giá trị thiếu hoặc trùng lặp');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (75, 'DATA.1.3', 2, 'DATA', 1, 'Describe data using tables or charts', 'Mô tả dữ liệu bằng bảng hoặc biểu đồ');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (76, 'DATA.2.1', 2, 'DATA', 2, 'Evaluate data quality against criteria', 'Đánh giá chất lượng dữ liệu theo tiêu chí');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (77, 'DATA.2.2', 2, 'DATA', 2, 'Build a data normalization workflow', 'Xây dựng quy trình chuẩn hóa dữ liệu');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (78, 'DATA.2.3', 2, 'DATA', 2, 'Analyze data to answer a project question', 'Phân tích dữ liệu để trả lời câu hỏi dự án');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (79, 'DATA.3.1', 2, 'DATA', 3, 'Design a data pipeline with quality checks', 'Thiết kế pipeline dữ liệu có kiểm tra chất lượng');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (80, 'DATA.3.2', 2, 'DATA', 3, 'Check data leakage across dataset splits', 'Kiểm tra rò rỉ dữ liệu giữa các tập');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (81, 'DATA.3.3', 2, 'DATA', 3, 'Design visualizations supporting decisions', 'Thiết kế trực quan hóa hỗ trợ quyết định');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (82, 'CRITICAL_THINKING.1.1', 2, 'CRITICAL_THINKING', 1, 'Identify sources of AI generated information', 'Xác định nguồn của thông tin do AI tạo');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (83, 'CRITICAL_THINKING.1.2', 2, 'CRITICAL_THINKING', 1, 'Check an AI result against an independent source', 'Kiểm tra một kết quả AI bằng nguồn độc lập');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (84, 'CRITICAL_THINKING.1.3', 2, 'CRITICAL_THINKING', 1, 'Identify limitations in an AI answer', 'Nhận diện giới hạn trong câu trả lời AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (85, 'CRITICAL_THINKING.2.1', 2, 'CRITICAL_THINKING', 2, 'Compare outputs from multiple AI tools', 'So sánh đầu ra của nhiều công cụ AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (86, 'CRITICAL_THINKING.2.2', 2, 'CRITICAL_THINKING', 2, 'Build criteria for verifying results', 'Xây dựng tiêu chí kiểm chứng kết quả');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (87, 'CRITICAL_THINKING.2.3', 2, 'CRITICAL_THINKING', 2, 'Analyze causes of incorrect AI results', 'Phân tích nguyên nhân kết quả AI sai');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (88, 'CRITICAL_THINKING.3.1', 2, 'CRITICAL_THINKING', 3, 'Design a reproducible AI verification workflow', 'Thiết kế quy trình kiểm chứng AI có thể tái lập');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (89, 'CRITICAL_THINKING.3.2', 2, 'CRITICAL_THINKING', 3, 'Evaluate validity of model conclusions', 'Đánh giá tính hợp lệ của kết luận từ mô hình');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (90, 'CRITICAL_THINKING.3.3', 2, 'CRITICAL_THINKING', 3, 'Test AI using counterexamples', 'Kiểm thử AI với các trường hợp phản ví dụ');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (91, 'APPLICATION.1.1', 2, 'APPLICATION', 1, 'Apply AI to a defined task', 'Áp dụng AI cho một nhiệm vụ xác định');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (92, 'APPLICATION.1.2', 2, 'APPLICATION', 1, 'Describe AI benefits in a work context', 'Mô tả lợi ích AI trong bối cảnh công việc');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (93, 'APPLICATION.1.3', 2, 'APPLICATION', 1, 'Identify obstacles to AI adoption', 'Nhận diện trở ngại khi áp dụng AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (94, 'APPLICATION.2.1', 2, 'APPLICATION', 2, 'Integrate AI into a real workflow', 'Tích hợp AI vào quy trình thực tế');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (95, 'APPLICATION.2.2', 2, 'APPLICATION', 2, 'Evaluate an AI solution against business criteria', 'Đánh giá giải pháp AI bằng tiêu chí nghiệp vụ');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (96, 'APPLICATION.2.3', 2, 'APPLICATION', 2, 'Handle errors in AI solution deployment', 'Xử lý lỗi khi triển khai giải pháp AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (97, 'APPLICATION.3.1', 2, 'APPLICATION', 3, 'Design an AI solution meeting practical constraints', 'Thiết kế giải pháp AI đáp ứng ràng buộc thực tế');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (98, 'APPLICATION.3.2', 2, 'APPLICATION', 3, 'Compare cost and effectiveness against a baseline', 'So sánh chi phí và hiệu quả với phương án cơ sở');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (99, 'APPLICATION.3.3', 2, 'APPLICATION', 3, 'Evaluate maintainability of an AI solution', 'Đánh giá khả năng duy trì giải pháp AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (100, 'ETHICS.1.1', 2, 'ETHICS', 1, 'Identify personal data in an AI task', 'Nhận diện dữ liệu cá nhân trong tác vụ AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (101, 'ETHICS.1.2', 2, 'ETHICS', 1, 'Describe bias risk in an application', 'Mô tả rủi ro thiên lệch trong một ứng dụng');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (102, 'ETHICS.1.3', 2, 'ETHICS', 1, 'Disclose AI use in a deliverable', 'Ghi nhận việc sử dụng AI trong sản phẩm');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (103, 'ETHICS.2.1', 2, 'ETHICS', 2, 'Apply data protection measures when using AI', 'Áp dụng biện pháp bảo vệ dữ liệu khi dùng AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (104, 'ETHICS.2.2', 2, 'ETHICS', 2, 'Evaluate AI risks by affected group', 'Đánh giá rủi ro AI theo nhóm bị ảnh hưởng');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (105, 'ETHICS.2.3', 2, 'ETHICS', 2, 'Perform bias checks against criteria', 'Thực hiện kiểm tra thiên lệch có tiêu chí');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (106, 'ETHICS.3.1', 2, 'ETHICS', 3, 'Develop responsible AI usage policies', 'Xây dựng chính sách sử dụng AI có trách nhiệm');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (107, 'ETHICS.3.2', 2, 'ETHICS', 3, 'Design an AI risk monitoring process', 'Thiết kế quy trình giám sát rủi ro AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (108, 'ETHICS.3.3', 2, 'ETHICS', 3, 'Evaluate risk mitigation effectiveness', 'Đánh giá hiệu quả biện pháp giảm thiểu rủi ro');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (109, 'TOOLS.1.1', 2, 'TOOLS', 1, 'Use an AI tool for a specific task', 'Sử dụng công cụ AI cho tác vụ cụ thể');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (110, 'TOOLS.1.2', 2, 'TOOLS', 1, 'Write a contextual instruction for an AI tool', 'Viết yêu cầu có bối cảnh cho công cụ AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (111, 'TOOLS.1.3', 2, 'TOOLS', 1, 'Check output before using it', 'Kiểm tra đầu ra trước khi sử dụng');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (112, 'TOOLS.2.1', 2, 'TOOLS', 2, 'Compare tools against work requirements', 'So sánh công cụ theo nhu cầu công việc');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (113, 'TOOLS.2.2', 2, 'TOOLS', 2, 'Integrate an AI tool using APIs or automation', 'Tích hợp công cụ AI qua API hoặc tự động hóa');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (114, 'TOOLS.2.3', 2, 'TOOLS', 2, 'Adjust a workflow based on output evaluation', 'Điều chỉnh quy trình dựa trên đánh giá đầu ra');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (115, 'TOOLS.3.1', 2, 'TOOLS', 3, 'Design coordination of multiple AI tools', 'Thiết kế phối hợp nhiều công cụ AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (116, 'TOOLS.3.2', 2, 'TOOLS', 3, 'Measure effectiveness of an AI tool workflow', 'Đo hiệu quả quy trình dùng công cụ AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (117, 'TOOLS.3.3', 2, 'TOOLS', 3, 'Propose improvements to AI tool accessibility', 'Đề xuất cải tiến khả năng tiếp cận công cụ AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (118, 'FUTURE_OF_WORK.1.1', 2, 'FUTURE_OF_WORK', 1, 'Identify tasks that AI may change', 'Xác định nhiệm vụ có thể thay đổi do AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (119, 'FUTURE_OF_WORK.1.2', 2, 'FUTURE_OF_WORK', 1, 'Describe skills needed to work with AI', 'Mô tả kỹ năng cần học để làm việc với AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (120, 'FUTURE_OF_WORK.1.3', 2, 'FUTURE_OF_WORK', 1, 'Participate in AI learning with specified content', 'Tham gia hoạt động học kỹ năng AI có nội dung cụ thể');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (121, 'FUTURE_OF_WORK.2.1', 2, 'FUTURE_OF_WORK', 2, 'Analyze role changes in a workflow', 'Phân tích thay đổi vai trò trong một quy trình');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (122, 'FUTURE_OF_WORK.2.2', 2, 'FUTURE_OF_WORK', 2, 'Propose training based on skill gaps', 'Đề xuất kế hoạch đào tạo theo khoảng cách kỹ năng');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (123, 'FUTURE_OF_WORK.2.3', 2, 'FUTURE_OF_WORK', 2, 'Evaluate a trial of AI assisted work', 'Đánh giá kết quả thử nghiệm cách làm việc với AI');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (124, 'FUTURE_OF_WORK.3.1', 2, 'FUTURE_OF_WORK', 3, 'Develop an organizational AI adaptation strategy', 'Xây dựng chiến lược thích ứng AI cho tổ chức');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (125, 'FUTURE_OF_WORK.3.2', 2, 'FUTURE_OF_WORK', 3, 'Evaluate AI impact on a workforce', 'Đánh giá tác động AI đến lực lượng lao động');
+    INSERT INTO behavior_indicators ("Id", "Code", "FrameworkVersionId", "GroupCode", "Level", "TextEn", "TextVi")
+    VALUES (126, 'FUTURE_OF_WORK.3.3', 2, 'FUTURE_OF_WORK', 3, 'Design criteria for tracking skill transformation', 'Thiết kế tiêu chí theo dõi chuyển đổi kỹ năng');
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012133413_PublishCvFrameworkV1') THEN
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (29, 'Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.', 'Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.', 2, 'FOUNDATION', 'Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.', 0);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (30, 'Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.', 'Hoàn thành bài tập giải thích khác biệt giữa luật lập trình và dự đoán AI, kèm sản phẩm nộp.', 2, 'FOUNDATION', 'Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.', 1);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (31, 'Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.', 'Trong dự án phân loại văn bản, tự chọn phương pháp học máy và giải thích kết quả đánh giá.', 2, 'FOUNDATION', 'Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.', 2);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (32, 'Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.', 'Thiết kế quy trình so sánh hai mô hình, phân tích đánh đổi dữ liệu và phương pháp cho nhóm triển khai.', 2, 'FOUNDATION', 'Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.', 3);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (33, 'Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.', 'Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.', 2, 'DATA', 'Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.', 0);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (34, 'Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.', 'Trong học phần dữ liệu, làm sạch dữ liệu trùng và nộp bảng kết quả trước/sau.', 2, 'DATA', 'Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.', 1);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (35, 'Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.', 'Tự thiết kế bước kiểm tra dữ liệu thiếu cho dự án dự báo và đối chiếu chất lượng đầu ra.', 2, 'DATA', 'Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.', 2);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (36, 'Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.', 'Thiết kế pipeline dữ liệu có kiểm soát chất lượng và kiểm tra rò rỉ giữa các tập huấn luyện/kiểm định.', 2, 'DATA', 'Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.', 3);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (37, 'Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.', 'Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.', 2, 'CRITICAL_THINKING', 'Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.', 0);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (38, 'Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.', 'Đối chiếu câu trả lời của trợ lý AI với một nguồn độc lập trong bài tập và ghi lại sai khác.', 2, 'CRITICAL_THINKING', 'Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.', 1);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (39, 'Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.', 'Tự lập tiêu chí kiểm chứng, so sánh đầu ra hai công cụ AI và phân tích nguyên nhân lỗi.', 2, 'CRITICAL_THINKING', 'Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.', 2);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (40, 'Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.', 'Thiết kế quy trình kiểm chứng đầu ra AI cho nhóm, dùng phản ví dụ để đánh giá độ tin cậy.', 2, 'CRITICAL_THINKING', 'Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.', 3);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (41, 'Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.', 'Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.', 2, 'APPLICATION', 'Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.', 0);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (42, 'Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.', 'Dùng trợ lý AI để soạn bản nháp cho một tác vụ cụ thể và kiểm tra sản phẩm trước khi nộp.', 2, 'APPLICATION', 'Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.', 1);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (43, 'Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.', 'Tự tích hợp API AI vào quy trình phân loại yêu cầu và so sánh kết quả với cách làm thủ công.', 2, 'APPLICATION', 'Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.', 2);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (44, 'Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.', 'Thiết kế giải pháp AI cho quy trình hỗ trợ, đánh giá chất lượng, chi phí và khả năng vận hành.', 2, 'APPLICATION', 'Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.', 3);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (45, 'Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.', 'Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.', 2, 'ETHICS', 'Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.', 0);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (46, 'Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.', 'Trong bài tập ứng dụng AI, nhận diện dữ liệu cá nhân và mô tả biện pháp che thông tin.', 2, 'ETHICS', 'Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.', 1);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (47, 'Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.', 'Tự đánh giá rủi ro thiên lệch của hệ thống theo nhóm bị ảnh hưởng và kiểm tra biện pháp giảm thiểu.', 2, 'ETHICS', 'Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.', 2);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (48, 'Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.', 'Xây chính sách sử dụng AI cho đơn vị, thiết kế giám sát rủi ro và đánh giá hiệu quả biện pháp bảo vệ.', 2, 'ETHICS', 'Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.', 3);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (49, 'Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.', 'Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.', 2, 'TOOLS', 'Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.', 0);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (50, 'Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.', 'Dùng công cụ AI cho một tác vụ cụ thể, kiểm tra đầu ra và nộp sản phẩm đã sửa.', 2, 'TOOLS', 'Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.', 1);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (51, 'Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.', 'Tự chọn và tích hợp công cụ AI vào luồng hỗ trợ, đo lỗi trước và sau khi áp dụng.', 2, 'TOOLS', 'Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.', 2);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (52, 'Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.', 'Thiết kế luồng phối hợp nhiều công cụ AI cho nhóm và đánh giá hiệu quả, chi phí, khả năng tiếp cận.', 2, 'TOOLS', 'Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.', 3);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (53, 'Không có span trực tiếp phù hợp hoặc chỉ có tuyên bố chung. Không suy Basic chỉ vì CV im lặng.', 'Chỉ ghi “ChatGPT, Python” trong mục Kỹ năng và không mô tả tác vụ hoặc sản phẩm.', 2, 'FUTURE_OF_WORK', 'Nếu có span cụ thể đáp ứng một chỉ báo mức 1–3 thì không giữ mức 0; chuyển sang mức tương ứng hoặc phân xử.', 0);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (54, 'Có ít nhất một span cho thấy hiểu hoặc sử dụng AI ở phạm vi giới hạn, có bối cảnh: học phần/chứng chỉ có sản phẩm quan sát được hoặc dùng công cụ cho tác vụ cụ thể.', 'Hoàn thành học phần về AI với sản phẩm mô tả nhiệm vụ công việc có thể thay đổi.', 2, 'FUTURE_OF_WORK', 'Chỉ liệt kê tên công cụ, chức danh, tự đánh giá hoặc chứng chỉ không có sản phẩm; không có bối cảnh hay hành động cụ thể.', 1);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (55, 'Có ít nhất một span cho thấy ứng viên vận dụng độc lập trong dự án/nhiệm vụ có bối cảnh, kèm quyết định kỹ thuật hoặc kiểm chứng kết quả và vai trò cá nhân.', 'Tự phân tích khoảng cách kỹ năng trong nhóm và thử nghiệm kế hoạch đào tạo dùng AI.', 2, 'FUTURE_OF_WORK', 'Mô tả nhiệm vụ mơ hồ, chỉ nói thành tích của nhóm, không nêu vai trò cá nhân hoặc quyết định/kiểm chứng độc lập.', 2);
+    INSERT INTO cv_rubric_rules ("Id", "AcceptedEvidence", "Example", "FrameworkVersionId", "GroupCode", "InsufficientEvidence", "Level")
+    VALUES (56, 'Có ít nhất một span cho thấy đánh giá, thiết kế, dẫn dắt, tối ưu hoặc chuẩn hóa ở phạm vi rộng; nêu trách nhiệm, sản phẩm hoặc kết quả quan sát được.', 'Xây chiến lược thích ứng AI cho tổ chức, theo dõi tác động tới vai trò và kết quả đào tạo.', 2, 'FUTURE_OF_WORK', 'Chỉ có thâm niên, chức danh hay số liệu rời rạc mà thiếu hành vi đánh giá/thiết kế/dẫn dắt và phạm vi trách nhiệm.', 3);
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012133413_PublishCvFrameworkV1') THEN
+    DO $$ BEGIN
+        PERFORM setval(pg_get_serial_sequence('competency_framework_versions', 'Id'),
+            GREATEST((SELECT MAX("Id") FROM competency_framework_versions) + 1,
+                     nextval(pg_get_serial_sequence('competency_framework_versions', 'Id'))), false);
+        PERFORM setval(pg_get_serial_sequence('behavior_indicators', 'Id'),
+            GREATEST((SELECT MAX("Id") FROM behavior_indicators) + 1,
+                     nextval(pg_get_serial_sequence('behavior_indicators', 'Id'))), false);
+        PERFORM setval(pg_get_serial_sequence('cv_rubric_rules', 'Id'),
+            GREATEST((SELECT MAX("Id") FROM cv_rubric_rules) + 1,
+                     nextval(pg_get_serial_sequence('cv_rubric_rules', 'Id'))), false);
+    END $$;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012133413_PublishCvFrameworkV1') THEN
+    PERFORM setval(
+        pg_get_serial_sequence('competency_framework_versions', 'Id'),
+        GREATEST(
+            (SELECT MAX("Id") FROM competency_framework_versions) + 1,
+            nextval(pg_get_serial_sequence('competency_framework_versions', 'Id'))),
+        false);
+    PERFORM setval(
+        pg_get_serial_sequence('behavior_indicators', 'Id'),
+        GREATEST(
+            (SELECT MAX("Id") FROM behavior_indicators) + 1,
+            nextval(pg_get_serial_sequence('behavior_indicators', 'Id'))),
+        false);
+    PERFORM setval(
+        pg_get_serial_sequence('cv_rubric_rules', 'Id'),
+        GREATEST(
+            (SELECT MAX("Id") FROM cv_rubric_rules) + 1,
+            nextval(pg_get_serial_sequence('cv_rubric_rules', 'Id'))),
+        false);
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261012133413_PublishCvFrameworkV1') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20261012133413_PublishCvFrameworkV1', '8.0.21');
+    END IF;
+END $EF$;
+COMMIT;

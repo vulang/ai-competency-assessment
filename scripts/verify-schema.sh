@@ -16,6 +16,7 @@ dotnet ef migrations script 0 UseIdentitySubjectIds --project backend/AiCompeten
 dotnet ef migrations script UseIdentitySubjectIds AddCompetencyCatalog --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/catalog.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 dotnet ef migrations script AddCompetencyCatalog AddQuestionTaxonomy --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/taxonomy.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 dotnet ef migrations script AddQuestionTaxonomy AlignCvDraftRubricWithThesis --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/rubric.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
+dotnet ef migrations script AlignCvDraftRubricWithThesis PublishCvFrameworkV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/release.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 
 docker run --rm --detach --network none --tmpfs /var/lib/postgresql/data:rw,size=512m --name "$container_name" -e POSTGRES_PASSWORD=schema-validation postgres:16 > /dev/null
 for attempt in {1..30}; do
@@ -36,20 +37,27 @@ DO $$ BEGIN
   IF (SELECT count(*) FROM domains) <> 7 OR (SELECT count(*) FROM skills) <> 7 OR (SELECT count(*) FROM criteria) <> 21 THEN
     RAISE EXCEPTION 'Incorrect catalogue seed counts';
   END IF;
-  IF (SELECT count(*) FROM competency_groups) <> 7
+  IF (SELECT count(*) FROM competency_groups) <> 14
       OR (SELECT count(*) FROM proficiency_levels) <> 4
-      OR (SELECT count(*) FROM behavior_indicators) <> 63
-      OR (SELECT count(*) FROM cv_rubric_rules) <> 28 THEN
+      OR (SELECT count(*) FROM behavior_indicators) <> 126
+      OR (SELECT count(*) FROM cv_rubric_rules) <> 56 THEN
     RAISE EXCEPTION 'Incorrect CV framework seed counts';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM proficiency_levels WHERE "Ordinal" = 0 AND "Code" = 'NO_EVIDENCE')
-      OR EXISTS (SELECT 1 FROM competency_framework_versions WHERE "IsActive") THEN
-    RAISE EXCEPTION 'Level zero or draft publication state is incorrect';
+      OR (SELECT count(*) FROM competency_framework_versions WHERE "IsActive") <> 1
+      OR NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1' AND "Status" = 'Published' AND "IsActive")
+      OR NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1-draft' AND "Status" = 'Draft' AND NOT "IsActive") THEN
+    RAISE EXCEPTION 'Level zero or CV publication state is incorrect';
   END IF;
   BEGIN
     UPDATE competency_framework_versions SET "IsActive" = true WHERE "Version" = 'cv-v1-draft';
     RAISE EXCEPTION 'Draft framework was allowed to become active';
   EXCEPTION WHEN check_violation THEN NULL; END;
+  IF (SELECT nextval(pg_get_serial_sequence('competency_framework_versions', 'Id'))) <= 2
+      OR (SELECT nextval(pg_get_serial_sequence('behavior_indicators', 'Id'))) <= 126
+      OR (SELECT nextval(pg_get_serial_sequence('cv_rubric_rules', 'Id'))) <= 56 THEN
+    RAISE EXCEPTION 'CV seed identity sequences were not advanced';
+  END IF;
   BEGIN
     UPDATE proficiency_levels SET "Code" = 'BASIC' WHERE "Ordinal" = 0;
     RAISE EXCEPTION 'Incorrect level code was accepted';
@@ -82,6 +90,7 @@ DO $$ BEGIN
   EXCEPTION WHEN check_violation THEN NULL; END;
 END $$;
 CREATE DATABASE legacy;
+CREATE DATABASE existing_cv;
 CREATE DATABASE custom_mappings;
 CREATE DATABASE unresolved_published;
 SQL
@@ -97,11 +106,16 @@ run_sql legacy <<'SQL'
 UPDATE cv_rubric_rules SET "Example" = 'Expert edit retained' WHERE "Id" = 2;
 SQL
 run_sql legacy < "$validation_dir/rubric.sql"
+run_sql legacy < "$validation_dir/release.sql"
 run_sql legacy <<'SQL'
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM cv_rubric_rules WHERE "Id" = 2 AND "Example" = 'Expert edit retained')
     OR NOT EXISTS (SELECT 1 FROM cv_rubric_rules WHERE "Id" = 3 AND "AcceptedEvidence" LIKE '%vận dụng độc lập%') THEN
     RAISE EXCEPTION 'Thesis rubric migration overwrote an edited draft or missed seed rows';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM cv_rubric_rules WHERE "FrameworkVersionId" = 2 AND "GroupCode" = 'FOUNDATION' AND "Level" = 1 AND "AcceptedEvidence" LIKE '%học phần/chứng chỉ có sản phẩm%')
+    OR NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1' AND "IsActive") THEN
+    RAISE EXCEPTION 'Published CV framework was not seeded independently of the edited draft';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM questions WHERE content = 'recognized group' AND skill_id = 6 AND difficulty_level IS NULL
     AND metadata->>'legacyDifficultyLevel' = '10' AND metadata->>'level' = 'Advanced'
@@ -110,6 +124,27 @@ DO $$ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM questions WHERE content = 'unknown group' AND skill_id IS NULL AND difficulty_level = 2 AND group_code IS NULL) THEN
     RAISE EXCEPTION 'Ambiguous group was modified';
+  END IF;
+END $$;
+SQL
+run_sql existing_cv < "$validation_dir/baseline.sql"
+run_sql existing_cv < "$validation_dir/catalog.sql"
+run_sql existing_cv < "$validation_dir/taxonomy.sql"
+run_sql existing_cv < "$validation_dir/rubric.sql"
+run_sql existing_cv <<'SQL'
+INSERT INTO competency_framework_versions ("Id", "Version", "Status", "Source", "PublishedAt", "IsActive")
+VALUES (2, 'cv-v2', 'Published', 'Existing reviewed release', '2026-10-11T00:00:00+00:00', true);
+SQL
+if docker exec -i "$container_name" psql -v ON_ERROR_STOP=1 -U postgres -d existing_cv < "$validation_dir/release.sql" > "$validation_dir/release-guard.log" 2>&1; then
+  echo 'Existing active CV release was incorrectly replaced.' >&2
+  exit 1
+fi
+grep -q 'CV v1 release conflicts with existing framework data' "$validation_dir/release-guard.log"
+run_sql existing_cv <<'SQL'
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v2' AND "IsActive")
+      OR EXISTS (SELECT 1 FROM competency_framework_versions WHERE "Version" = 'cv-v1') THEN
+    RAISE EXCEPTION 'CV release guard modified an existing active version';
   END IF;
 END $$;
 SQL
@@ -148,4 +183,4 @@ DO $$ BEGIN
   END IF;
 END $$;
 SQL
-echo 'PostgreSQL schema checks passed: fresh install, repeat apply, constraints, legacy backfill, reconciliation guards.'
+echo 'PostgreSQL schema checks passed: fresh install, repeat apply, constraints, legacy backfill, existing release and reconciliation guards.'

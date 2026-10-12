@@ -40,30 +40,43 @@ public static class CvFrameworkCatalog
             .HasForeignKey(r => new { r.FrameworkVersionId, r.GroupCode }).OnDelete(DeleteBehavior.Restrict);
         builder.Entity<CvRubricRule>().HasOne<ProficiencyLevel>().WithMany().HasForeignKey(r => r.Level).OnDelete(DeleteBehavior.Restrict);
 
-        using var stream = typeof(CvFrameworkCatalog).Assembly.GetManifestResourceStream("AiCompetency.Api.Data.cv-v1-draft.yaml")!;
-        var seed = JsonSerializer.Deserialize<Seed>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-        builder.Entity<CvFrameworkVersion>().HasData(new CvFrameworkVersion { Id = 1, Version = seed.Version, Status = seed.Status, Source = seed.Source });
-        builder.Entity<ProficiencyLevel>().HasData(seed.Levels);
+        Seed ReadSeed(string version)
+        {
+            using var stream = typeof(CvFrameworkCatalog).Assembly.GetManifestResourceStream($"AiCompetency.Api.Data.{version}.yaml")!;
+            return JsonSerializer.Deserialize<Seed>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        }
+
+        var draft = ReadSeed("cv-v1-draft");
+        var published = ReadSeed("cv-v1");
+        builder.Entity<ProficiencyLevel>().HasData(draft.Levels);
         var indicatorId = 0;
         var ruleId = 0;
-        foreach (var group in seed.Groups)
+        foreach (var (seed, versionId) in new[] { (draft, 1), (published, 2) })
         {
-            builder.Entity<CvCompetencyGroup>().HasData(new CvCompetencyGroup {
-                FrameworkVersionId = 1, Code = group.Code, NameVi = group.NameVi, NameEn = group.NameEn, Order = group.Order
+            builder.Entity<CvFrameworkVersion>().HasData(new CvFrameworkVersion {
+                Id = versionId, Version = seed.Version, Status = seed.Status, Source = seed.Source,
+                IsActive = versionId == 2,
+                PublishedAt = versionId == 2 ? new DateTimeOffset(2026, 10, 12, 0, 0, 0, TimeSpan.Zero) : null
             });
-            foreach (var indicator in group.Indicators)
+            foreach (var group in seed.Groups)
             {
-                indicator.Id = ++indicatorId;
-                indicator.FrameworkVersionId = 1;
-                indicator.GroupCode = group.Code;
-                builder.Entity<BehaviorIndicator>().HasData(indicator);
-            }
-            foreach (var rule in group.RubricRules)
-            {
-                rule.Id = ++ruleId;
-                rule.FrameworkVersionId = 1;
-                rule.GroupCode = group.Code;
-                builder.Entity<CvRubricRule>().HasData(rule);
+                builder.Entity<CvCompetencyGroup>().HasData(new CvCompetencyGroup {
+                    FrameworkVersionId = versionId, Code = group.Code, NameVi = group.NameVi, NameEn = group.NameEn, Order = group.Order
+                });
+                foreach (var indicator in group.Indicators)
+                {
+                    indicator.Id = ++indicatorId;
+                    indicator.FrameworkVersionId = versionId;
+                    indicator.GroupCode = group.Code;
+                    builder.Entity<BehaviorIndicator>().HasData(indicator);
+                }
+                foreach (var rule in group.RubricRules)
+                {
+                    rule.Id = ++ruleId;
+                    rule.FrameworkVersionId = versionId;
+                    rule.GroupCode = group.Code;
+                    builder.Entity<CvRubricRule>().HasData(rule);
+                }
             }
         }
     }
