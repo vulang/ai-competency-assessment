@@ -109,6 +109,7 @@ GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build
 - [Phase 0 implementation and verification](docs/phase-0-progress.md)
 - [Phase 1 progress](docs/phase-1-progress.md)
 - [Draft CV annotation guide](docs/annotation-guide.md)
+- [Proposed Appendices A/B for expert review](docs/appendix-a-b-draft.md)
 - [Experimental IRT/CAT/BKT methods](docs/ml-methods.md)
 - [Generated PostgreSQL migration script](db/schema.sql)
 

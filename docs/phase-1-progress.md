@@ -2,7 +2,7 @@
 
 Started 2026-10-12. The software and draft research materials are implemented.
 **Phase 1 acceptance still requires expert review of Appendices A/B**; no expert
-approval or CV annotation pilot was available in this checkout.
+approval or CV annotation pilot has been supplied.
 
 - Add separate, versioned CV framework tables with seven bilingual groups, levels
   0–3, 63 proposed bilingual indicators, and 28 rubric rules. The initial
@@ -23,10 +23,11 @@ approval or CV annotation pilot was available in this checkout.
   mapping, syllabus and prompt. `src/question-generator/src/taxonomy.py` reads the
   shared draft file for group/level validation; legacy display names remain accepted
   at generator ingress during transition. Item difficulty stays independent.
-- Add [annotation guide](annotation-guide.md) and an initial versioned tool/action
+- Add [annotation guide](annotation-guide.md), [expert review copy of Appendices A/B](appendix-a-b-draft.md), and an initial versioned tool/action
   dictionary at `data/dictionary/ai_tools_v1.yaml`. Tool names alone count as weak
-  signals. The 63 indicators and rubric examples are proposals, not verified
-  excerpts from the unavailable thesis appendices.
+  signals. The 63 indicators are proposals. The rubric boundaries and synthetic examples
+  now follow thesis v8.1 §2.3; Appendix A/B contents are not present in the supplied
+  manuscript, which lists them under “PHỤ LỤC DỰ KIẾN”.
 
 The Phase 0 catalogue remains active for existing assessment skill mappings. Its
 seven group codes now match the CV draft. Switching the old catalogue itself to a
@@ -44,8 +45,12 @@ reviewed version awaits expert approval; existing assessments retain their skill
 
 ## Expert review handoff
 
-Review [the proposed indicator set](../data/frameworks/cv-v1-draft.yaml) against
-thesis Appendix A and [the annotation guide](annotation-guide.md) against Appendix B.
+Review [the proposed Appendices A/B](appendix-a-b-draft.md),
+[the indicator seed](../data/frameworks/cv-v1-draft.yaml), and
+[the annotation guide](annotation-guide.md) against the thesis v8.1 chapter text
+and the future full Appendices A/B. The supplied manuscript currently only names
+those appendices as planned. Regenerate the review copy from the seed with
+`python scripts/export-framework-appendices.py`; CI checks that it stays in sync.
 Confirm level boundaries, at least one source span for each positive CV label,
 and accepted/rejected examples for each group. Record the reviewer and decision in
 the admin editor, copy the draft to a release name such as `cv-v1`, revise the copy,

@@ -51,6 +51,9 @@ public sealed class CvFrameworkTests
         }
         Assert.Equal(63, await db.BehaviorIndicators.CountAsync());
         Assert.Equal(28, await db.CvRubricRules.CountAsync());
+        Assert.Contains("học phần/chứng chỉ có sản phẩm", (await db.CvRubricRules.SingleAsync(r => r.FrameworkVersionId == 1 && r.GroupCode == "FOUNDATION" && r.Level == 1)).AcceptedEvidence);
+        Assert.Contains("vận dụng độc lập", (await db.CvRubricRules.SingleAsync(r => r.FrameworkVersionId == 1 && r.GroupCode == "DATA" && r.Level == 2)).AcceptedEvidence);
+        Assert.Contains("phạm vi rộng", (await db.CvRubricRules.SingleAsync(r => r.FrameworkVersionId == 1 && r.GroupCode == "ETHICS" && r.Level == 3)).AcceptedEvidence);
     }
 
     [Fact]

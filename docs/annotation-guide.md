@@ -4,7 +4,9 @@ Status: proposed for expert review, not approved for research data collection.
 Framework: `cv-v1-draft`, in [the framework seed](../data/frameworks/cv-v1-draft.yaml).
 The seed uses JSON syntax, a subset of YAML 1.2, and is embedded directly in the
 API assembly. It contains proposed indicators derived from the existing catalogue
-and roadmap; the thesis appendices themselves were not available for verification.
+and aligned to thesis v8.1 §1.2 and §2.3. The thesis lists Appendices A and B as
+planned, without their full indicator set or annotation handbook; expert review
+remains necessary.
 
 ## Labels and evidence
 
@@ -17,7 +19,11 @@ its section, start/end offsets, and the matching indicator code. Offsets use
 half-open intervals in the stored normalized text; never calculate them on the raw
 PDF or a differently normalized copy. Record framework and preprocessing versions.
 A job title, tool list, self rating, or certificate name alone is insufficient.
-Coursework can support a label when it describes a concrete action by the candidate.
+Coursework or a certificate can support Basic when a concrete product and context are
+described. A certificate title alone cannot. Intermediate requires independent
+application with a technical choice or verification and a clear personal role.
+Advanced requires evidence of evaluation, design, leadership, optimization, or
+standardization at broader scope; tenure and job title alone do not qualify.
 
 Choose the highest level supported by concrete actions, task context, and the
 candidate's contribution. Do not require a metric for every Basic example. A metric
@@ -42,10 +48,10 @@ These synthetic examples illustrate decisions; they are not training records.
   privacy incidents.” → ETHICS 3; use the full action/outcome passage as evidence.
 - “Managed an AI team.” → no automatic Advanced label for any group.
 
-The seed includes group-specific annotation prompts. They describe the evidence
-annotators should look for; they are not real CV passages or approved boundary examples.
-Experts must refine these prompts into accepted/rejected examples for every group
-and settle whether particular higher-level indicators require multiple spans.
+The seed includes group-specific synthetic CV examples at levels 1–3. They illustrate
+application of the thesis rules and are not real CV passages or approved examples.
+Experts must review accepted/rejected examples for every group and settle whether
+particular higher-level indicators require multiple spans.
 
 ## Pilot and review
 
