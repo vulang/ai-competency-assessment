@@ -100,7 +100,7 @@ VALIDATION_REUSE_IMAGES=1 VALIDATION_TMPFS=1 ./scripts/verify-stack.sh
 
 This does not change the persistent volumes in the development compose configuration.
 
-GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build, Python lint/tests for both services, schema verification, and compose acceptance. All four jobs passed in the [Phase 0 acceptance run](https://github.com/vulang/ai-competency-assessment/actions/runs/38152153743), including a fresh SDK 8/runtime 8 build and persistent-volume Compose startup.
+GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build, Python lint/tests for both services, schema verification, and compose acceptance. All four jobs passed in the [Phase 0 acceptance run](https://github.com/vulang/ai-competency-assessment/actions/runs/38152153743), including a fresh SDK 8/runtime 8 build and persistent-volume Compose startup, and again in the [Phase 1 acceptance run](https://github.com/vulang/ai-competency-assessment/actions/runs/41474221369).
 
 ## Design and research documents
 

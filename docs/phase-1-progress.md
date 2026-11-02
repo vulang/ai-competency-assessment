@@ -1,6 +1,6 @@
 # Phase 1 — Competency taxonomy and CV labels
 
-Status: complete on 2026-10-12. The project owner confirmed expert review and approval of the proposed indicators and CV rubric in conversation on 2026-10-12. The expert's name and review date were not supplied. The active CV framework is `cv-v1`; the earlier `cv-v1-draft` remains inactive for traceability.
+Status: complete on 2026-10-12. Local checks and all four [hosted GitHub Actions jobs](https://github.com/vulang/ai-competency-assessment/actions/runs/41474221369) pass on branch `phase-1-framework`. The project owner confirmed expert review and approval of the proposed indicators and CV rubric in conversation on 2026-10-12. The expert's name and review date were not supplied. The active CV framework is `cv-v1`; the earlier `cv-v1-draft` remains inactive for traceability.
 
 - Add seven bilingual groups, four CV levels (0–3), 63 bilingual behavior indicators, and 28 group-level rubric rules. Level 0 means insufficient CV evidence, not low ability.
 - Add Admin APIs and an editor at `/admin/framework` to clone, edit and publish later versions. Candidate reads expose published CV versions only. The Phase 0 `p0-v1` assessment skill catalogue remains active for existing question mappings.
@@ -20,3 +20,4 @@ The published version is a separate immutable copy of the seed content. A deploy
 
 - All 47 backend tests, nine frontend tests, 24 Python tests, frontend lint/build, Ruff and the appendix freshness check pass.
 - The disposable PostgreSQL schema check passes fresh and repeated application, an edited legacy draft, sequence values, constraints, legacy question backfill, and reconciliation guards for an existing active CV release.
+- Hosted CI passed all four jobs for commit `2b5f898`: backend tests and PostgreSQL schema checks, frontend lint/tests/build, Python lint/tests with the appendix freshness check, and Compose acceptance.

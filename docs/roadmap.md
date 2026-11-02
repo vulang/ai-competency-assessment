@@ -238,7 +238,7 @@ flowchart LR
 
 ### Phase 1 — Khung năng lực, lược đồ nhãn 4 mức và taxonomy thống nhất
 
-**Trạng thái: Hoàn thành ngày 2026-10-12.** Bộ CV `cv-v1` đã xuất bản; chủ dự án xác nhận chuyên gia đã duyệt bộ chỉ báo và rubric. Đã đối chiếu với §1.2 và §2.3 của bản luận văn v8.1 được cung cấp; Phụ lục A/B trong tài liệu chỉ là mục dự kiến. Tên/ngày phản biện của chuyên gia chưa được cung cấp. Đo độ nhất quán gán nhãn thuộc Phase 4. Chi tiết: [phase-1-progress.md](phase-1-progress.md).
+**Trạng thái: Hoàn thành ngày 2026-10-12.** Bộ CV `cv-v1` đã xuất bản; chủ dự án xác nhận chuyên gia đã duyệt bộ chỉ báo và rubric. Đã đối chiếu với §1.2 và §2.3 của bản luận văn v8.1 được cung cấp; Phụ lục A/B trong tài liệu chỉ là mục dự kiến. Tên/ngày phản biện của chuyên gia chưa được cung cấp. Đo độ nhất quán gán nhãn thuộc Phase 4. Kiểm chứng cục bộ và cả bốn job [CI trên GitHub](https://github.com/vulang/ai-competency-assessment/actions/runs/41474221369) đều đạt. Chi tiết: [phase-1-progress.md](phase-1-progress.md).
 
 **Liên hệ luận văn:** §1.2, §1.2.1, §2.3, Phụ lục A, B, D.
 
