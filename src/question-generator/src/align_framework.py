@@ -1,5 +1,9 @@
 \
 import argparse, json, os
+try:
+    from .taxonomy import group_code
+except ImportError:
+    from taxonomy import group_code
 
 try:
     import yaml
@@ -7,7 +11,10 @@ except ImportError:
     yaml = None
 
 def align_with_framework(item, mapping):
-    group = item.get("group")
+    try:
+        group = group_code(item.get("group", ""))
+    except ValueError:
+        return False
     if group not in mapping:
         return False
     text_bits = []

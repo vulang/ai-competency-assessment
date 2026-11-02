@@ -51,3 +51,8 @@ python -m src.generate   --base-url https://api.openai.com/v1   --model-name gpt
 
 python -m src.verify   --base-url https://api.openai.com/v1   --model-name gpt-4o-mini   --in .cache/gen.jsonl   --prompt prompts/verifier_vn.txt   --out .cache/refined.jsonl
 ```
+
+The generator reads canonical group codes and four-level definitions from the repository's active `data/frameworks/cv-v1.yaml`. Run it from this repository checkout.
+For Docker, build through `infra/docker-compose.yml` so the root build context includes
+the shared framework file. Plans use the seven canonical group codes and
+Basic/Intermediate/Advanced; question difficulty remains a separate 1–5 value.

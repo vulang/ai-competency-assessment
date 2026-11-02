@@ -4,6 +4,7 @@ WORKDIR /source
 COPY backend/AiCompetency.Api/AiCompetency.Api.csproj backend/AiCompetency.Api/
 RUN dotnet restore backend/AiCompetency.Api/AiCompetency.Api.csproj
 COPY backend/AiCompetency.Api backend/AiCompetency.Api
+COPY data/frameworks data/frameworks
 RUN dotnet publish backend/AiCompetency.Api/AiCompetency.Api.csproj -c Release --no-restore -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

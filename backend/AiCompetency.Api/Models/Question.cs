@@ -16,6 +16,13 @@ public class Question
 
     public CompetencySkill? Skill { get; set; }
 
+    [Column("group_code"), MaxLength(64)]
+    public string? GroupCode { get; set; }
+
+    [Column("target_level")]
+    public int? TargetLevel { get; set; }
+
+
     [Column("type")]
     [Required]
     [MaxLength(32)]

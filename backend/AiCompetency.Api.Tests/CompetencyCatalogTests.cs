@@ -41,10 +41,10 @@ public class CompetencyCatalogTests
     }
 
     [Theory]
-    [InlineData("AITools", "KienTao", 6, "AI Tools", "Advanced")]
-    [InlineData("TOOLS", "Basic", 6, "AI Tools", "Basic")]
-    [InlineData("Critical Thinking", "Apply", 3, "Critical Thinking", "Intermediate")]
-    public async Task ManualQuestionLinksToRealSkillAndKeepsDifficultyIndependent(string group, string level, int skillId, string name, string canonicalLevel)
+    [InlineData("AITools", "KienTao", 6, "TOOLS", "Advanced")]
+    [InlineData("TOOLS", "Basic", 6, "TOOLS", "Basic")]
+    [InlineData("Critical Thinking", "Apply", 3, "CRITICAL_THINKING", "Intermediate")]
+    public async Task ManualQuestionLinksToRealSkillAndKeepsDifficultyIndependent(string group, string level, int skillId, string code, string canonicalLevel)
     {
         await using var db = await CreateDbAsync();
         var result = Assert.IsType<CreatedAtActionResult>(await Controller(db).CreateQuestion(new QuestionDto
@@ -56,7 +56,9 @@ public class CompetencyCatalogTests
         Assert.Equal(skillId, question.SkillId);
         Assert.Equal(5, question.DifficultyLevel);
         Assert.Equal("mcq_single", question.Type);
-        Assert.Equal(name, question.Metadata.RootElement.GetProperty("group").GetString());
+        Assert.Equal(code, question.Metadata.RootElement.GetProperty("group").GetString());
+        Assert.Equal(code, question.GroupCode);
+        Assert.Equal(canonicalLevel == "Basic" ? 1 : canonicalLevel == "Intermediate" ? 2 : 3, question.TargetLevel);
         Assert.Equal(canonicalLevel, question.Metadata.RootElement.GetProperty("level").GetString());
         Assert.True(AnswerEvaluator.IsCorrect(question.Type, question.Metadata, "A"));
         Assert.Equal(skillId, Assert.IsType<QuestionDto>(result.Value).SkillId);
@@ -72,7 +74,7 @@ public class CompetencyCatalogTests
         var update = Assert.IsType<OkObjectResult>(await controller.UpdateQuestion(question.Id,
             new QuestionDto { Prompt = "Q", Type = "mcq_single", CompetencyGroupId = "AI Tools", CompetencyLevelId = "Advanced", Difficulty = 2 }));
         Assert.Equal(6, question.SkillId);
-        Assert.Equal("AI Tools", Assert.IsType<QuestionDto>(update.Value).CompetencyGroupId);
+        Assert.Equal("TOOLS", Assert.IsType<QuestionDto>(update.Value).CompetencyGroupId);
         await controller.SaveBatch([new() { Stem = "Generated Q", Group = "Data", Level = "Advanced", Difficulty = 1 },
             new() { Stem = "Unknown difficulty", Group = "Data", Level = "Basic" }]);
         Assert.Equal(1, (await db.Questions.SingleAsync(q => q.Content == "Generated Q")).DifficultyLevel);

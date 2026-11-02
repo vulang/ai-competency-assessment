@@ -1,5 +1,9 @@
 \
 import argparse, json, os, random
+try:
+    from .taxonomy import group_code, level_name
+except ImportError:
+    from taxonomy import group_code, level_name
 
 try:
     import yaml
@@ -15,8 +19,8 @@ def expand_plan(plan):
             jid += 1
             job = {
                 "id": f"job_{jid:04d}",
-                "group": mix["group"],
-                "level": mix["level"],
+                "group": group_code(mix["group"]),
+                "level": level_name(mix["level"]),
                 "type": mix["type"],
                 "difficulty": random.choice(mix["difficulty"]),
                 "topic": mix.get("topic", ""),

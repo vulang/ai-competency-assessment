@@ -1,6 +1,6 @@
 # AI Competency Assessment
 
-.NET 8 API, Angular 17 UI, and Python services for assessing AI competency. Phase 0 establishes the working development baseline; the thesis-aligned CV/CTT work starts in Phase 1. IRT/CAT/BKT profiles are experimental extensions.
+.NET 8 API, Angular 17 UI, and Python services for assessing AI competency. Phase 0 establishes the working development baseline; Phase 1 adds the thesis-aligned competency taxonomy and CV rubric. IRT/CAT/BKT profiles are experimental extensions.
 
 ## Start the development stack
 
@@ -100,14 +100,17 @@ VALIDATION_REUSE_IMAGES=1 VALIDATION_TMPFS=1 ./scripts/verify-stack.sh
 
 This does not change the persistent volumes in the development compose configuration.
 
-GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build, Python lint/tests for both services, schema verification, and compose acceptance. All four jobs passed in the [Phase 0 acceptance run](https://github.com/vulang/ai-competency-assessment/actions/runs/38152153743), including a fresh SDK 8/runtime 8 build and persistent-volume Compose startup.
+GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build, Python lint/tests for both services, schema verification, and compose acceptance. All four jobs passed in the [Phase 0 acceptance run](https://github.com/vulang/ai-competency-assessment/actions/runs/38152153743), including a fresh SDK 8/runtime 8 build and persistent-volume Compose startup, and again in the [Phase 1 acceptance run](https://github.com/vulang/ai-competency-assessment/actions/runs/41474221369).
 
 ## Design and research documents
 
 - [Architecture](docs/architecture.md)
 - [Thesis roadmap](docs/roadmap.md)
 - [Phase 0 implementation and verification](docs/phase-0-progress.md)
+- [Phase 1 completion and verification](docs/phase-1-progress.md)
+- [CV annotation guide](docs/annotation-guide.md)
+- [Approved Appendices A/B](docs/appendix-a-b-v1.md)
 - [Experimental IRT/CAT/BKT methods](docs/ml-methods.md)
 - [Generated PostgreSQL migration script](db/schema.sql)
 
-The `p0-v1` catalogue is a compatibility seed sourced from the generator's seven-group mapping. Phase 1 introduces the reviewed behavior indicators, four-level label scheme, and versioned CV rubric. `db/schema.sql` is generated with `dotnet ef migrations script --idempotent`; EF migrations are the schema source of truth.
+The `p0-v1` catalogue is a compatibility seed for existing assessment skill mappings. Phase 1 adds structured question group/level fields and active `cv-v1` with 63 bilingual behavior indicators and four-level CV rubric rules. The project owner confirmed expert review and approval on 2026-10-12; the earlier draft remains inactive. Admins can edit copied drafts at `/admin/framework` and publish later versions. Existing published questions with unmapped legacy labels stop migration for reconciliation. `db/schema.sql` is generated with `dotnet ef migrations script --idempotent`; EF migrations are the schema source of truth.

@@ -171,7 +171,7 @@
                 <label class="form-label">Competency Group</label>
                 <select class="form-select" formControlName="competencyGroupId" (change)="changeGroup()">
                     <option value="">Choose a competency group</option>
-                    <option *ngFor="let domain of domains()" [value]="domain.name">{{ domain.name }}</option>
+                    <option *ngFor="let domain of domains()" [value]="domain.code">{{ domain.name }}</option>
                 </select>
             </div>
 

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AiCompetency.Api.Services;
 
-public sealed record QuestionClassification(int SkillId, string Group, string Level);
+public sealed record QuestionClassification(int SkillId, string GroupCode, string Level, int TargetLevel);
 
 public sealed class QuestionClassificationService(ApplicationDbContext context)
 {
@@ -21,7 +21,7 @@ public sealed class QuestionClassificationService(ApplicationDbContext context)
             ? await eligible.SingleOrDefaultAsync(s => s.Id == skillId)
             : await eligible.SingleOrDefaultAsync(s => s.IsDefault);
         if (skill == null) throw new ValidationException("The selected skill must belong to this group in the active framework.");
-        return new QuestionClassification(skill.Id, skill.Domain.Name, levelName);
+        return new QuestionClassification(skill.Id, code, levelName, levelName switch { "Basic" => 1, "Intermediate" => 2, _ => 3 });
     }
 
     public static string NormalizeType(string type) => type switch

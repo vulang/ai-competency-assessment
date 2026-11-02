@@ -168,7 +168,7 @@ async def generate_questions_simple(request: GenerationRequest):
     diff_map = {"easy": [1], "medium": [2], "hard": [3]}
     difficulty = diff_map.get(request.difficulty or "medium", [2])
     mix_item = MixItem(
-        group="Fundamental",
+        group="FOUNDATION",
         level="Basic",
         type="mcq_single",
         difficulty=difficulty,

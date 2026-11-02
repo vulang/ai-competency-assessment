@@ -52,7 +52,7 @@ public class QuestionsController : ControllerBase
         var dict = new Dictionary<string, object>
         {
             ["topic"] = dto.Title,
-            ["group"] = classification.Group,
+            ["group"] = classification.GroupCode,
             ["level"] = classification.Level,
             ["tags"] = dto.Tags,
             ["options"] = dto.Options,
@@ -67,6 +67,8 @@ public class QuestionsController : ControllerBase
         var question = new Question
         {
             SkillId = classification.SkillId,
+            GroupCode = classification.GroupCode,
+            TargetLevel = classification.TargetLevel,
             Type = QuestionClassificationService.NormalizeType(dto.Type),
             Content = dto.Prompt,
             DifficultyLevel = dto.Difficulty,
@@ -92,6 +94,8 @@ public class QuestionsController : ControllerBase
         try { classification = await _classification.ResolveAsync(dto.CompetencyGroupId, dto.CompetencyLevelId, dto.SkillId, dto.Difficulty); }
         catch (ValidationException error) { ModelState.AddModelError("classification", error.Message); return ValidationProblem(statusCode: 400, modelStateDictionary: ModelState); }
         question.SkillId = classification.SkillId;
+        question.GroupCode = classification.GroupCode;
+        question.TargetLevel = classification.TargetLevel;
         question.Type = QuestionClassificationService.NormalizeType(dto.Type);
         question.Content = dto.Prompt;
         question.DifficultyLevel = dto.Difficulty;
@@ -102,7 +106,7 @@ public class QuestionsController : ControllerBase
         var existingMetadata = question.Metadata.RootElement.Clone();
         var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(existingMetadata.GetRawText()) ?? new Dictionary<string, object>();
         dict["topic"] = dto.Title;
-        dict["group"] = classification.Group;
+        dict["group"] = classification.GroupCode;
         dict["level"] = classification.Level;
         dict["tags"] = dto.Tags;
         dict["options"] = dto.Options;
@@ -151,6 +155,8 @@ public class QuestionsController : ControllerBase
             entities.Add(new Question
             {
                 SkillId = classification.SkillId,
+            GroupCode = classification.GroupCode,
+            TargetLevel = classification.TargetLevel,
                 Content = !string.IsNullOrEmpty(q.Stem) ? q.Stem : (q.Question ?? string.Empty),
                 Type = QuestionClassificationService.NormalizeType(!string.IsNullOrEmpty(q.Type) ? q.Type : "mcq_single"),
                 DifficultyLevel = q.Difficulty,
@@ -160,7 +166,7 @@ public class QuestionsController : ControllerBase
                     options = q.Options ?? new List<string>(),
                     answer = q.Answer ?? string.Empty,
                     explanation = !string.IsNullOrEmpty(q.RationaleHidden) ? q.RationaleHidden : (q.Explanation ?? string.Empty),
-                    group = classification.Group,
+                    group = classification.GroupCode,
                     topic = q.Title ?? q.Topic,
                     level = classification.Level,
                     context = q.Context ?? string.Empty,
@@ -196,11 +202,13 @@ public class QuestionsController : ControllerBase
         {
             Id = q.Id.ToString(),
             SkillId = q.SkillId,
+            GroupCode = q.GroupCode,
+            TargetLevel = q.TargetLevel,
             Title = root.TryGetProperty("topic", out var topicProp) && topicProp.ValueKind == JsonValueKind.String ? topicProp.GetString() ?? "Untitled" : "Untitled",
             Prompt = q.Content,
             Type = q.Type,
-            CompetencyGroupId = q.Skill?.Domain.Name ?? (root.TryGetProperty("group", out var groupProp) && groupProp.ValueKind == JsonValueKind.String ? groupProp.GetString() ?? string.Empty : string.Empty),
-            CompetencyLevelId = root.TryGetProperty("level", out var levelProp) && levelProp.ValueKind == JsonValueKind.String ? CompetencyCatalog.LevelName(levelProp.GetString()) ?? levelProp.GetString() ?? string.Empty : string.Empty,
+            CompetencyGroupId = q.GroupCode ?? q.Skill?.Domain.Code ?? (root.TryGetProperty("group", out var groupProp) && groupProp.ValueKind == JsonValueKind.String ? CompetencyCatalog.GroupCode(groupProp.GetString()) ?? string.Empty : string.Empty),
+            CompetencyLevelId = q.TargetLevel switch { 1 => "Basic", 2 => "Intermediate", 3 => "Advanced", _ => root.TryGetProperty("level", out var levelProp) && levelProp.ValueKind == JsonValueKind.String ? CompetencyCatalog.LevelName(levelProp.GetString()) ?? string.Empty : string.Empty },
             Difficulty = q.DifficultyLevel,
             Tags = root.TryGetProperty("tags", out var tagsProp) && tagsProp.ValueKind == JsonValueKind.Array ? tagsProp.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : new List<string>(),
             Options = root.TryGetProperty("options", out var optionsProp) && optionsProp.ValueKind == JsonValueKind.Array ? optionsProp.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : new List<string>(),
@@ -218,6 +226,8 @@ public class QuestionsController : ControllerBase
 
 public class QuestionDto
 {
+    public string? GroupCode { get; set; }
+    public int? TargetLevel { get; set; }
     public string Id { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Prompt { get; set; } = string.Empty;

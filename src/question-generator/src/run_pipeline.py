@@ -152,7 +152,7 @@ async def run_legacy(topic: str, count: int, output_path: str):
         "total": count,
         "mix": [
             {
-                "group": "Fundamental",
+                "group": "FOUNDATION",
                 "level": "Basic",
                 "type": "mcq_single",
                 "difficulty": [1, 2],

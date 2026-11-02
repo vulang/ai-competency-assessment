@@ -1,0 +1,42 @@
+version: ai-tools-v1-draft
+status: Draft
+framework_version: cv-v1-draft
+notes: Tool mentions alone are weak evidence and never establish a competency level.
+tools:
+  - canonical: ChatGPT
+    aliases: [Chat GPT, chatgpt]
+    groups: [TOOLS, APPLICATION]
+    signal: weak
+  - canonical: Python
+    aliases: [python]
+    groups: [DATA, TOOLS]
+    signal: weak
+  - canonical: scikit-learn
+    aliases: [sklearn, scikit learn]
+    groups: [FOUNDATION, DATA, TOOLS]
+    signal: weak
+  - canonical: PyTorch
+    aliases: [pytorch, torch]
+    groups: [FOUNDATION, TOOLS]
+    signal: weak
+  - canonical: TensorFlow
+    aliases: [tensorflow, tf]
+    groups: [FOUNDATION, TOOLS]
+    signal: weak
+  - canonical: Power BI
+    aliases: [powerbi, power bi]
+    groups: [DATA]
+    signal: weak
+strong_action_patterns:
+  - canonical: Evaluate against a baseline
+    aliases: [compared against a baseline, so sánh với phương án cơ sở]
+    groups: [CRITICAL_THINKING, APPLICATION]
+    signal: strong
+  - canonical: Check data leakage
+    aliases: [checked data leakage, kiểm tra rò rỉ dữ liệu]
+    groups: [DATA]
+    signal: strong
+  - canonical: Evaluate bias mitigation
+    aliases: [evaluated bias mitigation, đánh giá biện pháp giảm thiên lệch]
+    groups: [ETHICS]
+    signal: strong

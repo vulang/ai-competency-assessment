@@ -1,4 +1,4 @@
-name: Phase 0 checks
+name: Repository checks
 on:
   push:
   pull_request:
@@ -41,7 +41,8 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - run: pip install -r requirements-dev.txt
-      - run: ruff check src/ml_service src/question-generator
+      - run: ruff check src/ml_service src/question-generator scripts/export-framework-appendices.py
+      - run: python scripts/export-framework-appendices.py --check
       - run: pytest -q
   compose:
     runs-on: ubuntu-latest

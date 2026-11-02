@@ -25,6 +25,10 @@ from dataclasses import dataclass, field
 from typing import Any, Optional
 
 from dotenv import load_dotenv
+try:
+    from .taxonomy import group_code, level_name
+except ImportError:
+    from taxonomy import group_code, level_name
 
 load_dotenv()
 
@@ -45,18 +49,13 @@ except ImportError:
 
 # ── Domain ID prefix mapping ──────────────────────────────────────────────────
 DOMAIN_ID_PREFIX: dict[str, str] = {
-    "Fundamental":       "QF-",
-    "Data":              "QD-",
-    "Critical Thinking": "QC-",
-    "AI Use Cases":      "QU-",
-    "AI Ethics":         "QE-",
-    "AI Tools":          "QT-",
-    "Future of Work":    "QW-",
+    "FOUNDATION": "QF-", "DATA": "QD-", "CRITICAL_THINKING": "QC-",
+    "APPLICATION": "QU-", "ETHICS": "QE-", "TOOLS": "QT-", "FUTURE_OF_WORK": "QW-",
 }
 
 
 def _make_question_id(group: str, counter: int) -> str:
-    prefix = DOMAIN_ID_PREFIX.get(group, "Q-")
+    prefix = DOMAIN_ID_PREFIX[group_code(group)]
     return f"{prefix}{counter:03d}"
 
 
@@ -223,8 +222,8 @@ class GeneratorAgent:
         is_scenario = job.get("type") == "scenario"
         prompt_tmpl = self.prompt_sit_tmpl if is_scenario else self.prompt_mcq_tmpl
 
-        group = job.get("group", "")
-        level = job.get("level", "")
+        group = group_code(job.get("group", ""))
+        level = level_name(job.get("level", ""))
         
         # Get context from framework
         fw_ctx = {"definition": "", "behaviors": "", "examples": ""}
@@ -262,7 +261,7 @@ class GeneratorAgent:
         prompt = prompt.replace("{Dán 1 câu mẫu từ examples-situational.md cùng tiêu chí}", fw_ctx["examples"])
         
         # Handle the ID prefix mapping
-        prefix = DOMAIN_ID_PREFIX.get(group, "Q-")
+        prefix = DOMAIN_ID_PREFIX[group_code(group)]
         level_abbr = "Basic" if level == "Basic" else ("Int" if level == "Intermediate" else "Adv")
         id_template = f"{prefix}{level_abbr}"
         prompt = prompt.replace("C{Mã tiêu chí 1-7}-L{Basic|Int|Adv}-{Số thứ tự 01-99}", question_id)

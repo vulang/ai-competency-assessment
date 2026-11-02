@@ -7,6 +7,8 @@ export interface Question {
   prompt: string;
   type: QuestionType;
   competencyGroupId: string;
+  groupCode?: string | null;
+  targetLevel?: 1 | 2 | 3 | null;
   competencyLevelId: string;
   difficulty: 1 | 2 | 3 | 4 | 5 | null;
   skillId?: number | null;
@@ -31,5 +33,5 @@ export interface CompetencyGroup {
 export interface CompetencyLevel {
   id: string;
   name: string;
-  level: 1 | 2 | 3; // 1: Foundation, 2: Apply, 3: Create
+  level: 1 | 2 | 3; // 1: Basic, 2: Intermediate, 3: Advanced
 }

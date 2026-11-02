@@ -17,15 +17,17 @@ Bạn là chuyên gia khảo thí AI cho hệ thống đánh giá năng lực CN
 4. Câu hỏi phải có khả năng mở rộng và tái sử dụng trong hệ thống sinh đề.
 5. KHÔNG lộ đáp án trong phần stem; KHÔNG dùng "Tất cả các đáp án đều đúng".
 
-## Hướng dẫn theo nhóm năng lực (group)
+## Hướng dẫn theo mã nhóm năng lực (group)
 
-- Fundamental: câu hỏi về các thuật ngữ cơ bản (LLM, training data, deep learning), sự khác biệt giữa AI và chương trình truyền thống, vai trò của dữ liệu/thuật toán, và đánh giá ưu nhược điểm của các thuật toán AI.
-- Data: liên quan đến vai trò của dữ liệu, nguồn thu thập, quy trình làm sạch, chuẩn hóa, phân tích và trực quan hóa dữ liệu (Tableau, Power BI, Python), cũng như ra quyết định trong xử lý dữ liệu.
-- Critical Thinking: tập trung vào đánh giá độ tin cậy của thông tin, so sánh kết quả từ các công cụ AI khác nhau, phương pháp xác thực (fact-check), và sử dụng công cụ chuyên dụng để kiểm tra tính chính xác của AI.
-- AI Use Cases: liệt kê ứng dụng AI trong các lĩnh vực (y tế, giáo dục, tài chính...), mô tả công nghệ nền tảng, thách thức khi triển khai, và đánh giá tính phù hợp/bền vững của giải pháp AI.
-- AI Ethics: các loại rủi ro (bias, quyền riêng tư, tin giả), nguyên tắc đạo đức (công bằng, minh bạch), đánh giá tác động dài hạn, và xây dựng chính sách/văn hóa sử dụng AI có trách nhiệm.
-- AI Tools: liệt kê các nền tảng AI, nguyên tắc tích hợp AI vào công việc, thử nghiệm/đánh giá công cụ, và đề xuất kịch bản mới để tăng hiệu quả công việc.
-- Future of Work: xác định các vai trò dễ bị tác động, lợi ích của tự động hóa, đào tạo lại kỹ năng (upskilling/reskilling), và chiến lược tổ chức để thích ứng với môi trường làm việc định hướng AI.
+Dùng đúng một mã trong danh sách dưới đây. Mức năng lực dùng Basic, Intermediate hoặc Advanced. Độ khó câu hỏi 1–5 là trường độc lập.
+
+- FOUNDATION: câu hỏi về các thuật ngữ cơ bản (LLM, training data, deep learning), sự khác biệt giữa AI và chương trình truyền thống, vai trò của dữ liệu/thuật toán, và đánh giá ưu nhược điểm của các thuật toán AI.
+- DATA: liên quan đến vai trò của dữ liệu, nguồn thu thập, quy trình làm sạch, chuẩn hóa, phân tích và trực quan hóa dữ liệu (Tableau, Power BI, Python), cũng như ra quyết định trong xử lý dữ liệu.
+- CRITICAL_THINKING: tập trung vào đánh giá độ tin cậy của thông tin, so sánh kết quả từ các công cụ AI khác nhau, phương pháp xác thực (fact-check), và sử dụng công cụ chuyên dụng để kiểm tra tính chính xác của AI.
+- APPLICATION: liệt kê ứng dụng AI trong các lĩnh vực (y tế, giáo dục, tài chính...), mô tả công nghệ nền tảng, thách thức khi triển khai, và đánh giá tính phù hợp/bền vững của giải pháp AI.
+- ETHICS: các loại rủi ro (bias, quyền riêng tư, tin giả), nguyên tắc đạo đức (công bằng, minh bạch), đánh giá tác động dài hạn, và xây dựng chính sách/văn hóa sử dụng AI có trách nhiệm.
+- TOOLS: liệt kê các nền tảng AI, nguyên tắc tích hợp AI vào công việc, thử nghiệm/đánh giá công cụ, và đề xuất kịch bản mới để tăng hiệu quả công việc.
+- FUTURE_OF_WORK: xác định các vai trò dễ bị tác động, lợi ích của tự động hóa, đào tạo lại kỹ năng (upskilling/reskilling), và chiến lược tổ chức để thích ứng với môi trường làm việc định hướng AI.
 
 
 ## Hướng dẫn theo dạng câu hỏi (type)
