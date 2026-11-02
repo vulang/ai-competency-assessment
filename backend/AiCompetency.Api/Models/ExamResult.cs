@@ -11,7 +11,7 @@ public class ExamResult
     public Guid Id { get; set; }
 
     [Column("user_id")]
-    public int UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 
     [Column("exam_id")]
     public int ExamId { get; set; }

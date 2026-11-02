@@ -32,6 +32,9 @@ builder.Services.AddHttpClient<AiCompetency.Api.Services.MlService>(client =>
     client.Timeout = TimeSpan.FromSeconds(10); // Fast timeout; ML calls are non-critical
 });
 builder.Services.AddScoped<AiCompetency.Api.Services.CompetencyProfileService>();
+builder.Services.AddScoped<AiCompetency.Api.Services.QuestionClassificationService>();
+builder.Services.AddSingleton<AiCompetency.Api.Services.ProfileJobQueue>();
+builder.Services.AddHostedService<AiCompetency.Api.Services.ProfileJobWorker>();
 
 
 // Register the DbContext
@@ -42,9 +45,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 // Register Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 8;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+// Match the role claim emitted into OpenIddict tokens.
+builder.Services.Configure<IdentityOptions>(options =>
+    options.ClaimsIdentity.RoleClaimType = OpenIddictConstants.Claims.Role);
 
 // Configure OpenIddict
 builder.Services.AddOpenIddict()
@@ -55,8 +66,10 @@ builder.Services.AddOpenIddict()
     })
     .AddServer(options =>
     {
+        options.SetIssuer(new Uri(builder.Configuration["Authentication:Issuer"] ?? "http://localhost:5000/"));
         options.SetTokenEndpointUris("connect/token")
-               .SetAuthorizationEndpointUris("connect/authorize");
+               .SetAuthorizationEndpointUris("connect/authorize")
+               .SetEndSessionEndpointUris("connect/logout");
                //.SetLogoutEndpointUris("connect/logout");
 
         options.AllowAuthorizationCodeFlow()
@@ -77,6 +90,7 @@ builder.Services.AddOpenIddict()
         options.UseAspNetCore()
             .EnableTokenEndpointPassthrough()
             .EnableAuthorizationEndpointPassthrough()
+            .EnableEndSessionEndpointPassthrough()
             .DisableTransportSecurityRequirement();
             //.EnableLogoutEndpointPassthrough();
     })
@@ -92,7 +106,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.EnsureCreatedAsync();
+    await context.Database.MigrateAsync();
 
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
     if (await userManager.FindByNameAsync("admin@example.com") == null)
@@ -103,6 +117,22 @@ using (var scope = app.Services.CreateScope())
         {
              throw new Exception("Failed to create default user");
         }
+    }
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    foreach (var role in new[] { "Admin", "Annotator", "Candidate" })
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            var created = await roleManager.CreateAsync(new IdentityRole(role));
+            if (!created.Succeeded) throw new InvalidOperationException($"Failed to create role {role}.");
+        }
+    }
+    var admin = await userManager.FindByNameAsync("admin@example.com");
+    if (admin != null && !await userManager.IsInRoleAsync(admin, "Admin"))
+    {
+        var assigned = await userManager.AddToRoleAsync(admin, "Admin");
+        if (!assigned.Succeeded) throw new InvalidOperationException("Failed to assign the admin role.");
     }
 
     // Seed OpenIddict Client
@@ -124,7 +154,7 @@ using (var scope = app.Services.CreateScope())
         {
             OpenIddictConstants.Permissions.Endpoints.Authorization,
             OpenIddictConstants.Permissions.Endpoints.Token,
-            //OpenIddictConstants.Permissions.Endpoints.Logout,
+            OpenIddictConstants.Permissions.Endpoints.EndSession,
             OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
             OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
             OpenIddictConstants.Permissions.GrantTypes.Password,
@@ -147,77 +177,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-var frameworks = new List<FrameworkDto>
-{
-    new(1, "AI Competency 2024", "1.0", true)
-};
-
-var exams = new List<ExamDto>
-{
-    new(1, "Prompt Engineering Baseline", 45, 70, true)
-};
-
-app.MapGet("/api/frameworks", () => frameworks);
-
-app.MapPost("/api/frameworks", (FrameworkDto framework) =>
-{
-    var nextId = frameworks.Count == 0 ? 1 : frameworks.Max(item => item.FrameworkId) + 1;
-    var created = framework with { FrameworkId = nextId };
-    frameworks.Add(created);
-    return Results.Created($"/api/frameworks/{created.FrameworkId}", created);
-});
-
-app.MapGet("/api/exams", () => exams);
-
-app.MapPost("/api/exams", (ExamDto exam) =>
-{
-    var nextId = exams.Count == 0 ? 1 : exams.Max(item => item.ExamId) + 1;
-    var created = exam with { ExamId = nextId };
-    exams.Add(created);
-    return Results.Created($"/api/exams/{created.ExamId}", created);
-});
-
-app.MapPost("/api/sessions", (CreateSessionRequest request) =>
-{
-    var session = new TestSessionDto(Guid.NewGuid(), request.UserId, request.ExamId, DateTimeOffset.UtcNow, null, 0, "In-Progress");
-    return Results.Ok(session);
-});
-
-app.MapPost("/api/responses", (CreateResponseRequest request) =>
-{
-    var response = new ResponseDto(Guid.NewGuid(), request.SessionId, request.QuestionId, request.FinalAnswer, 0, null, DateTimeOffset.UtcNow);
-    return Results.Ok(response);
-});
-
-app.MapPost("/api/seed-difficulty", async (ApplicationDbContext context) =>
-{
-    var questions = await context.Questions.ToListAsync();
-    var random = new Random();
-    int updatedCount = 0;
-    
-    foreach (var q in questions)
-    {
-        if (q.DifficultyLevel == null || q.Status != AiCompetency.Api.Models.QuestionStatus.Published)
-        {
-            q.DifficultyLevel = random.Next(1, 11);
-            q.Status = AiCompetency.Api.Models.QuestionStatus.Published;
-            updatedCount++;
-        }
-    }
-    
-    if (updatedCount > 0)
-    {
-        await context.SaveChangesAsync();
-    }
-    
-    return Results.Ok(new { Message = $"Seeded difficulty and published {updatedCount} questions." });
-});
-
 app.Run();
 
-record FrameworkDto(int FrameworkId, string Name, string? Version, bool IsActive);
-record ExamDto(int ExamId, string Title, int DurationMinutes, int PassScore, bool IsPublished);
-record TestSessionDto(Guid SessionId, int UserId, int ExamId, DateTimeOffset StartTime, DateTimeOffset? EndTime, decimal TotalScore, string Status);
-record ResponseDto(Guid ResponseId, Guid SessionId, int QuestionId, string FinalAnswer, decimal ScoreEarned, string? AiFeedback, DateTimeOffset SubmittedAt);
-record CreateSessionRequest(int UserId, int ExamId);
-record CreateResponseRequest(Guid SessionId, int QuestionId, string FinalAnswer);
+public partial class Program { }

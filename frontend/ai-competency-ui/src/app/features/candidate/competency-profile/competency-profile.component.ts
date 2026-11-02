@@ -8,6 +8,7 @@ Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Fi
 
 const DOMAIN_LABELS: Record<string, string> = {
   ai_fundamentals:   'AI Fundamentals',
+  fundamental:       'AI Fundamentals',
   data:              'Data',
   critical_thinking: 'Critical Thinking',
   ai_use_cases:      'AI Use Cases',

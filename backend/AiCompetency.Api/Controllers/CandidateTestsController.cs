@@ -17,27 +17,18 @@ namespace AiCompetency.Api.Controllers;
 public class CandidateTestsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
-    private readonly CompetencyProfileService _profileService;
+    private readonly ProfileJobQueue _profileJobs;
 
     public CandidateTestsController(
         ApplicationDbContext context,
-        CompetencyProfileService profileService)
+        ProfileJobQueue profileJobs)
     {
         _context = context;
-        _profileService = profileService;
+        _profileJobs = profileJobs;
     }
 
-    private int GetCurrentUserId()
-    {
-        // For simplicity, returning a mock ID if we can't parse it.
-        // In a real scenario, the sub claim should be the integer ID.
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (int.TryParse(userIdString, out var userId))
-        {
-            return userId;
-        }
-        return 1; // Default fallback for dev
-    }
+    private string GetCurrentUserId() => CurrentUser.GetRequiredId(User);
+
 
     [HttpGet("available")]
     public async Task<IActionResult> GetAvailableTests()
@@ -113,7 +104,7 @@ public class CandidateTestsController : ControllerBase
                     eq.Question.Id,
                     eq.Question.Type,
                     eq.Question.Content,
-                    eq.Question.Metadata
+                    Metadata = QuestionPresentation.CandidateMetadata(eq.Question.Metadata)
                 })
         };
 
@@ -141,7 +132,7 @@ public class CandidateTestsController : ControllerBase
             Title = "Standard Test",
             Description = "Dynamically generated standard assessment.",
             DurationMinutes = 60, // Fixed default for now
-            PassScore = randomQuestions.Count * 70 / 100, // 70% passing
+            PassScore = (int)Math.Ceiling(randomQuestions.Count * 0.70m), // 70% passing
             QuestionCount = randomQuestions.Count,
             Status = "active",
             CreatedAt = DateTime.UtcNow,
@@ -209,6 +200,11 @@ public class CandidateTestsController : ControllerBase
             return BadRequest("Session already completed.");
         }
 
+        if (request.Responses.Select(r => r.QuestionId).Distinct().Count() != request.Responses.Count)
+            return BadRequest("Each question may only be answered once.");
+        if (request.Responses.Any(r => !session.Exam.ExamQuestions.Any(q => q.QuestionId == r.QuestionId)))
+            return BadRequest("A response refers to a question outside this exam.");
+
         decimal totalScore = 0;
         var responsesToSave = new List<Response>();
 
@@ -229,7 +225,7 @@ public class CandidateTestsController : ControllerBase
                 }
                 else
                 {
-                    bool isCorrect = EvaluateAnswer(examQuestion.Question?.Type ?? "", examQuestion.Question?.Metadata, answer.Answer);
+                    bool isCorrect = AnswerEvaluator.IsCorrect(examQuestion.Question?.Type ?? "", examQuestion.Question?.Metadata, answer.Answer);
                     if (isCorrect) 
                     {
                         scoreEarned = examQuestion.PointValue;
@@ -258,34 +254,11 @@ public class CandidateTestsController : ControllerBase
         session.EndTime = DateTime.UtcNow;
         session.TotalScore = totalScore;
 
-        await _context.SaveChangesAsync();
+        try { await _context.SaveChangesAsync(); }
+        catch (DbUpdateConcurrencyException) { return Conflict("This session was submitted by another request."); }
 
-        // ── ML Pipeline (fire-and-continue, non-blocking for the candidate) ──
-        // Build response data for IRT/BKT from the evaluated answers
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                var mlResponses = responsesToSave.Select(r =>
-                {
-                    var eq = session.Exam.ExamQuestions
-                        .FirstOrDefault(q => q.QuestionId == r.QuestionId);
-                    return (
-                        QuestionId: r.QuestionId,
-                        IsCorrect: r.ScoreEarned > 0,
-                        DifficultyLevel: eq?.Question?.DifficultyLevel,
-                        SkillId: eq?.Question?.SkillId
-                    );
-                }).ToList();
-
-                await _profileService.ProcessSessionAsync(
-                    sessionId, GetCurrentUserId(), mlResponses);
-            }
-            catch
-            {
-                // ML pipeline failure must never affect the candidate's result
-            }
-        });
+        // Queue only the persisted session ID; the worker loads it in its own DI scope.
+        _profileJobs.Enqueue(session.Id);
 
         return Ok(new { SessionId = session.Id, TotalScore = totalScore });
     }
@@ -303,6 +276,8 @@ public class CandidateTestsController : ControllerBase
         {
             return NotFound("Session not found.");
         }
+
+        if (session.Status != "Completed") return Conflict("Complete the test before viewing results.");
 
         var result = new
         {
@@ -349,55 +324,4 @@ public class CandidateTestsController : ControllerBase
         return Ok(sessions);
     }
 
-    private bool EvaluateAnswer(string type, JsonDocument? metadata, string userAnswer)
-    {
-        if (metadata == null) return false;
-
-        var root = metadata.RootElement;
-        if (!root.TryGetProperty("answer", out var correctAnswerElement))
-        {
-            return false;
-        }
-
-        if (type == "mcq_multi")
-        {
-            try 
-            {
-                var userAnswers = JsonSerializer.Deserialize<List<string>>(userAnswer) ?? new List<string>();
-                if (correctAnswerElement.ValueKind == JsonValueKind.Array)
-                {
-                    var correctAnswers = correctAnswerElement.EnumerateArray().Select(e => e.GetString() ?? "").ToList();
-                    
-                    if (userAnswers.Count == correctAnswers.Count && !userAnswers.Except(correctAnswers).Any()) 
-                    {
-                        return true;
-                    }
-                }
-            } 
-            catch
-            {
-                return false;
-            }
-        }
-        else 
-        {
-            string correctAnswerStr = "";
-            if (correctAnswerElement.ValueKind == JsonValueKind.String)
-            {
-                correctAnswerStr = correctAnswerElement.GetString() ?? "";
-            }
-            else if (correctAnswerElement.ValueKind == JsonValueKind.Array)
-            {
-                var first = correctAnswerElement.EnumerateArray().FirstOrDefault();
-                correctAnswerStr = first.ValueKind != JsonValueKind.Undefined ? (first.GetString() ?? "") : "";
-            }
-            
-            if (string.Equals(userAnswer.Trim(), correctAnswerStr.Trim(), StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

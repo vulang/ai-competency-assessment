@@ -16,7 +16,7 @@ export class AuthCallbackComponent implements OnInit {
 
   ngOnInit() {
     this.authService.completeLogin().then(() => {
-      this.router.navigate(['/admin']);
+      this.router.navigate([this.authService.homePath()]);
     }).catch(err => {
       console.error('Login failed', err);
       this.router.navigate(['/login']);

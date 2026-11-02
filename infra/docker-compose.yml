@@ -1,57 +1,94 @@
-version: "3.9"
+name: ai-cas-dev
 
 services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: ai_competency
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-ai_competency}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
-      - "5434:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5434}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  ml-service:
+    image: ai-cas-ml:dev
+    build: ../src/ml_service
+    ports:
+      - "127.0.0.1:${ML_PORT:-8001}:8001"
+
+  api:
+    image: ai-cas-api:dev
+    build:
+      context: ..
+      dockerfile: backend/AiCompetency.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Postgres: "Host=postgres;Database=${POSTGRES_DB:-ai_competency};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
+      MlService__BaseUrl: http://ml-service:8001
+      QuestionGeneratorUrl: http://question-generator:8000
+      Authentication__Issuer: ${AUTHENTICATION_ISSUER:-http://localhost:5000/}
+    ports:
+      - "127.0.0.1:${API_PORT:-5000}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ml-service:
+        condition: service_healthy
+
+  frontend:
+    image: ai-cas-ui:dev
+    build: ../frontend/ai-competency-ui
+    ports:
+      - "127.0.0.1:${UI_PORT:-4200}:80"
+    depends_on:
+      - api
+
+  question-generator:
+    image: ai-cas-generator:dev
+    build: ../src/question-generator
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      start_period: 15s
+      retries: 10
 
   mongo:
     image: mongo:7
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+    ports: ["127.0.0.1:27017:27017"]
+    volumes: ["mongo_data:/data/db"]
 
   rabbitmq:
     image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    ports: ["127.0.0.1:5672:5672", "127.0.0.1:15672:15672"]
 
   minio:
-    image: minio/minio
+    image: ai-cas-minio:dev
+    build: ./minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio123}
+    ports: ["127.0.0.1:9000:9000", "127.0.0.1:9001:9001"]
+    volumes: ["minio_data:/data"]
 
   qdrant:
     image: qdrant/qdrant
-    ports:
-      - "6333:6333"
-    volumes:
-      - qdrant_data:/qdrant/storage
-
-  question-generator:
-    build:
-      context: ../src/question-generator
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    env_file:
-      - ../src/question-generator/.env
+    ports: ["127.0.0.1:6333:6333"]
+    volumes: ["qdrant_data:/qdrant/storage"]
 
 volumes:
   postgres_data:

@@ -14,6 +14,8 @@ public class Question
     [Column("skill_id")]
     public int? SkillId { get; set; }
 
+    public CompetencySkill? Skill { get; set; }
+
     [Column("type")]
     [Required]
     [MaxLength(32)]

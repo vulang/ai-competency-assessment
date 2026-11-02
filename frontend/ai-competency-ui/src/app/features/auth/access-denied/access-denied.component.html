@@ -1,0 +1,8 @@
+<main>
+  <section>
+    <h1>Access denied</h1>
+    <p>Your account does not have permission to open this page.</p>
+    <a [routerLink]="auth.homePath()" class="btn btn-primary">Return to your home page</a>
+    <button type="button" class="btn btn-link" (click)="auth.logout()">Sign out</button>
+  </section>
+</main>

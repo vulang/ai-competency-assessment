@@ -1,102 +1,113 @@
 # AI Competency Assessment
 
-A full-stack application for assessing AI competency, featuring a .NET backend, Angular frontend, and various AI integration points.
+.NET 8 API, Angular 17 UI, and Python services for assessing AI competency. Phase 0 establishes the working development baseline; the thesis-aligned CV/CTT work starts in Phase 1. IRT/CAT/BKT profiles are experimental extensions.
 
-## System design assets
-- Architecture overview: `docs/architecture.md`
-- Thesis-aligned roadmap (phases to complete missing features): `docs/roadmap.md`
-- PostgreSQL schema (ERD implementation): `db/schema.sql`
-- Angular + Bootstrap UI scaffold: `frontend/ai-competency-ui`
-- .NET API scaffold: `backend/AiCompetency.Api`
-- Infrastructure compose file: `infra/docker-compose.yml`
+## Start the development stack
 
-## Prerequisites
-- **Docker & Docker Compose**: For running infrastructure services (Postgres, Mongo, RabbitMQ, etc.).
-- **.NET 8.0 SDK** (or compatible): For running the backend API.
-- **Node.js** (LTS recommended) & **npm**: For running the Angular frontend.
-- **Python 3.9+**: For the stand-alone question generator POC.
-
-## Running the Application
-
-### 1. Infrastructure
-Start the required databases and services:
+Install Docker with Docker Compose v2, then run from the repository root:
 
 ```bash
-cd infra
-docker compose up -d
+./scripts/dev-up.sh
 ```
-This starts PostgreSQL (port 5434), MongoDB, RabbitMQ, MinIO, Qdrant, and the Question Generator service (port 8000).
 
-> **Note**: If you make any changes to the Python code or prompts in `src/question-generator/`, you will need to rebuild its Docker image for the changes to take effect:
-> ```bash
-> cd infra
-> docker compose stop question-generator
-> docker compose build question-generator
-> docker compose up -d question-generator
-> ```
+The script copies `infra/.env.example` to `infra/.env` if needed and builds/starts PostgreSQL, the API, frontend, ML service, question generator, MongoDB, RabbitMQ, MinIO, and Qdrant. MinIO builds a pinned community release from source. The compose project is named `ai-cas-dev`; its volumes are separate from the old default `infra` project.
 
-> **Note**: The root `docker-compose.yml` is for the legacy stand-alone POC and should not be used when running the full stack.
+- UI: http://localhost:4200
+- API / Swagger: http://localhost:5000/swagger
+- ML service: http://localhost:8001/docs
+- Question generator: http://localhost:8000/docs
+- PostgreSQL: localhost:5434
 
-### 2. Backend API
-Run the .NET API:
+Development admin: `admin@example.com` / `Password123!`. Candidates can register at `/candidate/register`. The seed admin credentials and development signing certificates are for this local stack.
+
+Question generation requires a provider key in `infra/.env` and provider/model settings in `src/question-generator/configs/model.yaml`. Startup and automated acceptance checks make no paid LLM calls. CV analysis and CTT are later roadmap phases.
+
+Stop the stack while preserving its data:
 
 ```bash
-cd backend/AiCompetency.Api
-dotnet run
+docker compose -f infra/docker-compose.yml down
 ```
-The API will typically start on `http://localhost:5000` (HTTP) or `https://localhost:5001` (HTTPS).
 
-### 3. Frontend UI
-Run the Angular application:
+Changing the public API/UI ports also requires matching the OIDC authority/redirect settings in `frontend/ai-competency-ui/src/environments/environment.ts` and backend client/CORS configuration.
+
+## Existing databases
+
+The API applies EF migrations at startup. An older database created with `EnsureCreated` or the former hand-written schema needs reconciliation before reuse. Do not apply the initial migration over existing tables. The new compose project provides an isolated fresh baseline; it does not migrate or delete the old project's data.
+
+Read [Phase 0 database transition notes](docs/phase-0-progress.md) before pointing the API at an existing database. Historical fallback user IDs remain in a `legacy:` namespace; custom skill mappings stop the catalogue migration for review. No existing application database was modified during development verification.
+
+## Run services from source
+
+Use .NET 8 or a compatible newer SDK, Node.js 22, and Python 3.12. Start the supporting containers, then:
+
+```bash
+dotnet restore ai-competency-assessment.sln
+dotnet tool restore
+dotnet run --project backend/AiCompetency.Api --urls http://localhost:5000
+```
+
+In a second terminal:
 
 ```bash
 cd frontend/ai-competency-ui
-npm install # Only needed the first time
+npm ci
 npm start
 ```
-Access the application at `http://localhost:4200`.
 
-### 4. Default Login
-- **Username**: `admin@example.com`
-- **Password**: `Password123!`
+`ng serve` proxies `/api` to port 5000. The auth interceptor adds tokens to protected API requests; components do not set their own bearer headers. OIDC authorization/token/logout requests go to the configured authority on port 5000.
 
----
+To run ML locally:
 
-## Stand-alone Question Generator POC
-(Legacy/Experimental Python Tool)
-
-Simple Python project that runs FLAN-T5 and compatible Hugging Face models (e.g. VinAI's PhoGPT) for quick text generation experiments.
-
-### Python Prerequisites
-- Python 3.9 or newer
-- `pip`
-- Sufficient disk space for model weights
-
-### Installation
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install -e .
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+cd src/ml_service
+../../.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8001
 ```
 
-### Usage
-Run the CLI with an inline prompt:
+If a compose service already publishes a port, stop that service before starting its source equivalent.
+
+## Checks
+
 ```bash
-run-flan "Translate to French: How are you today?"
+dotnet test ai-competency-assessment.sln
+cd frontend/ai-competency-ui
+npm run lint
+npm test
+npm run build
+cd ../..
+.venv/bin/ruff check src/ml_service src/question-generator
+.venv/bin/pytest -q
+./scripts/verify-schema.sh
+./scripts/verify-stack.sh
 ```
 
-Or pipe text in:
+Backend integration tests use Testcontainers PostgreSQL and require Docker. To run only unit tests, add `--filter 'Category!=Integration'` to `dotnet test`. Schema checks and compose acceptance use disposable databases/projects and remove their own containers/volumes afterward. The compose validation script uses random localhost ports and the Compose `!override` feature.
+
+`verify-stack.sh` registers two synthetic candidates, obtains real access tokens, checks admin 403 responses and isolated histories, submits standard tests, and waits for seven-domain profiles generated by the real ML service. It also verifies service health, frontend SPA routing, and the API proxy. External LLM generation and the full browser SSO redirect flow are outside this smoke test.
+
+The Docker API build defaults to SDK 8 / runtime 8. For a machine with an already cached compatible build SDK, validation accepts an override:
+
 ```bash
-echo "Summarize: The rain in Spain stays mainly in the plain." | run-flan
+VALIDATION_SDK_IMAGE=mcr.microsoft.com/dotnet/sdk:10.0-noble ./scripts/verify-stack.sh
 ```
 
-Additional options:
-- `--model-name google/flan-t5-base` to pick a different FLAN-T5 checkpoint
-- `--max-new-tokens 64` to control response length
-- `--temperature 0.7 --top-p 0.9` to enable sampling
-- `--device cuda` to force GPU usage when available
-- `--model-name vinai/PhoGPT-4B --dtype float16` to run VinAI's PhoGPT model
+For disposable validation on a machine with limited Docker disk capacity, reuse the images built for this checkout and place validation data in temporary memory mounts:
 
-## Development
-This project uses a simple src-based layout. Edit code under `src/ai_competency_assessment/` and re-install with `pip install -e .` if you add dependencies.
+```bash
+VALIDATION_REUSE_IMAGES=1 VALIDATION_TMPFS=1 ./scripts/verify-stack.sh
+```
+
+This does not change the persistent volumes in the development compose configuration.
+
+GitHub Actions runs backend/Testcontainers, frontend lint/tests/production build, Python lint/tests for both services, schema verification, and compose acceptance. All four jobs passed in the [Phase 0 acceptance run](https://github.com/vulang/ai-competency-assessment/actions/runs/38152153743), including a fresh SDK 8/runtime 8 build and persistent-volume Compose startup.
+
+## Design and research documents
+
+- [Architecture](docs/architecture.md)
+- [Thesis roadmap](docs/roadmap.md)
+- [Phase 0 implementation and verification](docs/phase-0-progress.md)
+- [Experimental IRT/CAT/BKT methods](docs/ml-methods.md)
+- [Generated PostgreSQL migration script](db/schema.sql)
+
+The `p0-v1` catalogue is a compatibility seed sourced from the generator's seven-group mapping. Phase 1 introduces the reviewed behavior indicators, four-level label scheme, and versioned CV rubric. `db/schema.sql` is generated with `dotnet ef migrations script --idempotent`; EF migrations are the schema source of truth.

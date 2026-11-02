@@ -11,7 +11,7 @@ public class AdaptiveTestSession
     public Guid Id { get; set; }
 
     [Column("user_id")]
-    public int UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 
     [Column("start_time")]
     public DateTime StartTime { get; set; } = DateTime.UtcNow;

@@ -1,10 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { QuestionService } from '../../../../core/questions/question.service';
-import { Question, QuestionType } from '../../../../models/question.model';
-import { switchMap, of } from 'rxjs';
+import { Question, QuestionType, QuestionStatus } from '../../../../models/question.model';
+import { FrameworkService, FrameworkDomain } from '../../../../core/competency/framework.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { switchMap, of, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-question-form',
@@ -16,6 +18,9 @@ import { switchMap, of } from 'rxjs';
 export class QuestionFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private questionService = inject(QuestionService);
+  private frameworkService = inject(FrameworkService);
+  domains = signal<FrameworkDomain[]>([]);
+  errorMessage = signal<string | null>(null);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -23,20 +28,23 @@ export class QuestionFormComponent implements OnInit {
   isSaving = signal(false);
   questionId: string | null = null;
 
-  form = this.fb.group({
+  form = this.fb.nonNullable.group({
     title: [''],
     prompt: ['', Validators.required],
-    type: ['single_choice', Validators.required],
+    type: this.fb.nonNullable.control<QuestionType>('mcq_single', Validators.required),
     competencyGroupId: ['', Validators.required],
     competencyLevelId: ['', Validators.required],
-    status: ['draft', Validators.required],
-    options: this.fb.array<string>([]),
+    status: this.fb.nonNullable.control<QuestionStatus>('draft', Validators.required),
+    skillId: this.fb.control<number | null>(null, Validators.required),
+    difficulty: this.fb.control<Question['difficulty']>(null, [Validators.min(1), Validators.max(5)]),
+    tags: this.fb.nonNullable.control<string[]>([]),
+    options: this.fb.nonNullable.array<string>([]),
     answer: [''],
     context: [''],
-    responseStructure: this.fb.array<string>([]),
-    rubric: this.fb.array<string>([]),
+    responseStructure: this.fb.nonNullable.array<string>([]),
+    rubric: this.fb.nonNullable.array<string>([]),
     judgePromptHints: [''],
-    behaviorsAddressed: this.fb.array<string>([])
+    behaviorsAddressed: this.fb.nonNullable.array<string>([])
   });
 
   ngOnInit() {
@@ -45,11 +53,12 @@ export class QuestionFormComponent implements OnInit {
         this.questionId = params.get('id');
         if (this.questionId) {
           this.isEditMode.set(true);
-          return this.questionService.getQuestion(this.questionId);
+          return forkJoin({ framework: this.frameworkService.getActive(), question: this.questionService.getQuestion(this.questionId) });
         }
-        return of(null);
+        return forkJoin({ framework: this.frameworkService.getActive(), question: of(null) });
       })
-    ).subscribe(question => {
+    ).subscribe({ next: ({ framework, question }) => {
+      this.domains.set(framework.domains);
       if (question) {
         this.form.patchValue({
           title: question.title,
@@ -58,7 +67,10 @@ export class QuestionFormComponent implements OnInit {
           competencyGroupId: question.competencyGroupId,
           competencyLevelId: question.competencyLevelId,
           status: question.status,
-          answer: question.answer,
+          answer: Array.isArray(question.answer) ? JSON.stringify(question.answer) : question.answer || '',
+          skillId: question.skillId ?? null,
+          difficulty: question.difficulty,
+          tags: question.tags,
           context: question.context,
           judgePromptHints: question.judgePromptHints
         });
@@ -68,28 +80,38 @@ export class QuestionFormComponent implements OnInit {
           if (dataArray && Array.isArray(dataArray)) {
             const arr = this.form.get(arrName) as FormArray;
             arr.clear();
-            dataArray.forEach(item => arr.push(this.fb.control(item)));
+            dataArray.forEach(item => arr.push(this.fb.nonNullable.control(item)));
           }
         });
       }
-    });
+    }, error: () => this.errorMessage.set('Could not load the question or competency framework. Reload to try again.') });
+  }
+
+  get skills() {
+    return this.domains().find(d => d.name === this.form.controls.competencyGroupId.value)?.skills ?? [];
+  }
+
+  changeGroup(): void {
+    this.form.controls.skillId.setValue(this.skills.find(s => s.isDefault)?.id ?? null);
   }
 
   onSubmit() {
     if (this.form.invalid) return;
 
     this.isSaving.set(true);
-    const formValue = this.form.value as any; // Cast for simplicity
-
-    if (this.isEditMode() && this.questionId) {
-       this.questionService.updateQuestion(this.questionId, formValue).subscribe(() => {
-          this.router.navigate(['/admin/questions']);
-       });
-    } else {
-       this.questionService.createQuestion(formValue).subscribe(() => {
-          this.router.navigate(['/admin/questions']);
-       });
-    }
+    this.errorMessage.set(null);
+    const formValue = this.form.getRawValue();
+    const save = this.isEditMode() && this.questionId
+      ? this.questionService.updateQuestion(this.questionId, formValue)
+      : this.questionService.createQuestion(formValue);
+    save.subscribe({
+      next: () => { this.isSaving.set(false); this.router.navigate(['/admin/questions']); },
+      error: (error: HttpErrorResponse) => {
+        this.isSaving.set(false);
+        const validation = error.error?.errors as Record<string, string[]> | undefined;
+        this.errorMessage.set(validation ? Object.values(validation).flat().join(' ') : 'Could not save the question. Please try again.');
+      }
+    });
   }
 
   getArrayControls(name: string) {
@@ -97,7 +119,7 @@ export class QuestionFormComponent implements OnInit {
   }
 
   addArrayItem(name: string, val: string = '') {
-    (this.form.get(name) as FormArray).push(this.fb.control(val));
+    (this.form.get(name) as FormArray).push(this.fb.nonNullable.control(val));
   }
 
   removeArrayItem(name: string, index: number) {

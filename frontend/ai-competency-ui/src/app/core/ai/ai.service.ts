@@ -31,7 +31,7 @@ export interface GenerationParams {
 })
 export class AiService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl || 'http://localhost:5000';
+  private apiUrl = `${environment.apiUrl}/api`;
 
   generateQuestions(params: GenerationParams): Observable<any[]> {
     const mixItem: MixItem = {
@@ -52,15 +52,15 @@ export class AiService {
   }
 
   generateFromPlanRaw(plan: GenerationPlan): Observable<any[]> {
-    return this.http.post<any[]>(`${this.apiUrl}/api/question-generation/generate-from-plan`, plan);
+    return this.http.post<any[]>(`${this.apiUrl}/question-generation/generate-from-plan`, plan);
   }
 
   generateAgentic(plan: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/api/question-generation/generate-agentic`, plan);
+    return this.http.post<any>(`${this.apiUrl}/question-generation/generate-agentic`, plan);
   }
 
   saveQuestions(questions: any[]): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/api/Questions/batch`, questions);
+    return this.http.post<any>(`${this.apiUrl}/Questions/batch`, questions);
   }
 
   private mapResponseToQuestions(rawQuestions: any[]): any[] {

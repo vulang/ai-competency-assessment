@@ -15,9 +15,9 @@ public record BktParams(double PLo = 0.3, double PT = 0.1, double PS = 0.1, doub
 public record BktUpdateResult(int SkillId, double PosteriorMastery, bool Mastered);
 
 public record SkillMasteryInput(int SkillId, string SkillName, int DomainId, string DomainName, double MasteryProb, double Weight = 1.0);
-public record GenerateProfileRequest(int UserId, string SessionId, double Theta, double SeTheta, List<SkillMasteryInput> SkillMasteries);
+public record GenerateProfileRequest(string UserId, string SessionId, double Theta, double SeTheta, List<SkillMasteryInput> SkillMasteries);
 public record DomainScoreResult(int DomainId, string DomainName, double Score, int MasteryCount, int TotalSkills);
-public record CompetencyProfileResult(int UserId, string SessionId, double Theta, string OverallLevel, List<DomainScoreResult> DomainScores, double OverallScore);
+public record CompetencyProfileResult(string UserId, string SessionId, double Theta, string OverallLevel, List<DomainScoreResult> DomainScores, double OverallScore);
 
 // ─── Service ──────────────────────────────────────────────────────────────────
 

@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
+using OpenIddict.Validation.AspNetCore;
 using AiCompetency.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AiCompetency.Api.Controllers;
 
 [ApiController]
+[Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, Roles = "Admin")]
 [Route("api/question-generation")]
 public class QuestionGenerationController : ControllerBase
 {

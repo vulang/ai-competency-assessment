@@ -126,7 +126,7 @@ class DomainScore(BaseModel):
 
 
 class GenerateProfileRequest(BaseModel):
-    user_id: int
+    user_id: str
     session_id: str
     theta: float
     se_theta: float
@@ -134,7 +134,7 @@ class GenerateProfileRequest(BaseModel):
 
 
 class CompetencyProfileResponse(BaseModel):
-    user_id: int
+    user_id: str
     session_id: str
     theta: float
     overall_level: str = Field(description="Foundation | Apply | Create")

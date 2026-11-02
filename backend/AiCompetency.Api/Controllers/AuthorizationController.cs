@@ -42,7 +42,7 @@ public class AuthorizationController : Controller
         var result = await _signInManager.PasswordSignInAsync(user, model.Password, isPersistent: false, lockoutOnFailure: false);
         if (result.Succeeded)
         {
-            return Redirect(model.ReturnUrl ?? "/");
+            return LocalRedirect(string.IsNullOrWhiteSpace(model.ReturnUrl) ? "/" : model.ReturnUrl);
         }
 
         ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -118,6 +118,8 @@ public class AuthorizationController : Controller
             principal.SetClaim(Claims.Subject, await _userManager.GetUserIdAsync(user));
 
             var identity = (ClaimsIdentity)principal.Identity;
+            // Preserve the original grants when exchanging the authorization code.
+            identity.SetScopes(result.Principal.GetScopes());
             identity.SetDestinations(GetDestinations);
 
             return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);

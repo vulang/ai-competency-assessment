@@ -11,7 +11,7 @@ namespace AiCompetency.Api.Models;
 public class UserSkillMastery
 {
     [Column("user_id")]
-    public int UserId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 
     [Column("skill_id")]
     public int SkillId { get; set; }

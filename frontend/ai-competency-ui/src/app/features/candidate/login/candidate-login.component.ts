@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-candidate-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="login-container">
       <div class="login-card">
@@ -54,6 +54,8 @@ import { environment } from '../../../../environments/environment';
             <span *ngIf="!isLoading">Sign In</span>
           </button>
         </form>
+
+        <p class="mt-3 text-center">New candidate? <a routerLink="/candidate/register">Create an account</a></p>
 
         <div class="divider">
           <span>OR</span>
@@ -223,15 +225,15 @@ export class CandidateLoginComponent {
     this.http.post<any>(`${environment.oidc.authority}/connect/token`, body.toString(), { headers })
       .subscribe({
         next: (response) => {
-          // Store token somehow, typically an OIDC client handles this, but for ROPC we might need to do it manually.
-          // Since it's a prototype, we'll store it manually into sessionStorage and set the currentUser using the response id_token payload
-          sessionStorage.setItem('access_token', response.access_token);
-          if (response.id_token) {
-            sessionStorage.setItem('id_token', response.id_token);
+          if (!this.authService.loginWithToken(response.access_token, response.id_token)) {
+            this.errorMessage = 'The sign-in response was invalid. Please try again.';
+            this.isLoading = false;
+            return;
           }
-          
-          this.authService.loginWithToken(response.access_token, response.id_token);
-          this.router.navigate(['/candidate/home']);
+          sessionStorage.setItem('access_token', response.access_token);
+          if (response.id_token) sessionStorage.setItem('id_token', response.id_token);
+          else sessionStorage.removeItem('id_token');
+          this.router.navigate([this.authService.homePath()]);
           this.isLoading = false;
         },
         error: (err) => {

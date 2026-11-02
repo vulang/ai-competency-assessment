@@ -12,6 +12,10 @@ public class ApplicationDbContext : IdentityDbContext
     {
     }
 
+    public DbSet<CompetencyFramework> Frameworks { get; set; }
+    public DbSet<CompetencyDomain> Domains { get; set; }
+    public DbSet<CompetencySkill> Skills { get; set; }
+    public DbSet<CompetencyCriterion> Criteria { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<Exam> Exams { get; set; }
     public DbSet<ExamQuestion> ExamQuestions { get; set; }
@@ -31,8 +35,26 @@ public class ApplicationDbContext : IdentityDbContext
     {
         base.OnModelCreating(builder);
 
-        // Rename Identity tables if needed, or leave them as default.
-        // For now, we only configure our new entities.
+        builder.Entity<CompetencyFramework>().HasIndex(f => f.Version).IsUnique();
+        builder.Entity<CompetencyFramework>().HasIndex(f => f.IsActive).IsUnique().HasFilter("is_active = true");
+        builder.Entity<CompetencyDomain>().HasIndex(d => new { d.FrameworkId, d.Code }).IsUnique();
+        builder.Entity<CompetencyDomain>().HasIndex(d => new { d.FrameworkId, d.Name }).IsUnique();
+        builder.Entity<CompetencyDomain>().HasOne(d => d.Framework).WithMany(f => f.Domains)
+            .HasForeignKey(d => d.FrameworkId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<CompetencySkill>().HasIndex(s => new { s.DomainId, s.Name }).IsUnique();
+        builder.Entity<CompetencySkill>().HasIndex(s => s.DomainId).IsUnique().HasFilter("is_default = true");
+        builder.Entity<CompetencySkill>().HasOne(s => s.Domain).WithMany(d => d.Skills)
+            .HasForeignKey(s => s.DomainId).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<CompetencyCriterion>().HasIndex(c => new { c.SkillId, c.Name, c.Level }).IsUnique();
+        builder.Entity<CompetencyCriterion>().HasOne(c => c.Skill).WithMany(s => s.Criteria)
+            .HasForeignKey(c => c.SkillId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<CompetencyCriterion>().ToTable("criteria", t => t.HasCheckConstraint("ck_criteria_level", "level BETWEEN 1 AND 3"));
+        builder.Entity<CompetencyDomain>().ToTable("domains", t => t.HasCheckConstraint("ck_domains_weight", "weight > 0"));
+        builder.Entity<CompetencySkill>().ToTable("skills", t => t.HasCheckConstraint("ck_skills_weight", "weight > 0"));
+        builder.Entity<Question>().HasOne(q => q.Skill).WithMany().HasForeignKey(q => q.SkillId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<Question>().ToTable("questions", t => t.HasCheckConstraint("ck_questions_difficulty", "difficulty_level IS NULL OR difficulty_level BETWEEN 1 AND 5"));
+        CompetencyCatalog.Seed(builder);
 
         builder.Entity<Question>()
             .Property(q => q.Status)
@@ -52,6 +74,8 @@ public class ApplicationDbContext : IdentityDbContext
             .WithMany()
             .HasForeignKey(eq => eq.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ExamResult>().Property(s => s.Status).IsConcurrencyToken();
 
         builder.Entity<ExamResult>()
             .HasOne(er => er.Exam)

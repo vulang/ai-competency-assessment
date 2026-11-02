@@ -1,5 +1,7 @@
 # Phương Pháp Học Máy Áp Dụng trong Hệ Thống Đánh Giá Năng Lực AI
 
+> **Trạng thái:** IRT/CAT/BKT là phần mở rộng thử nghiệm, không thuộc phương pháp chính của luận văn v8.1. Nhánh chính là phân tích CV bằng NLP/ML và bài trắc nghiệm song song bằng CTT; xem `docs/roadmap.md`. Các điểm θ, mastery và hồ sơ trong tài liệu này không phải nhãn CV hay kết quả CTT đã được kiểm định.
+
 > **Phạm vi:** Tài liệu này mô tả các phương pháp học máy và tâm trắc học được tích hợp vào nền tảng **AI Competency Assessment** nhằm nâng cao độ chính xác của đánh giá năng lực, cải tiến engine bài test thích ứng, và tạo hồ sơ năng lực đa chiều cho ứng viên.
 
 ---

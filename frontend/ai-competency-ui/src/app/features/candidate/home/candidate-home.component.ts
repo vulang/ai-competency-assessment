@@ -272,15 +272,9 @@ export class CandidateHomeComponent implements OnInit {
     this.loadPastTests();
   }
 
-  get headers() {
-    const user = this.authService.currentUser();
-    return {
-      Authorization: `Bearer ${user?.accessToken || sessionStorage.getItem('access_token')}`
-    };
-  }
 
   loadAvailableTests() {
-    this.http.get<any[]>(`${environment.apiUrl}/api/candidate/tests/available`, { headers: this.headers })
+    this.http.get<any[]>(`${environment.apiUrl}/api/candidate/tests/available`)
       .subscribe({
         next: (tests) => {
           this.availableTests = tests;
@@ -294,7 +288,7 @@ export class CandidateHomeComponent implements OnInit {
   }
 
   loadPastTests() {
-    this.http.get<any[]>(`${environment.apiUrl}/api/candidate/tests/history`, { headers: this.headers })
+    this.http.get<any[]>(`${environment.apiUrl}/api/candidate/tests/history`)
       .subscribe({
         next: (history) => {
           this.pastTests = history;
@@ -309,7 +303,7 @@ export class CandidateHomeComponent implements OnInit {
 
   startTest(examId: number) {
     this.startingExamId = examId;
-    this.http.post<any>(`${environment.apiUrl}/api/candidate/tests/${examId}/start`, {}, { headers: this.headers })
+    this.http.post<any>(`${environment.apiUrl}/api/candidate/tests/${examId}/start`, {})
       .subscribe({
         next: (response) => {
           this.router.navigate(['/candidate/test', response.sessionId]);
@@ -333,7 +327,7 @@ export class CandidateHomeComponent implements OnInit {
   startStandardTest() {
     this.isStartingStandard = true;
     
-    this.http.post<any>(`${environment.apiUrl}/api/candidate/tests/start-standard`, {}, { headers: this.headers })
+    this.http.post<any>(`${environment.apiUrl}/api/candidate/tests/start-standard`, {})
       .subscribe({
         next: (response) => {
           this.router.navigate(['/candidate/test', response.sessionId]);
@@ -348,7 +342,7 @@ export class CandidateHomeComponent implements OnInit {
 
   startAdaptiveTest() {
     this.isStartingAdaptive = true;
-    this.http.post<any>(`${environment.apiUrl}/api/adaptivetests/start`, {}, { headers: this.headers })
+    this.http.post<any>(`${environment.apiUrl}/api/adaptivetests/start`, {})
       .subscribe({
         next: (response) => {
           this.router.navigate(['/candidate/adaptive-test', response.sessionId]);

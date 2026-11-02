@@ -16,7 +16,6 @@ public class AdaptiveTestsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly MlService _ml;
-    private readonly CompetencyProfileService _profileService;
 
     // CAT Configuration
     private const int MaxQuestions = 10;
@@ -26,23 +25,14 @@ public class AdaptiveTestsController : ControllerBase
 
     public AdaptiveTestsController(
         ApplicationDbContext context,
-        MlService ml,
-        CompetencyProfileService profileService)
+        MlService ml)
     {
         _context = context;
         _ml = ml;
-        _profileService = profileService;
     }
 
-    private int GetCurrentUserId()
-    {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (int.TryParse(userIdString, out var userId))
-        {
-            return userId;
-        }
-        return 1; // Default fallback
-    }
+    private string GetCurrentUserId() => CurrentUser.GetRequiredId(User);
+
 
     [HttpPost("start")]
     public async Task<IActionResult> StartAdaptiveTest()
@@ -87,6 +77,7 @@ public class AdaptiveTestsController : ControllerBase
         var candidateQuestions = await _context.Questions
             .Where(q => q.Status == QuestionStatus.Published
                      && q.DifficultyLevel.HasValue
+                     && (q.Type == "mcq_single" || q.Type == "mcq_multi" || q.Type == "true_false")
                      && !askedQuestionIds.Contains(q.Id))
             .ToListAsync();
 
@@ -146,7 +137,7 @@ public class AdaptiveTestsController : ControllerBase
                 nextQuestion.Id,
                 nextQuestion.Type,
                 nextQuestion.Content,
-                nextQuestion.Metadata,
+                Metadata = QuestionPresentation.CandidateMetadata(nextQuestion.Metadata),
                 Difficulty = nextQuestion.DifficultyLevel
             }
         });
@@ -162,6 +153,7 @@ public class AdaptiveTestsController : ControllerBase
     public async Task<IActionResult> SubmitAnswer(Guid sessionId, [FromBody] SubmitAdaptiveAnswerRequest request)
     {
         var session = await _context.AdaptiveTestSessions
+            .Include(s => s.Responses)
             .FirstOrDefaultAsync(s => s.Id == sessionId);
 
         if (session == null || session.UserId != GetCurrentUserId())
@@ -173,7 +165,13 @@ public class AdaptiveTestsController : ControllerBase
         var question = await _context.Questions.FindAsync(request.QuestionId);
         if (question == null) return NotFound("Question not found.");
 
-        bool isCorrect = !string.IsNullOrWhiteSpace(request.Answer);
+        if (question.Status != QuestionStatus.Published || !question.DifficultyLevel.HasValue ||
+            (question.Type != "mcq_single" && question.Type != "mcq_multi" && question.Type != "true_false"))
+            return BadRequest("Question is not eligible for an adaptive test.");
+        if (session.Responses.Any(r => r.QuestionId == request.QuestionId))
+            return BadRequest("Question already answered.");
+
+        bool isCorrect = AnswerEvaluator.IsCorrect(question.Type, question.Metadata, request.Answer);
 
         // ── IRT-based theta update (EAP) ────────────────────────────────────
         // Build all responses so far (including current) for EAP
@@ -247,14 +245,17 @@ public class AdaptiveTestsController : ControllerBase
         if (session == null || session.UserId != GetCurrentUserId())
             return NotFound("Session not found.");
 
+        if (session.Status != "Completed") return Conflict("Complete the test before viewing results.");
+
         // Mimic standard test results structure so we can reuse the TestResultsComponent
         var result = new
         {
             SessionId = session.Id,
             ExamTitle = "Adaptive Competency Assessment",
             TotalScore = session.CurrentAbilityEstimate, // Use ability as score
-            PassScore = 6, // E.g., ability > 6 is pass
-            Passed = session.CurrentAbilityEstimate >= 6,
+            PassScore = 0, // Experimental threshold at the population mean (theta = 0).
+            Passed = session.CurrentAbilityEstimate >= 0,
+            OverallLevel = ClassifyLevel(session.CurrentAbilityEstimate),
             StartTime = session.StartTime,
             EndTime = session.EndTime,
             Responses = session.Responses.OrderBy(r => r.CreatedAt).Select(r => new
