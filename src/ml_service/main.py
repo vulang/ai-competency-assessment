@@ -15,12 +15,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers.irt_router import router as irt_router
 from routers.kt_router import router as kt_router
 from routers.profile_router import router as profile_router
+from routers.ctt_router import router as ctt_router
 
 app = FastAPI(
     title="AI Competency ML Service",
     description=(
-        "Machine Learning microservice for IRT-based ability estimation, "
-        "Bayesian Knowledge Tracing, and Competency Profile generation."
+        "Statistics service for Classical Test Theory item analysis, plus experimental "
+        "IRT ability estimation, Bayesian Knowledge Tracing and profile generation."
     ),
     version="1.0.0",
     docs_url="/docs",
@@ -38,6 +39,7 @@ app.add_middleware(
 app.include_router(irt_router)
 app.include_router(kt_router)
 app.include_router(profile_router)
+app.include_router(ctt_router)
 
 
 @app.get("/health", tags=["Health"])

@@ -18,13 +18,16 @@ public class CandidateTestsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ProfileJobQueue _profileJobs;
+    private readonly IScoringService _scoring;
 
     public CandidateTestsController(
         ApplicationDbContext context,
-        ProfileJobQueue profileJobs)
+        ProfileJobQueue profileJobs,
+        IScoringService scoring)
     {
         _context = context;
         _profileJobs = profileJobs;
+        _scoring = scoring;
     }
 
     private string GetCurrentUserId() => CurrentUser.GetRequiredId(User);
@@ -35,12 +38,16 @@ public class CandidateTestsController : ControllerBase
     {
         var exams = await _context.Exams
             .Where(e => e.Status == "active")
+            .Where(e => e.ExamQuestions.Any())
+            .OrderByDescending(e => e.IsStandard).ThenBy(e => e.Title)
             .Select(e => new
             {
                 e.Id,
                 e.Title,
+                e.Description,
                 e.DurationMinutes,
                 e.PassScore,
+                e.IsStandard,
                 QuestionCount = e.ExamQuestions.Count
             })
             .ToListAsync();
@@ -51,12 +58,17 @@ public class CandidateTestsController : ControllerBase
     [HttpPost("{examId}/start")]
     public async Task<IActionResult> StartTest(int examId)
     {
-        var exam = await _context.Exams.FindAsync(examId);
-        if (exam == null || exam.Status != "active")
+        var exam = await _context.Exams.Include(e => e.ExamQuestions).SingleOrDefaultAsync(e => e.Id == examId);
+        if (exam == null || exam.Status != "active" || exam.ExamQuestions.Count == 0)
         {
             return NotFound("Exam not found or not published.");
         }
 
+        return Ok(new { SessionId = await CreateSession(exam.Id) });
+    }
+
+    private async Task<Guid> CreateSession(int examId)
+    {
         var session = new ExamResult
         {
             Id = Guid.NewGuid(),
@@ -69,8 +81,7 @@ public class CandidateTestsController : ControllerBase
 
         _context.ExamResults.Add(session);
         await _context.SaveChangesAsync();
-
-        return Ok(new { SessionId = session.Id });
+        return session.Id;
     }
 
     [HttpGet("sessions/{sessionId}")]
@@ -111,63 +122,17 @@ public class CandidateTestsController : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>Starts the published standard form defined by an experimental blueprint (thesis §2.12).</summary>
     [HttpPost("start-standard")]
     public async Task<IActionResult> StartStandardTest()
     {
-        // 1. Get up to 50 active questions ordered randomly
-        var randomQuestions = await _context.Questions
-            .Where(q => q.Status == QuestionStatus.Published)
-            .OrderBy(r => Guid.NewGuid())
-            .Take(50)
-            .ToListAsync();
+        var exam = await _context.Exams
+            .Where(e => e.IsStandard && e.Status == "active" && e.ExamQuestions.Any())
+            .SingleOrDefaultAsync();
+        if (exam == null)
+            return NotFound("No standard test has been published yet.");
 
-        if (randomQuestions.Count == 0)
-        {
-            return BadRequest("No published questions available to create a test.");
-        }
-
-        // 2. Create a dynamic Exam entity
-        var newExam = new Exam
-        {
-            Title = "Standard Test",
-            Description = "Dynamically generated standard assessment.",
-            DurationMinutes = 60, // Fixed default for now
-            PassScore = (int)Math.Ceiling(randomQuestions.Count * 0.70m), // 70% passing
-            QuestionCount = randomQuestions.Count,
-            Status = "active",
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        _context.Exams.Add(newExam);
-        await _context.SaveChangesAsync(); // get ID
-
-        // 3. Link Questions
-        var examQuestions = randomQuestions.Select((q, index) => new ExamQuestion
-        {
-            ExamId = newExam.Id,
-            QuestionId = q.Id,
-            OrderIndex = index + 1,
-            PointValue = 1 // 1 point per question
-        }).ToList();
-
-        _context.ExamQuestions.AddRange(examQuestions);
-        
-        // 4. Create the session
-        var session = new ExamResult
-        {
-            Id = Guid.NewGuid(),
-            UserId = GetCurrentUserId(),
-            ExamId = newExam.Id,
-            StartTime = DateTime.UtcNow,
-            Status = "InProgress",
-            TotalScore = 0
-        };
-
-        _context.ExamResults.Add(session);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { SessionId = session.Id });
+        return Ok(new { SessionId = await CreateSession(exam.Id) });
     }
 
     public class SubmitTestRequest
@@ -210,31 +175,9 @@ public class CandidateTestsController : ControllerBase
 
         foreach (var answer in request.Responses)
         {
-            var examQuestion = session.Exam.ExamQuestions.FirstOrDefault(eq => eq.QuestionId == answer.QuestionId);
-            if (examQuestion == null) continue;
-
-            decimal scoreEarned = 0;
-            string feedback = "Incorrect.";
-
-            if (!string.IsNullOrWhiteSpace(answer.Answer) && examQuestion.Question != null)
-            {
-                if (examQuestion.Question.Type == "scenario")
-                {
-                    scoreEarned = 0;
-                    feedback = "Answer submitted for manual review.";
-                }
-                else
-                {
-                    bool isCorrect = AnswerEvaluator.IsCorrect(examQuestion.Question?.Type ?? "", examQuestion.Question?.Metadata, answer.Answer);
-                    if (isCorrect) 
-                    {
-                        scoreEarned = examQuestion.PointValue;
-                        feedback = "Correct!";
-                    }
-                }
-            }
-
-            totalScore += scoreEarned;
+            var examQuestion = session.Exam.ExamQuestions.First(eq => eq.QuestionId == answer.QuestionId);
+            var scored = _scoring.Score(examQuestion.Question!, answer.Answer, examQuestion.PointValue);
+            totalScore += scored.Score;
 
             responsesToSave.Add(new Response
             {
@@ -242,11 +185,18 @@ public class CandidateTestsController : ControllerBase
                 SessionId = sessionId,
                 QuestionId = answer.QuestionId,
                 FinalAnswer = answer.Answer,
-                ScoreEarned = scoreEarned,
+                ScoreEarned = scored.Score,
                 SubmittedAt = DateTime.UtcNow,
-                AiFeedback = string.IsNullOrWhiteSpace(answer.Answer) ? "Please provide an answer next time." : feedback
+                AiFeedback = scored.Feedback
             });
         }
+
+        // Every objective item on the form counts toward its group; unanswered items score zero.
+        var mapping = await _context.TestLevelMappings.SingleOrDefaultAsync(m => m.IsActive);
+        var earned = responsesToSave.ToDictionary(r => r.QuestionId, r => r.ScoreEarned);
+        _context.TestGroupScores.AddRange(GroupScoreCalculator.Compute(sessionId,
+            session.Exam.ExamQuestions.Select(eq => new ScoredItem(eq.Question!, eq.PointValue, earned.GetValueOrDefault(eq.QuestionId))),
+            mapping));
 
         _context.Responses.AddRange(responsesToSave);
 
@@ -255,7 +205,9 @@ public class CandidateTestsController : ControllerBase
         session.TotalScore = totalScore;
 
         try { await _context.SaveChangesAsync(); }
-        catch (DbUpdateConcurrencyException) { return Conflict("This session was submitted by another request."); }
+        catch (DbUpdateException error) when (error is DbUpdateConcurrencyException ||
+            error.InnerException is Npgsql.PostgresException { SqlState: Npgsql.PostgresErrorCodes.UniqueViolation })
+        { return Conflict("This session was submitted by another request."); }
 
         // Queue only the persisted session ID; the worker loads it in its own DI scope.
         _profileJobs.Enqueue(session.Id);
@@ -268,6 +220,7 @@ public class CandidateTestsController : ControllerBase
     {
         var session = await _context.ExamResults
             .Include(er => er.Exam)
+            .Include(er => er.GroupScores)
             .Include(er => er.Responses)
                 .ThenInclude(r => r.Question)
             .FirstOrDefaultAsync(er => er.Id == sessionId);
@@ -288,6 +241,7 @@ public class CandidateTestsController : ControllerBase
             Passed = session.TotalScore >= session.Exam.PassScore,
             StartTime = session.StartTime,
             EndTime = session.EndTime,
+            GroupScores = TestProfileView.SevenGroups(session.GroupScores),
             Responses = session.Responses.Select(r => new
             {
                 r.QuestionId,

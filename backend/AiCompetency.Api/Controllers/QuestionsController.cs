@@ -3,6 +3,7 @@ using AiCompetency.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using OpenIddict.Validation.AspNetCore;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AiCompetency.Api.Data;
 using AiCompetency.Api.Models;
@@ -18,11 +19,73 @@ public class QuestionsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly QuestionClassificationService _classification;
+    private readonly IScoringService _scoring;
 
-    public QuestionsController(ApplicationDbContext context, QuestionClassificationService classification)
+    public QuestionsController(ApplicationDbContext context, QuestionClassificationService classification, IScoringService scoring)
     {
         _context = context;
         _classification = classification;
+        _scoring = scoring;
+    }
+
+    /// <summary>Bank coverage by group × level × type, with counts per review status.</summary>
+    [HttpGet("coverage")]
+    public async Task<IActionResult> GetCoverage()
+    {
+        var questions = await _context.Questions
+            .Select(q => new { q.GroupCode, q.TargetLevel, q.Type, q.Status, Reviewed = q.ReviewedAt != null })
+            .ToListAsync();
+        var classified = questions.Where(q => q.GroupCode != null && q.TargetLevel != null).ToList();
+        var cells = CompetencyCatalog.Groups.SelectMany(g => Enumerable.Range(1, 3).Select(level =>
+        {
+            var inCell = classified.Where(q => q.GroupCode == g.Code && q.TargetLevel == level).ToList();
+            return new
+            {
+                GroupCode = g.Code,
+                GroupName = g.Name,
+                Level = level,
+                Total = inCell.Count,
+                Draft = inCell.Count(q => q.Status == QuestionStatus.Draft),
+                Reviewed = inCell.Count(q => q.Status == QuestionStatus.Reviewed),
+                Published = inCell.Count(q => q.Status == QuestionStatus.Published),
+                Archived = inCell.Count(q => q.Status == QuestionStatus.Archived),
+                Eligible = inCell.Count(q => q.Status == QuestionStatus.Published && q.Reviewed && ScoringService.IsObjective(q.Type)),
+                ByType = inCell.Where(q => q.Status != QuestionStatus.Archived).GroupBy(q => q.Type)
+                    .ToDictionary(t => t.Key, t => t.Count())
+            };
+        })).ToList();
+        return Ok(new
+        {
+            StandardMinPerGroup = TestBlueprints.StandardMinPerGroup,
+            StandardMaxPerGroup = TestBlueprints.StandardMaxPerGroup,
+            Unclassified = questions.Count - classified.Count,
+            Cells = cells
+        });
+    }
+
+    /// <summary>Records expert review. Only reviewed questions can be published or used in test forms.</summary>
+    [HttpPost("{id}/review")]
+    public async Task<IActionResult> ReviewQuestion(int id, [FromBody] ReviewQuestionRequest request)
+    {
+        var question = await _context.Questions.Include(q => q.Skill).ThenInclude(s => s!.Domain).SingleOrDefaultAsync(q => q.Id == id);
+        if (question == null)
+            return NotFound();
+        if (question.Status == QuestionStatus.Archived)
+            return Conflict("Archived questions cannot be reviewed.");
+        if (question.GroupCode == null || question.TargetLevel == null)
+            return BadRequest("Classify the question's group and level before review.");
+        if (ScoringService.IsObjective(question.Type) && _scoring.Options(question) == null)
+            return BadRequest("The answer key does not match the question's options.");
+        if ((request.Note?.Length ?? 0) > 2000)
+            return BadRequest("Review notes must be at most 2000 characters.");
+
+        question.ReviewedBy = CurrentUser.GetDisplayName(User);
+        question.ReviewedAt = DateTimeOffset.UtcNow;
+        question.ReviewNote = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+        if (question.Status == QuestionStatus.Draft)
+            question.Status = QuestionStatus.Reviewed;
+        await _context.SaveChangesAsync();
+        return Ok(MapToDto(question));
     }
 
     [HttpGet]
@@ -64,6 +127,10 @@ public class QuestionsController : ControllerBase
             ["behaviorsAddressed"] = dto.BehaviorsAddressed
         };
 
+        if (Enum.TryParse<QuestionStatus>(dto.Status, true, out var requested) &&
+            requested is QuestionStatus.Reviewed or QuestionStatus.Published)
+            return Conflict("New questions start as drafts. Review a question before publishing it.");
+
         var question = new Question
         {
             SkillId = classification.SkillId,
@@ -93,14 +160,13 @@ public class QuestionsController : ControllerBase
         QuestionClassification classification;
         try { classification = await _classification.ResolveAsync(dto.CompetencyGroupId, dto.CompetencyLevelId, dto.SkillId, dto.Difficulty); }
         catch (ValidationException error) { ModelState.AddModelError("classification", error.Message); return ValidationProblem(statusCode: 400, modelStateDictionary: ModelState); }
+        var before = AssessedContent(question);
         question.SkillId = classification.SkillId;
         question.GroupCode = classification.GroupCode;
         question.TargetLevel = classification.TargetLevel;
         question.Type = QuestionClassificationService.NormalizeType(dto.Type);
         question.Content = dto.Prompt;
         question.DifficultyLevel = dto.Difficulty;
-        if (Enum.TryParse<QuestionStatus>(dto.Status, true, out var status))
-            question.Status = status;
 
         // Preserve existing metadata, updating only matched values if necessary, or just overwrite relevant ones
         var existingMetadata = question.Metadata.RootElement.Clone();
@@ -119,10 +185,52 @@ public class QuestionsController : ControllerBase
         question.Metadata = JsonSerializer.SerializeToDocument(dict);
         question.RubricScoring = dto.Rubric != null && dto.Rubric.Any() ? string.Join("\n", dto.Rubric) : null;
 
+        // Delivered items must stay fixed so stored responses and CTT remain valid.
+        var after = AssessedContent(question);
+        var contentChanged = before.Where((node, index) => !JsonNode.DeepEquals(node, after[index])).Any();
+        if (contentChanged && await IsDelivered(id))
+            return Conflict("This question has been delivered in a test. Archive it and create a new question instead.");
+        if (contentChanged && question.ReviewedAt != null)
+            ClearReview(question);
+
+        if (Enum.TryParse<QuestionStatus>(dto.Status, true, out var status) && status != question.Status)
+        {
+            if (status is QuestionStatus.Reviewed or QuestionStatus.Published && question.ReviewedAt == null)
+                return Conflict(contentChanged
+                    ? "The question changed after review. Review it again before publishing."
+                    : "Review the question before publishing it.");
+            if (status == QuestionStatus.Draft)
+                ClearReview(question);
+            question.Status = status;
+        }
+
         await _context.SaveChangesAsync();
 
         return Ok(MapToDto(question));
     }
+
+    private static void ClearReview(Question question)
+    {
+        question.ReviewedBy = null;
+        question.ReviewedAt = null;
+        question.ReviewNote = null;
+        if (question.Status is QuestionStatus.Reviewed or QuestionStatus.Published)
+            question.Status = QuestionStatus.Draft;
+    }
+
+    // Fields that define what the item measures and how it is keyed.
+    private static List<JsonNode?> AssessedContent(Question q)
+    {
+        var root = q.Metadata.RootElement;
+        JsonNode? Field(string name) => root.ValueKind == JsonValueKind.Object && root.TryGetProperty(name, out var value)
+            ? JsonNode.Parse(value.GetRawText()) : null;
+        return [JsonValue.Create(q.Type), JsonValue.Create(q.Content), JsonValue.Create(q.GroupCode),
+            JsonValue.Create(q.TargetLevel), Field("options"), Field("answer"), Field("context")];
+    }
+
+    private async Task<bool> IsDelivered(int id) =>
+        await _context.Responses.AnyAsync(r => r.QuestionId == id) ||
+        await _context.ExamQuestions.AnyAsync(eq => eq.QuestionId == id && eq.Exam!.Status != "draft");
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteQuestion(int id)
@@ -130,6 +238,8 @@ public class QuestionsController : ControllerBase
         var question = await _context.Questions.Include(q => q.Skill).ThenInclude(s => s!.Domain).SingleOrDefaultAsync(q => q.Id == id);
         if (question == null)
             return NotFound();
+        if (await IsDelivered(id))
+            return Conflict("This question has been delivered in a test. Archive it instead of deleting it.");
 
         _context.Questions.Remove(question);
         await _context.SaveChangesAsync();
@@ -219,6 +329,10 @@ public class QuestionsController : ControllerBase
             JudgePromptHints = root.TryGetProperty("judgePromptHints", out var jpProp) && jpProp.ValueKind == JsonValueKind.String ? jpProp.GetString() ?? string.Empty : string.Empty,
             BehaviorsAddressed = root.TryGetProperty("behaviorsAddressed", out var bProp) && bProp.ValueKind == JsonValueKind.Array ? bProp.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : new List<string>(),
             Status = q.Status.ToString().ToLower(),
+            ReviewedBy = q.ReviewedBy,
+            ReviewedAt = q.ReviewedAt,
+            ReviewNote = q.ReviewNote,
+            Eligible = TestBlueprints.IsEligible(q),
             UpdatedAt = DateTime.UtcNow // Assuming no updated date on backend model for now
         };
     }
@@ -246,8 +360,15 @@ public class QuestionDto
     public string JudgePromptHints { get; set; } = string.Empty;
     public List<string> BehaviorsAddressed { get; set; } = new();
     public string Status { get; set; } = "draft";
+    public string? ReviewedBy { get; set; }
+    public DateTimeOffset? ReviewedAt { get; set; }
+    public string? ReviewNote { get; set; }
+    /// <summary>Reviewed, published and objective: usable in a test form.</summary>
+    public bool Eligible { get; set; }
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
+
+public sealed record ReviewQuestionRequest(string? Note);
 
 public class BatchQuestionInput
 {

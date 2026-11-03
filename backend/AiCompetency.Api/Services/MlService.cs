@@ -19,6 +19,21 @@ public record GenerateProfileRequest(string UserId, string SessionId, double The
 public record DomainScoreResult(int DomainId, string DomainName, double Score, int MasteryCount, int TotalSkills);
 public record CompetencyProfileResult(string UserId, string SessionId, double Theta, string OverallLevel, List<DomainScoreResult> DomainScores, double OverallScore);
 
+// CTT (thesis §2.12). Property names map to the Python service through the snake_case policy.
+public record CttItemInput(string ItemId, string? Group, int? OptionCount, List<int> Key);
+public record CttRespondentInput(string RespondentId, List<double> Scores, List<List<int>> Selections);
+public record CttAnalyzeRequest(List<CttItemInput> Items, List<CttRespondentInput> Respondents);
+public record CttDistractor(int Option, bool IsKey, double Proportion, double? Upper, double? Lower, double? OptionRestR, List<string> Flags);
+public record CttItemResult(string ItemId, string? Group, int N, double? P, double? ItemRestR, double? ItemRestRGroup,
+    double? DiscriminationIndex, double? AlphaIfDeleted, double? OmitRate, List<string> Flags, List<CttDistractor> Distractors);
+public record CttReliability(int NItems, double? Alpha, double? Omega, List<string> ExcludedItems, List<string> Notes);
+public record CttGroupResult(string Group, int NItems, double? MeanPercent, double? Alpha, double? Omega, List<string> ExcludedItems, List<string> Notes);
+public record CttHistogramBin(double Score, int Count);
+public record CttTotal(double? Mean, double? Sd, double? Min, double? Max, List<CttHistogramBin> Histogram);
+public record CttThresholds(double MinDifficulty, double MaxDifficulty, double MinDiscrimination, double MinDistractorRate);
+public record CttAnalysis(int NRespondents, int NItems, CttTotal Total, CttReliability Reliability,
+    List<CttGroupResult> Groups, List<CttItemResult> Items, CttThresholds Thresholds);
+
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 /// <summary>
@@ -195,6 +210,27 @@ public class MlService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "ML service profile generation failed.");
+            return null;
+        }
+    }
+
+    // ── CTT ──────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Classical Test Theory report for one test form. Returns null when the ML service is unavailable.
+    /// </summary>
+    public async Task<CttAnalysis?> AnalyzeCttAsync(CttAnalyzeRequest request)
+    {
+        try
+        {
+            using var content = new StringContent(JsonSerializer.Serialize(request, _json), System.Text.Encoding.UTF8, "application/json");
+            var resp = await _http.PostAsync("/ctt/analyze", content);
+            resp.EnsureSuccessStatusCode();
+            return JsonSerializer.Deserialize<CttAnalysis>(await resp.Content.ReadAsStringAsync(), _json);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "ML service CTT analysis failed.");
             return null;
         }
     }

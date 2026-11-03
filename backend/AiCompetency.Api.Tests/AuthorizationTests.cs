@@ -29,7 +29,10 @@ public class AuthorizationTests
             services.AddHttpClient<MlService>(c => c.BaseAddress = new Uri("http://ml.test"));
             services.AddScoped<CompetencyProfileService>();
             services.AddScoped<QuestionClassificationService>();
-            services.AddSingleton<ProfileJobQueue>();
+            services.AddSingleton(new ProfileJobQueue(enabled: false));
+            services.AddSingleton<IScoringService, ScoringService>();
+            services.AddScoped<ItemAnalysisService>();
+            services.Configure<FeatureOptions>(_ => { });
             services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
                 .AddScheme<AuthenticationSchemeOptions, HeaderAuthenticationHandler>(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme, _ => { });
             services.AddAuthorization();
@@ -42,7 +45,8 @@ public class AuthorizationTests
             app.UseEndpoints(e => e.MapControllers());
         }));
         using var client = server.CreateClient();
-        foreach (var route in new[] { "/api/questions", "/api/tests", "/api/competency/admin/irt-stats", "/api/framework/cv/versions" })
+        foreach (var route in new[] { "/api/questions", "/api/questions/coverage", "/api/tests", "/api/reports/summary",
+                     "/api/reports/attempts", "/api/test-level-mappings", "/api/framework/cv/versions" })
         {
             client.DefaultRequestHeaders.Remove("Test-Role");
             Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(route)).StatusCode);
@@ -52,6 +56,14 @@ public class AuthorizationTests
             client.DefaultRequestHeaders.Add("Test-Role", "Admin");
             Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(route)).StatusCode);
         }
+        // Experimental IRT/CAT/BKT endpoints are hidden while the feature flag is off.
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/competency/admin/irt-stats")).StatusCode);
+        client.DefaultRequestHeaders.Remove("Test-Role");
+        client.DefaultRequestHeaders.Add("Test-Role", "Candidate");
+        Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsync("/api/adaptivetests/start", null)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/competency/profile")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/api/competency/test-profile")).StatusCode);
+        Assert.Contains("\"adaptiveTesting\":false", await client.GetStringAsync("/api/features"));
         client.DefaultRequestHeaders.Remove("Test-Role");
         using var body = new StringContent("{\"version\":\"cv-v1\"}", Encoding.UTF8, "application/json");
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsync("/api/framework/cv/cv-v1-draft/drafts", body)).StatusCode);

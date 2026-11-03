@@ -61,11 +61,12 @@ public class AssessmentTests
     public async Task CandidatesHaveSeparateHistoryAndCannotReadOrSubmitEachOthersSession()
     {
         await using var db = CreateDb();
-        var exam = new Exam { Title = "Test", Status = "active" };
+        var exam = new Exam { Title = "Test", Status = "active", ExamQuestions = [new ExamQuestion {
+            Question = new Question { Content = "Q", Type = "mcq_single", Metadata = JsonDocument.Parse("{\"answer\":\"A\"}") } }] };
         db.Exams.Add(exam);
         await db.SaveChangesAsync();
-        var alice = AsUser(new CandidateTestsController(db, new ProfileJobQueue()), Guid.NewGuid().ToString());
-        var bob = AsUser(new CandidateTestsController(db, new ProfileJobQueue()), Guid.NewGuid().ToString());
+        var alice = AsUser(new CandidateTestsController(db, new ProfileJobQueue(), new ScoringService()), Guid.NewGuid().ToString());
+        var bob = AsUser(new CandidateTestsController(db, new ProfileJobQueue(), new ScoringService()), Guid.NewGuid().ToString());
         Assert.IsType<OkObjectResult>(await alice.StartTest(exam.Id));
         Assert.IsType<OkObjectResult>(await bob.StartTest(exam.Id));
         var sessions = await db.ExamResults.ToListAsync();
@@ -88,7 +89,7 @@ public class AssessmentTests
         var exam = new Exam { Title = "Test", Status = "active", ExamQuestions = [new ExamQuestion { Question = q, PointValue = 1 }] };
         db.Exams.Add(exam);
         await db.SaveChangesAsync();
-        var controller = AsUser(new CandidateTestsController(db, new ProfileJobQueue()), "alice");
+        var controller = AsUser(new CandidateTestsController(db, new ProfileJobQueue(), new ScoringService()), "alice");
         await controller.StartTest(exam.Id);
         var id = (await db.ExamResults.SingleAsync()).Id;
         Assert.IsType<BadRequestObjectResult>(await controller.SubmitTest(id, new()
@@ -122,7 +123,7 @@ public class AssessmentTests
         await db.SaveChangesAsync();
         var handler = new CaptureHandler();
         var ml = new MlService(new HttpClient(handler) { BaseAddress = new Uri("http://ml.test") }, NullLogger<MlService>.Instance);
-        var controller = AsUser(new AdaptiveTestsController(db, ml), "alice");
+        var controller = AsUser(new AdaptiveTestsController(db, ml, new ScoringService()), "alice");
         await controller.StartAdaptiveTest();
         var id = (await db.AdaptiveTestSessions.SingleAsync()).Id;
         var questions = await db.Questions.OrderBy(q => q.Id).ToListAsync();

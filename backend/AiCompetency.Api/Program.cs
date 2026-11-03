@@ -33,8 +33,13 @@ builder.Services.AddHttpClient<AiCompetency.Api.Services.MlService>(client =>
 });
 builder.Services.AddScoped<AiCompetency.Api.Services.CompetencyProfileService>();
 builder.Services.AddScoped<AiCompetency.Api.Services.QuestionClassificationService>();
-builder.Services.AddSingleton<AiCompetency.Api.Services.ProfileJobQueue>();
-builder.Services.AddHostedService<AiCompetency.Api.Services.ProfileJobWorker>();
+builder.Services.AddScoped<AiCompetency.Api.Services.ItemAnalysisService>();
+builder.Services.AddSingleton<AiCompetency.Api.Services.IScoringService, AiCompetency.Api.Services.ScoringService>();
+var features = builder.Configuration.GetSection(AiCompetency.Api.Services.FeatureOptions.Section);
+builder.Services.Configure<AiCompetency.Api.Services.FeatureOptions>(features);
+var adaptiveTesting = features.Get<AiCompetency.Api.Services.FeatureOptions>()?.AdaptiveTesting ?? false;
+builder.Services.AddSingleton(new AiCompetency.Api.Services.ProfileJobQueue(adaptiveTesting));
+if (adaptiveTesting) builder.Services.AddHostedService<AiCompetency.Api.Services.ProfileJobWorker>();
 
 
 // Register the DbContext

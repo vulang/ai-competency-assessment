@@ -43,6 +43,10 @@ public static class AnswerEvaluator
             : string.Equals(answer.Trim(), expected.GetString()!.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>Resolves a submitted or keyed choice to its zero-based option index.</summary>
+    public static int? OptionIndex(JsonDocument metadata, string answer) =>
+        metadata.RootElement.ValueKind == JsonValueKind.Object ? ChoiceKey(metadata.RootElement, answer).Index : null;
+
     // The generator emits letter keys while the UI submits displayed option text.
     // Resolve both against the declared choices; arbitrary prefixed text is not a choice.
     private static (int? Index, string Text) ChoiceKey(JsonElement root, string answer)

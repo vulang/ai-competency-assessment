@@ -31,9 +31,36 @@ public class CompetencyProfileController : ControllerBase
     // ── Candidate endpoints ───────────────────────────────────────────────────
 
     /// <summary>
+    /// GET /api/competency/test-profile
+    /// Seven-group score profile from the candidate's latest completed test (thesis §2.12).
+    /// </summary>
+    [HttpGet("test-profile")]
+    public async Task<IActionResult> GetMyTestProfile()
+    {
+        var userId = GetCurrentUserId();
+        var session = await _context.ExamResults
+            .Include(s => s.Exam)
+            .Include(s => s.GroupScores)
+            .Where(s => s.UserId == userId && s.Status == "Completed" && s.GroupScores.Any())
+            .OrderByDescending(s => s.EndTime)
+            .FirstOrDefaultAsync();
+        if (session == null)
+            return NotFound(new { Message = "No test profile found. Complete a test first." });
+
+        return Ok(new
+        {
+            SessionId = session.Id,
+            ExamTitle = session.Exam!.Title,
+            CompletedAt = session.EndTime,
+            Groups = TestProfileView.SevenGroups(session.GroupScores)
+        });
+    }
+
+    /// <summary>
     /// GET /api/competency/profile
     /// Returns the latest competency profile for the authenticated candidate.
     /// </summary>
+    [RequiresAdaptiveTesting]
     [HttpGet("profile")]
     public async Task<IActionResult> GetMyProfile()
     {
@@ -50,6 +77,7 @@ public class CompetencyProfileController : ControllerBase
     /// GET /api/competency/profile/history
     /// Returns all competency profiles for the authenticated candidate.
     /// </summary>
+    [RequiresAdaptiveTesting]
     [HttpGet("profile/history")]
     public async Task<IActionResult> GetMyProfileHistory()
     {
@@ -66,6 +94,7 @@ public class CompetencyProfileController : ControllerBase
     /// GET /api/competency/sessions/{sessionId}/irt
     /// Returns IRT theta estimate for a specific session.
     /// </summary>
+    [RequiresAdaptiveTesting]
     [HttpGet("sessions/{sessionId}/irt")]
     public async Task<IActionResult> GetSessionIrt(Guid sessionId)
     {
@@ -90,6 +119,7 @@ public class CompetencyProfileController : ControllerBase
     /// GET /api/competency/skills
     /// Returns BKT mastery per skill for the authenticated candidate.
     /// </summary>
+    [RequiresAdaptiveTesting]
     [HttpGet("skills")]
     public async Task<IActionResult> GetMySkillMastery()
     {
@@ -116,6 +146,7 @@ public class CompetencyProfileController : ControllerBase
     /// Admin: view any candidate's latest competency profile.
     /// </summary>
     [Authorize(Roles = "Admin")]
+    [RequiresAdaptiveTesting]
     [HttpGet("admin/candidates/{userId}/profile")]
     public async Task<IActionResult> GetCandidateProfile(string userId)
     {
@@ -131,6 +162,7 @@ public class CompetencyProfileController : ControllerBase
     /// Admin: IRT parameter statistics across all questions.
     /// </summary>
     [Authorize(Roles = "Admin")]
+    [RequiresAdaptiveTesting]
     [HttpGet("admin/irt-stats")]
     public async Task<IActionResult> GetIrtStats()
     {
