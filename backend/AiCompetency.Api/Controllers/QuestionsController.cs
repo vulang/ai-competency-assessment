@@ -222,7 +222,10 @@ public class QuestionsController : ControllerBase
     private static List<JsonNode?> AssessedContent(Question q)
     {
         var root = q.Metadata.RootElement;
-        JsonNode? Field(string name) => root.ValueKind == JsonValueKind.Object && root.TryGetProperty(name, out var value)
+        // Missing, empty-string and empty-array values are equivalent; the editor sends empty defaults.
+        JsonNode? Field(string name) => root.ValueKind == JsonValueKind.Object && root.TryGetProperty(name, out var value) &&
+            !(value.ValueKind is JsonValueKind.Null || value.ValueKind == JsonValueKind.String && value.GetString() == "" ||
+              value.ValueKind == JsonValueKind.Array && value.GetArrayLength() == 0)
             ? JsonNode.Parse(value.GetRawText()) : null;
         return [JsonValue.Create(q.Type), JsonValue.Create(q.Content), JsonValue.Create(q.GroupCode),
             JsonValue.Create(q.TargetLevel), Field("options"), Field("answer"), Field("context")];

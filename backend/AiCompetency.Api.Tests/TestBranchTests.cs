@@ -275,6 +275,23 @@ public class TestBranchTests
     }
 
     [Fact]
+    public async Task LegacyMetadataWithoutOptionalFieldsCanBePublishedAfterReview()
+    {
+        await using var db = await CreateDbAsync();
+        var legacy = Item("DATA", 1, status: QuestionStatus.Draft, reviewed: false);
+        legacy.SkillId = 2;
+        legacy.Metadata = JsonDocument.Parse("{\"answer\":\"A\",\"options\":[\"A. One\",\"B. Two\"],\"topic\":\"Legacy\"}");
+        db.Questions.Add(legacy);
+        await db.SaveChangesAsync();
+        var questions = As(new QuestionsController(db, new QuestionClassificationService(db), Scoring), "expert");
+        Assert.IsType<OkObjectResult>(await questions.ReviewQuestion(legacy.Id, new(null)));
+        var dto = Assert.IsType<QuestionDto>(Assert.IsType<OkObjectResult>(await questions.GetQuestion(legacy.Id)).Value);
+        dto.Status = "published";
+        var published = Assert.IsType<QuestionDto>(Assert.IsType<OkObjectResult>(await questions.UpdateQuestion(legacy.Id, dto)).Value);
+        Assert.Equal(("published", "expert"), (published.Status, published.ReviewedBy));
+    }
+
+    [Fact]
     public async Task ReviewRequiresResolvableKeyAndDeliveredQuestionsAreLocked()
     {
         await using var db = await CreateDbAsync();
