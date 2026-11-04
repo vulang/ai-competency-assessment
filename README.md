@@ -26,7 +26,7 @@ Question generation requires a provider key in `infra/.env` and provider/model s
 
 1. Create or generate questions (they start as drafts), review them from `/admin/questions`, then publish them. Only reviewed, published objective questions (`mcq_single`, `mcq_multi`, `true_false`) can be used in test forms; `/admin/questions/coverage` shows gaps per group and level.
 2. Build a form at `/admin/tests/new`: set per-group quotas, an optional level mix and a seed, preview it, then save and publish. A **standard** form needs 5–6 items per group and 35–42 in total; candidates start it with “Start standard test”. Published forms are frozen.
-3. Approve the score-to-level rule at `/admin/tests/level-mapping`. The seeded `tl-v1-draft` (below 50% Basic, 50–79.99% Intermediate, 80% or more Advanced, at least five items per group) is inactive until an expert approves it; until then candidates see group percentages without levels.
+3. Group levels use the approved rule `tl-v1`: below 50% Basic, 50–79.99% Intermediate, 80% or more Advanced, and at least five items per group. Published rules are immutable; create and approve a new version at `/admin/tests/level-mapping` to change it.
 4. Read CTT results at `/admin/tests/{id}/analysis` and export the items, reliability and response-matrix CSV files.
 
 Set `Features__AdaptiveTesting=true` on the API to re-enable the experimental adaptive test and IRT/BKT profile.
@@ -93,7 +93,7 @@ cd ../..
 
 Backend integration tests use Testcontainers PostgreSQL and require Docker. To run only unit tests, add `--filter 'Category!=Integration'` to `dotnet test`. Schema checks and compose acceptance use disposable databases/projects and remove their own containers/volumes afterward. The compose validation script uses random localhost ports and the Compose `!override`/`!reset` features; Compose before 2.24 ignores `!override`, so stop other stacks that publish the default API/UI/ML/PostgreSQL ports when validating with an older release.
 
-`verify-stack.sh` reviews and publishes 35 synthetic questions, publishes a standard form, registers two synthetic candidates with real access tokens, checks admin 403 responses, hidden adaptive endpoints and isolated histories, submits both tests, approves the draft level rule in its disposable database, and checks seven-group levels, CTT computed by the real ML service, and reports. It also verifies service health, frontend SPA routing, and the API proxy. External LLM generation and the full browser SSO redirect flow are outside this smoke test.
+`verify-stack.sh` reviews and publishes 35 synthetic questions, publishes a standard form, registers two synthetic candidates with real access tokens, checks admin 403 responses, hidden adaptive endpoints and isolated histories, submits both tests, and checks seven-group levels from the approved rule, CTT computed by the real ML service, and reports. It also verifies service health, frontend SPA routing, and the API proxy. External LLM generation and the full browser SSO redirect flow are outside this smoke test.
 
 The Docker API build defaults to SDK 8 / runtime 8. For a machine with an already cached compatible build SDK, validation accepts an override:
 

@@ -1,10 +1,10 @@
 # Phase 2 — Parallel test branch and CTT
 
-Status: implemented on branch `phase-2-test-branch` on 2026-11-04 and verified locally, including Compose acceptance. All four [hosted CI jobs](https://github.com/vulang/ai-competency-assessment/actions/runs/41755598023) passed for commit `411adf9`. One item remains before Phase 2 can be closed:
+Status: complete on 2026-11-04 on branch `phase-2-test-branch`.
 
-- Expert approval of the score-to-level rule. The proposed rule `tl-v1-draft` is seeded but inactive.
-
-Until a rule is published, candidates see per-group percentages and "level pending".
+- **Level rule:** the project owner confirmed expert approval of the proposed score-to-level rule, and it is active as `tl-v1`. The expert's name and review date were not supplied.
+- **Objective-only forms:** the project owner confirmed that the supervisor agreed to use only objective items in experimental forms and CTT.
+- **Verification:** local checks pass, including Compose acceptance. The implementation commit `411adf9` passed all four [hosted CI jobs](https://github.com/vulang/ai-competency-assessment/actions/runs/41755598023); the release of `tl-v1` is verified below.
 
 ## What changed
 
@@ -57,14 +57,14 @@ Omega uses Pearson (phi) correlations, not tetrachoric correlations. With dichot
 
 ## Decisions taken
 
-- **Open scenario questions are excluded from experimental forms and CTT.** Thesis §2.12 analyses distractors, which apply to objective items. The situational emphasis is met with scenario-based multiple-choice items. Rubric scoring of open answers was not built (roadmap §8.2 item 4).
+- **Open scenario questions are excluded from experimental forms and CTT.** Thesis §2.12 analyses distractors, which apply to objective items. The situational emphasis is met with scenario-based multiple-choice items. Rubric scoring of open answers was not built. The project owner confirmed the supervisor's agreement on 2026-11-04 (roadmap §8.2 item 4).
 - **IRT/CAT/BKT stay behind a flag** rather than being removed (roadmap §8.2 item 3).
 - **The test profile is the set of group scores of the latest completed session**, not a separate `test_profiles` table.
 - **Legacy published questions without a review record stay published** but are not eligible for new forms until reviewed. No review was fabricated in the migration.
 
-## Pending approval
+## Score-to-level rule
 
-`tl-v1-draft` proposes the following rule. It needs expert confirmation, together with the Δ threshold for the integration layer in Phase 9 (roadmap §8.2 item 5):
+`tl-v1` is the active rule. It was published by migration `PublishTestLevelMappingV1` with the cut points of `tl-v1-draft`, which stays unchanged as the reviewed proposal.
 
 | Level | Rule |
 |---|---|
@@ -73,12 +73,19 @@ Omega uses Pearson (phi) correlations, not tetrachoric correlations. With dichot
 | Advanced | 80% or more |
 | No level | fewer than five objective items in the group |
 
-With five items, these cut points place 0–2 correct at Basic, 3 at Intermediate and 4–5 at Advanced. With six items, they place 0–2, 3–4 and 5–6. Approve the rule, or edit it and approve the edited draft, at `/admin/tests/level-mapping` before data collection.
+With five items, these cut points place 0–2 correct at Basic, 3 at Intermediate and 4–5 at Advanced. With six items, they place 0–2, 3–4 and 5–6.
+
+- **Source of approval:** the record notes the project owner's confirmation of expert approval on 2026-11-04. A research protocol that needs a named expert or a signed review still needs those details; they can be added to the documentation without changing the rule.
+- **Earlier scores:** the migration gives `tl-v1` levels to group scores recorded without a rule, exactly as publishing through the API does.
+- **Existing rules:** if a deployment already has an active rule or a conflicting `tl-v1` row, the migration stops for reconciliation instead of replacing it.
+- **Changing the rule:** later changes need a new version at `/admin/tests/level-mapping`. Each group score keeps the version that produced its level.
+
+The Δ threshold for the "consistent" state in the CV × test integration layer remains open for Phase 9 (roadmap §8.2 item 5).
 
 ## Acceptance
 
 - Build a standard form of 35–42 items with the required quotas: blueprint validation, publish checks, unit tests, the PostgreSQL integration test and Compose acceptance all cover it.
-- Candidates receive a seven-group profile after submission. Levels appear once a mapping is approved; the integration and Compose tests publish the draft in disposable databases.
+- Candidates receive a seven-group profile with levels from the approved `tl-v1` rule after submission.
 - The CTT report is recomputed from stored responses on every request, and the response matrix can be exported.
 - The Appendix H table can be filled from the items and reliability CSV exports.
 
@@ -88,7 +95,8 @@ With five items, these cut points place 0–2 correct at Basic, 3 at Intermediat
 - The schema check passes:
   - fresh and repeated application;
   - new constraints;
-  - the draft mapping seed and sequence;
+  - the draft and approved rule seeds, the single active rule, and the sequence;
+  - the `tl-v1` backfill of unmapped group scores, and the guard that stops the release when another rule is already active;
   - archiving of legacy hidden exams without touching sessions or unreviewed published questions;
   - the guard against duplicate exam questions.
 - Python: 32 tests (29 in `ml_service`), Ruff, and the appendix freshness check pass.
@@ -97,7 +105,7 @@ With five items, these cut points place 0–2 correct at Basic, 3 at Intermediat
   - reviewed questions;
   - publication of a 35-item standard form;
   - two isolated candidates;
-  - seven-group scores and their levels after the draft rule is approved in the disposable database;
+  - seven-group scores with `tl-v1` levels;
   - CTT computed by the real ML service;
   - reports.
 

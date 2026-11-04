@@ -89,16 +89,19 @@ public class PostgresApiTests : IAsyncLifetime
         Assert.Equal(25, result.GetProperty("passScore").GetInt32());
         var groupScores = result.GetProperty("groupScores").EnumerateArray().ToList();
         Assert.Equal(7, groupScores.Count);
-        Assert.All(groupScores, g => Assert.Equal((100m, JsonValueKind.Null), (g.GetProperty("percent").GetDecimal(), g.GetProperty("level").ValueKind)));
+        Assert.All(groupScores, g => Assert.Equal((100m, "ADVANCED", "tl-v1"),
+            (g.GetProperty("percent").GetDecimal(), g.GetProperty("levelCode").GetString(), g.GetProperty("levelMappingVersion").GetString())));
         var bobQuestions = (await bob.GetFromJsonAsync<JsonElement>($"/api/candidate/tests/sessions/{bobSession}"))
             .GetProperty("questions").EnumerateArray().Select(q => new { questionId = q.GetProperty("id").GetInt32(), answer = "B" }).ToList();
         (await bob.PostAsJsonAsync($"/api/candidate/tests/sessions/{bobSession}/submit", new { responses = bobQuestions })).EnsureSuccessStatusCode();
         var wrongResult = await bob.GetFromJsonAsync<JsonElement>($"/api/candidate/tests/sessions/{bobSession}/result");
         Assert.False(wrongResult.GetProperty("passed").GetBoolean());
 
-        // An approved mapping assigns levels to scores recorded before it existed.
-        Assert.Equal(HttpStatusCode.OK, (await admin.PostAsJsonAsync("/api/test-level-mappings/tl-v1-draft/publish",
-            new { reviewedBy = "Integration expert", reviewNotes = "Synthetic" })).StatusCode);
+        // The approved tl-v1 rule is active from the migration; published rules cannot be edited.
+        var mappings = await admin.GetFromJsonAsync<JsonElement>("/api/test-level-mappings");
+        Assert.Equal("tl-v1", mappings.EnumerateArray().Single(m => m.GetProperty("isActive").GetBoolean()).GetProperty("version").GetString());
+        Assert.Equal(HttpStatusCode.Conflict, (await admin.PutAsJsonAsync("/api/test-level-mappings/tl-v1",
+            new { version = "tl-v1", intermediateMinPercent = 40, advancedMinPercent = 70, minItemsPerGroup = 5 })).StatusCode);
         var aliceProfile = await alice.GetFromJsonAsync<JsonElement>("/api/competency/test-profile");
         Assert.All(aliceProfile.GetProperty("groups").EnumerateArray(), g => Assert.Equal("ADVANCED", g.GetProperty("levelCode").GetString()));
         var bobProfile = await bob.GetFromJsonAsync<JsonElement>("/api/competency/test-profile");

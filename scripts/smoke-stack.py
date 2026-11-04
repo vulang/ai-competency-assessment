@@ -97,14 +97,12 @@ def main():
         assert [g['percent'] for g in result['groupScores']] == [100 if index == 0 else 0] * 7
         status, history = request(args.api, '/api/candidate/tests/history', token=token)
         assert status == 200 and len(history) == 1 and history[0]['sessionId'] == session_id
-    # The level rule is fixed by approval; earlier group scores receive levels from it.
-    status, mapping = request(args.api, '/api/test-level-mappings/tl-v1-draft/publish',
-                              {'reviewedBy': 'Smoke validation', 'reviewNotes': 'Synthetic data'}, admin)
-    assert status == 200 and mapping['backfilledGroupScores'] == 14
+    # Levels come from the approved tl-v1 rule, which the migrations make active.
     for index, (token, session_id) in enumerate(accounts):
         status, profile = request(args.api, '/api/competency/test-profile', token=token)
         assert status == 200 and profile['sessionId'] == session_id
         assert {g['levelCode'] for g in profile['groups']} == {'ADVANCED' if index == 0 else 'BASIC'}
+        assert {g['levelMappingVersion'] for g in profile['groups']} == {'tl-v1'}
     # Real CTT inference through the API and ML service.
     status, analysis = request(args.api, f"/api/tests/{form['id']}/item-analysis", token=admin)
     assert status == 200 and analysis['analysis']['nRespondents'] == 2 and analysis['analysis']['nItems'] == 35

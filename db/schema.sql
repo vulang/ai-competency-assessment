@@ -2352,3 +2352,67 @@ BEGIN
 END $EF$;
 COMMIT;
 
+START TRANSACTION;
+
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261104150818_PublishTestLevelMappingV1') THEN
+    DO $$ BEGIN
+        IF EXISTS (SELECT 1 FROM test_level_mappings WHERE id = 2 OR version = 'tl-v1' OR is_active) THEN
+            RAISE EXCEPTION 'tl-v1 release conflicts with existing level mappings; reconcile mapping IDs and the active rule before applying this migration';
+        END IF;
+    END $$;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261104150818_PublishTestLevelMappingV1') THEN
+    INSERT INTO test_level_mappings (id, advanced_min_percent, created_at, intermediate_min_percent, is_active, min_items_per_group, published_at, review_notes, reviewed_by, source, status, version)
+    VALUES (2, 80.0, TIMESTAMPTZ '2026-11-04T00:00:00+00:00', 50.0, TRUE, 5, TIMESTAMPTZ '2026-11-04T00:00:00+00:00', 'The project owner confirmed expert approval of tl-v1-draft as proposed on 2026-11-04. The expert''s name and review date were not supplied.', 'Project owner confirmation of expert approval', 'Thesis §2.12 rule from tl-v1-draft: below 50% Basic, 50–79.99% Intermediate, 80% or more Advanced; at least five objective items per group.', 'Published', 'tl-v1');
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261104150818_PublishTestLevelMappingV1') THEN
+    DO $$ BEGIN
+        PERFORM setval(pg_get_serial_sequence('test_level_mappings', 'id'),
+            GREATEST((SELECT MAX(id) FROM test_level_mappings) + 1,
+                     nextval(pg_get_serial_sequence('test_level_mappings', 'id'))), false);
+    END $$;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261104150818_PublishTestLevelMappingV1') THEN
+    UPDATE test_group_scores
+    SET level = CASE WHEN item_count < 5 THEN NULL WHEN percent >= 80 THEN 3 WHEN percent >= 50 THEN 2 ELSE 1 END,
+        level_mapping_version = 'tl-v1'
+    WHERE level_mapping_version IS NULL;
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261104150818_PublishTestLevelMappingV1') THEN
+    PERFORM setval(
+        pg_get_serial_sequence('test_level_mappings', 'id'),
+        GREATEST(
+            (SELECT MAX(id) FROM test_level_mappings) + 1,
+            nextval(pg_get_serial_sequence('test_level_mappings', 'id'))),
+        false);
+    END IF;
+END $EF$;
+
+DO $EF$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20261104150818_PublishTestLevelMappingV1') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20261104150818_PublishTestLevelMappingV1', '8.0.21');
+    END IF;
+END $EF$;
+COMMIT;
+

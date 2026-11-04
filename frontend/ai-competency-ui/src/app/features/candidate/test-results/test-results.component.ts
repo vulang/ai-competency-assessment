@@ -56,8 +56,8 @@ Chart.register(RadialLinearScale, RadarController, PointElement, LineElement, Fi
           </tbody>
         </table>
         <p class="group-note">
-          Levels follow a pre-defined, expert-approved rule. “Pending” means the rule has not been approved yet;
-          “—” means this test did not measure the group.
+          Levels follow a pre-defined, expert-approved rule. “Pending” means too few questions measured the group
+          to assign a level; “—” means this test did not measure the group.
         </p>
       </div>
 

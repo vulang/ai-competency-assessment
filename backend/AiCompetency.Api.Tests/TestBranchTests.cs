@@ -317,7 +317,7 @@ public class TestBranchTests
     // ── Candidate flow ───────────────────────────────────────────────────────
 
     [Fact]
-    public async Task StandardSubmissionStoresGroupScoresAndMappingBackfillsLevels()
+    public async Task StandardSubmissionUsesApprovedRuleAndLaterVersionsOnlyBackfillUnmappedScores()
     {
         await using var db = await CreateDbAsync();
         var candidate = As(new CandidateTestsController(db, new ProfileJobQueue(enabled: false), Scoring), "alice");
@@ -339,27 +339,30 @@ public class TestBranchTests
             .Select(q => new CandidateTestsController.QuestionResponse { QuestionId = q.QuestionId, Answer = "A" }).ToList();
         Assert.IsType<OkObjectResult>(await candidate.SubmitTest(sessionId, new() { Responses = data }));
 
+        // The approved tl-v1 rule is active from the seed.
         var scores = await db.TestGroupScores.Where(s => s.SessionId == sessionId).ToListAsync();
         Assert.Equal(7, scores.Count);
-        Assert.Equal(80m, scores.Single(s => s.GroupCode == "DATA").Percent);
-        Assert.All(scores, s => Assert.Null(s.LevelMappingVersion));
-
-        var mappings = new TestLevelMappingsController(db);
-        Assert.IsType<BadRequestObjectResult>(await mappings.Publish("tl-v1-draft", new("", null)));
-        var published = JsonSerializer.SerializeToElement(Assert.IsType<OkObjectResult>(await mappings.Publish("tl-v1-draft", new("Expert panel", "Approved"))).Value);
-        Assert.Equal(7, published.GetProperty("BackfilledGroupScores").GetInt32());
-        db.ChangeTracker.Clear();
-        scores = await db.TestGroupScores.Where(s => s.SessionId == sessionId).ToListAsync();
-        Assert.Equal(3, scores.Single(s => s.GroupCode == "DATA").Level);
+        Assert.Equal((80m, 3), (scores.Single(s => s.GroupCode == "DATA").Percent, scores.Single(s => s.GroupCode == "DATA").Level));
         Assert.Equal(1, scores.Single(s => s.GroupCode == "ETHICS").Level);
-        Assert.All(scores, s => Assert.Equal("tl-v1-draft", s.LevelMappingVersion));
-        Assert.IsType<ConflictObjectResult>(await mappings.Update("tl-v1-draft", new("tl-v1-draft", 40, 70, 5, null)));
+        Assert.All(scores, s => Assert.Equal("tl-v1", s.LevelMappingVersion));
 
-        // A later version applies to new submissions only.
+        // A score recorded before any rule existed is backfilled by the next published version only.
+        var legacy = new ExamResult { UserId = "legacy", Status = "Completed", Exam = new Exam { Title = "Old" },
+            GroupScores = [new TestGroupScore { GroupCode = "DATA", RawScore = 3, MaxScore = 5, ItemCount = 5, Percent = 60 }] };
+        db.ExamResults.Add(legacy);
+        await db.SaveChangesAsync();
+        var mappings = new TestLevelMappingsController(db);
+        Assert.IsType<ConflictObjectResult>(await mappings.Update("tl-v1", new("tl-v1", 40, 70, 5, null)));
+        Assert.IsType<ConflictObjectResult>(await mappings.Publish("tl-v1", new("Expert panel", null)));
         Assert.IsType<CreatedAtActionResult>(await mappings.Create(new("tl-v2", 40, 70, 5, "Recalibrated")));
-        Assert.IsType<OkObjectResult>(await mappings.Publish("tl-v2", new("Expert panel", null)));
+        Assert.IsType<BadRequestObjectResult>(await mappings.Publish("tl-v2", new("", null)));
+        var published = JsonSerializer.SerializeToElement(Assert.IsType<OkObjectResult>(await mappings.Publish("tl-v2", new("Expert panel", null))).Value);
+        Assert.Equal(1, published.GetProperty("BackfilledGroupScores").GetInt32());
+        db.ChangeTracker.Clear();
         Assert.Equal("tl-v2", (await db.TestLevelMappings.SingleAsync(m => m.IsActive)).Version);
-        Assert.All(await db.TestGroupScores.ToListAsync(), s => Assert.Equal("tl-v1-draft", s.LevelMappingVersion));
+        var backfilled = await db.TestGroupScores.SingleAsync(s => s.SessionId == legacy.Id);
+        Assert.Equal((2, "tl-v2"), (backfilled.Level, backfilled.LevelMappingVersion));
+        Assert.All(await db.TestGroupScores.Where(s => s.SessionId == sessionId).ToListAsync(), s => Assert.Equal("tl-v1", s.LevelMappingVersion));
 
         var result = JsonSerializer.SerializeToElement(Assert.IsType<OkObjectResult>(await candidate.GetTestResult(sessionId)).Value);
         Assert.Equal(7, result.GetProperty("GroupScores").GetArrayLength());

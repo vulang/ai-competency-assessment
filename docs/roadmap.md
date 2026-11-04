@@ -267,7 +267,7 @@ flowchart LR
 
 ### Phase 2 — Nhánh trắc nghiệm song song và phân tích CTT
 
-**Trạng thái:** Đã triển khai trên nhánh `phase-2-test-branch` ngày 2026-11-04 và kiểm chứng cục bộ. Còn chờ chuyên gia duyệt quy tắc ánh xạ % → mức (bản nháp `tl-v1-draft`: < 50% Basic, 50–79,99% Intermediate, ≥ 80% Advanced, tối thiểu 5 câu/nhóm). Cả bốn job [CI trên GitHub](https://github.com/vulang/ai-competency-assessment/actions/runs/41755598023) đều đạt với commit `411adf9`. Chi tiết: [phase-2-progress.md](phase-2-progress.md).
+**Trạng thái: Hoàn thành ngày 2026-11-04.** Quy tắc ánh xạ % → mức `tl-v1` (< 50% Basic, 50–79,99% Intermediate, ≥ 80% Advanced, tối thiểu 5 câu/nhóm) đã xuất bản và đang hoạt động; chủ dự án xác nhận chuyên gia đã duyệt, chưa cung cấp tên/ngày phản biện. Chủ dự án xác nhận giảng viên đồng ý chỉ dùng câu khách quan cho đề thực nghiệm và CTT. Bản triển khai (commit `411adf9`) đạt cả bốn job [CI trên GitHub](https://github.com/vulang/ai-competency-assessment/actions/runs/41755598023). Chi tiết: [phase-2-progress.md](phase-2-progress.md).
 
 **Liên hệ luận văn:** §1.3.3, §2.12, §2.13 (dòng "Chất lượng bài trắc nghiệm"), §3.9, Phụ lục H.
 
@@ -287,7 +287,7 @@ flowchart LR
   - [x] Câu `scenario`/tự luận: luồng chấm theo rubric (thủ công trong admin, tùy chọn có gợi ý LLM-as-judge từ `judgePromptHints`). Nếu luận văn chỉ dùng câu khách quan cho CTT thì ghi rõ và loại câu tự luận khỏi đề thực nghiệm. — *Đã chọn: đề thực nghiệm và CTT chỉ dùng câu khách quan (§2.12 có phân tích phương án nhiễu); tình huống được thể hiện bằng câu trắc nghiệm có bối cảnh. Chưa xây luồng chấm rubric cho câu tự luận.*
   - [x] Lưu điểm theo nhóm: bảng `test_group_scores (session_id, group_code, raw, max, pct, level_mapped)`.
 - *Chuẩn hóa sang mức*
-  - [x] Quy tắc ánh xạ % đúng theo nhóm → Basic/Intermediate/Advanced được **xác định trước** và lưu thành cấu hình có version (§2.12), ví dụ theo ngưỡng do chuyên gia đặt. — *Cơ chế đã có (`test_level_mappings`, xuất bản cần người duyệt, bản đã xuất bản bất biến); ngưỡng `tl-v1-draft` còn chờ chuyên gia duyệt.*
+  - [x] Quy tắc ánh xạ % đúng theo nhóm → Basic/Intermediate/Advanced được **xác định trước** và lưu thành cấu hình có version (§2.12), ví dụ theo ngưỡng do chuyên gia đặt. — *Đã xuất bản `tl-v1` (50/80, tối thiểu 5 câu/nhóm) sau khi chủ dự án xác nhận chuyên gia duyệt; bản đã xuất bản bất biến, thay đổi sau này cần phiên bản mới.*
 - *CTT* (trong `ml_service/ctt/`)
   - [x] Độ khó p, tương quan biến–tổng hiệu chỉnh (corrected item-total), phân tích phương án nhiễu, Cronbach α (toàn bài và từng nhóm), McDonald ω (mô hình 1 nhân tố, ví dụ dùng `factor_analyzer`), α-if-item-deleted, gắn cờ câu có r < 0.2 hoặc p ∉ [0.2, 0.9].
   - [x] Endpoint `POST /ctt/analyze` (đầu vào: ma trận phản hồi) và job backend tổng hợp theo đề.
@@ -536,6 +536,6 @@ flowchart LR
 1. **Công cụ gán nhãn:** Label Studio (khuyến nghị, nhanh) hay xây trong hệ thống?
 2. **Nhà cung cấp LLM cho Tầng 3:** API thương mại (OpenAI…) hay tự host (gpt-oss qua vLLM)? Quyết định này ảnh hưởng chi phí, độ ổn định và rủi ro dữ liệu.
 3. **Mã IRT/CAT/BKT:** giữ sau feature flag (khuyến nghị) hay gỡ khỏi codebase? — *Phase 2: giữ sau `Features:AdaptiveTesting` (mặc định tắt).*
-4. **Câu hỏi tự luận/tình huống trong đề thực nghiệm:** loại khỏi phân tích CTT hay chấm bằng rubric? Luận văn hiện chỉ mô tả CTT cho câu khách quan. — *Phase 2: loại khỏi đề thực nghiệm và CTT; cần xác nhận với giảng viên.*
-5. **Quy tắc ánh xạ % đúng → mức B/I/A cho trắc nghiệm** và **ngưỡng Δ cho trạng thái "nhất quán"**: cần chuyên gia xác định trước khi thu dữ liệu. — *Phase 2: đã có bản nháp `tl-v1-draft` (50/80, tối thiểu 5 câu/nhóm) chờ duyệt; ngưỡng Δ thuộc Phase 9.*
+4. **Câu hỏi tự luận/tình huống trong đề thực nghiệm:** loại khỏi phân tích CTT hay chấm bằng rubric? Luận văn hiện chỉ mô tả CTT cho câu khách quan. — *Đã chốt: chỉ dùng câu khách quan cho đề thực nghiệm và CTT (chủ dự án xác nhận giảng viên đồng ý ngày 2026-11-04).*
+5. **Quy tắc ánh xạ % đúng → mức B/I/A cho trắc nghiệm** và **ngưỡng Δ cho trạng thái "nhất quán"**: cần chuyên gia xác định trước khi thu dữ liệu. — *Quy tắc trắc nghiệm đã chốt: `tl-v1` (50/80, tối thiểu 5 câu/nhóm). Ngưỡng Δ còn mở, thuộc Phase 9.*
 6. **Lưu trữ PII:** dùng DB riêng hay schema riêng trong cùng Postgres? Thời hạn lưu tệp CV gốc là bao lâu?

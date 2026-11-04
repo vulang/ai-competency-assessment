@@ -106,7 +106,7 @@ public class ApplicationDbContext : IdentityDbContext
             t.HasCheckConstraint("ck_test_level_mappings_thresholds",
                 "intermediate_min_percent > 0 AND intermediate_min_percent < advanced_min_percent AND advanced_min_percent <= 100 AND min_items_per_group >= 1");
         });
-        builder.Entity<TestLevelMapping>().HasData(TestLevelMappingCatalog.Draft);
+        builder.Entity<TestLevelMapping>().HasData(TestLevelMappingCatalog.Draft, TestLevelMappingCatalog.V1);
 
         builder.Entity<ExamQuestion>()
             .HasOne(eq => eq.Exam)

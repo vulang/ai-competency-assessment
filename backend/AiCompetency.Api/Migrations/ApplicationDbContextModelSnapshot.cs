@@ -3302,6 +3302,21 @@ namespace AiCompetency.Api.Migrations
                             Source = "Proposed for thesis §2.12: below 50% Basic, 50–79.99% Intermediate, 80% or more Advanced; at least five objective items per group. Expert review pending.",
                             Status = "Draft",
                             Version = "tl-v1-draft"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AdvancedMinPercent = 80m,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IntermediateMinPercent = 50m,
+                            IsActive = true,
+                            MinItemsPerGroup = 5,
+                            PublishedAt = new DateTimeOffset(new DateTime(2026, 11, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ReviewNotes = "The project owner confirmed expert approval of tl-v1-draft as proposed on 2026-11-04. The expert's name and review date were not supplied.",
+                            ReviewedBy = "Project owner confirmation of expert approval",
+                            Source = "Thesis §2.12 rule from tl-v1-draft: below 50% Basic, 50–79.99% Intermediate, 80% or more Advanced; at least five objective items per group.",
+                            Status = "Published",
+                            Version = "tl-v1"
                         });
                 });
 

@@ -19,6 +19,7 @@ dotnet ef migrations script AddQuestionTaxonomy AlignCvDraftRubricWithThesis --p
 dotnet ef migrations script AlignCvDraftRubricWithThesis PublishCvFrameworkV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/release.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 dotnet ef migrations script PublishCvFrameworkV1 RecordExpertReviewOfCvV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/review.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 dotnet ef migrations script RecordExpertReviewOfCvV1 AddParallelTestBranch --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/testbranch.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
+dotnet ef migrations script AddParallelTestBranch PublishTestLevelMappingV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/levels.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 
 docker run --rm --detach --network none --tmpfs /var/lib/postgresql/data:rw,size=512m --name "$container_name" -e POSTGRES_PASSWORD=schema-validation postgres:16 > /dev/null
 for attempt in {1..30}; do
@@ -93,8 +94,12 @@ DO $$ BEGIN
   EXCEPTION WHEN check_violation THEN NULL; END;
   IF NOT EXISTS (SELECT 1 FROM test_level_mappings WHERE version = 'tl-v1-draft' AND status = 'Draft' AND NOT is_active
       AND intermediate_min_percent = 50 AND advanced_min_percent = 80 AND min_items_per_group = 5)
-      OR (SELECT nextval(pg_get_serial_sequence('test_level_mappings', 'id'))) <= 1 THEN
-    RAISE EXCEPTION 'Draft level mapping seed or its sequence is incorrect';
+      OR NOT EXISTS (SELECT 1 FROM test_level_mappings WHERE version = 'tl-v1' AND status = 'Published' AND is_active
+      AND intermediate_min_percent = 50 AND advanced_min_percent = 80 AND min_items_per_group = 5
+      AND review_notes LIKE '%confirmed expert approval%')
+      OR (SELECT count(*) FROM test_level_mappings WHERE is_active) <> 1
+      OR (SELECT nextval(pg_get_serial_sequence('test_level_mappings', 'id'))) <= 2 THEN
+    RAISE EXCEPTION 'Level mapping seeds, the active rule or the sequence are incorrect';
   END IF;
   BEGIN
     UPDATE test_level_mappings SET is_active = true WHERE version = 'tl-v1-draft';
@@ -135,6 +140,7 @@ DO $$ BEGIN
 END $$;
 CREATE DATABASE legacy;
 CREATE DATABASE duplicate_exam_questions;
+CREATE DATABASE active_level_mapping;
 CREATE DATABASE existing_cv;
 CREATE DATABASE custom_mappings;
 CREATE DATABASE unresolved_published;
@@ -188,6 +194,21 @@ DO $$ BEGIN
     RAISE EXCEPTION 'Phase 2 migration changed legacy exams, sessions or questions incorrectly';
   END IF;
 END $$;
+INSERT INTO test_group_scores (session_id, group_code, raw_score, max_score, item_count, percent, computed_at)
+SELECT session_id, g.code, g.raw, 5, g.items, g.pct, now()
+FROM test_sessions, (VALUES ('DATA', 4, 5, 80), ('ETHICS', 2, 5, 40), ('TOOLS', 3, 3, 100)) AS g(code, raw, items, pct)
+WHERE user_id = 'legacy-user';
+SQL
+run_sql legacy < "$validation_dir/levels.sql"
+run_sql legacy <<'SQL'
+DO $$ BEGIN
+  IF (SELECT level FROM test_group_scores WHERE group_code = 'DATA') <> 3
+      OR (SELECT level FROM test_group_scores WHERE group_code = 'ETHICS') <> 1
+      OR (SELECT level FROM test_group_scores WHERE group_code = 'TOOLS') IS NOT NULL
+      OR EXISTS (SELECT 1 FROM test_group_scores WHERE level_mapping_version IS DISTINCT FROM 'tl-v1') THEN
+    RAISE EXCEPTION 'tl-v1 release did not backfill unmapped group scores correctly';
+  END IF;
+END $$;
 SQL
 for script in baseline catalog taxonomy rubric release review; do
   run_sql duplicate_exam_questions < "$validation_dir/$script.sql"
@@ -208,6 +229,26 @@ run_sql duplicate_exam_questions <<'SQL'
 DO $$ BEGIN
   IF to_regclass('test_group_scores') IS NOT NULL OR (SELECT count(*) FROM exam_questions) <> 2 THEN
     RAISE EXCEPTION 'Duplicate guard failed to preserve the pre-migration database';
+  END IF;
+END $$;
+SQL
+for script in baseline catalog taxonomy rubric release review testbranch; do
+  run_sql active_level_mapping < "$validation_dir/$script.sql"
+done
+run_sql active_level_mapping <<'SQL'
+UPDATE test_level_mappings SET status = 'Published', published_at = now(), reviewed_by = 'Earlier panel', is_active = true
+WHERE version = 'tl-v1-draft';
+SQL
+if docker exec -i "$container_name" psql -v ON_ERROR_STOP=1 -U postgres -d active_level_mapping < "$validation_dir/levels.sql" > "$validation_dir/levels-guard.log" 2>&1; then
+  echo 'An existing active level mapping was incorrectly replaced.' >&2
+  exit 1
+fi
+grep -q 'tl-v1 release conflicts with existing level mappings' "$validation_dir/levels-guard.log"
+run_sql active_level_mapping <<'SQL'
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM test_level_mappings WHERE version = 'tl-v1')
+      OR NOT EXISTS (SELECT 1 FROM test_level_mappings WHERE version = 'tl-v1-draft' AND is_active) THEN
+    RAISE EXCEPTION 'Level mapping guard modified the existing active rule';
   END IF;
 END $$;
 SQL
@@ -267,4 +308,4 @@ DO $$ BEGIN
   END IF;
 END $$;
 SQL
-echo 'PostgreSQL schema checks passed: fresh install, repeat apply, constraints, legacy backfill, test-branch migration, existing release and reconciliation guards.'
+echo 'PostgreSQL schema checks passed: fresh install, repeat apply, constraints, legacy backfill, test-branch migration, level rule release and backfill, existing release and reconciliation guards.'
