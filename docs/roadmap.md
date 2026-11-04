@@ -267,7 +267,7 @@ flowchart LR
 
 ### Phase 2 — Nhánh trắc nghiệm song song và phân tích CTT
 
-**Trạng thái:** Đã triển khai trên nhánh `phase-2-test-branch` ngày 2026-11-04 và kiểm chứng cục bộ. Còn chờ chuyên gia duyệt quy tắc ánh xạ % → mức (bản nháp `tl-v1-draft`: < 50% Basic, 50–79,99% Intermediate, ≥ 80% Advanced, tối thiểu 5 câu/nhóm) và chạy CI trên GitHub. Chi tiết: [phase-2-progress.md](phase-2-progress.md).
+**Trạng thái:** Đã triển khai trên nhánh `phase-2-test-branch` ngày 2026-11-04 và kiểm chứng cục bộ. Còn chờ chuyên gia duyệt quy tắc ánh xạ % → mức (bản nháp `tl-v1-draft`: < 50% Basic, 50–79,99% Intermediate, ≥ 80% Advanced, tối thiểu 5 câu/nhóm). Cả bốn job [CI trên GitHub](https://github.com/vulang/ai-competency-assessment/actions/runs/41755598023) đều đạt với commit `411adf9`. Chi tiết: [phase-2-progress.md](phase-2-progress.md).
 
 **Liên hệ luận văn:** §1.3.3, §2.12, §2.13 (dòng "Chất lượng bài trắc nghiệm"), §3.9, Phụ lục H.
 

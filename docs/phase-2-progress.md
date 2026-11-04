@@ -1,9 +1,8 @@
 # Phase 2 — Parallel test branch and CTT
 
-Status: implemented on branch `phase-2-test-branch` on 2026-11-04 and verified locally, including Compose acceptance. Two items remain before Phase 2 can be closed:
+Status: implemented on branch `phase-2-test-branch` on 2026-11-04 and verified locally, including Compose acceptance. All four [hosted CI jobs](https://github.com/vulang/ai-competency-assessment/actions/runs/41755598023) passed for commit `411adf9`. One item remains before Phase 2 can be closed:
 
 - Expert approval of the score-to-level rule. The proposed rule `tl-v1-draft` is seeded but inactive.
-- A hosted CI run.
 
 Until a rule is published, candidates see per-group percentages and "level pending".
 
