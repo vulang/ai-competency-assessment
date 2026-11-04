@@ -1,13 +1,15 @@
 import { build } from 'esbuild';
-import { mkdir, rm } from 'node:fs/promises';
+import { mkdir, readdir, rm } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 
-const output = '.cache/unit-tests/tests.mjs';
-await mkdir('.cache/unit-tests', { recursive: true });
+const outdir = '.cache/unit-tests';
+await mkdir(outdir, { recursive: true });
 try {
+  const entryPoints = (await readdir('tests')).filter(name => name.endsWith('.test.ts')).map(name => `tests/${name}`);
   await build({
-    entryPoints: ['tests/phase-0.test.ts'],
-    outfile: output,
+    entryPoints,
+    outdir,
+    outExtension: { '.js': '.mjs' },
     bundle: true,
     platform: 'node',
     format: 'esm',
@@ -15,7 +17,8 @@ try {
     sourcemap: 'inline',
     tsconfig: 'tsconfig.json'
   });
-  const result = spawnSync(process.execPath, ['--test', output], { stdio: 'inherit' });
+  const outputs = entryPoints.map(entry => `${outdir}/${entry.slice('tests/'.length).replace(/\.ts$/, '.mjs')}`);
+  const result = spawnSync(process.execPath, ['--test', ...outputs], { stdio: 'inherit' });
   process.exitCode = result.status ?? 1;
 } finally {
   await rm('.cache/unit-tests', { recursive: true, force: true });

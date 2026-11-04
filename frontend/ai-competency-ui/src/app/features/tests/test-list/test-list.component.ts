@@ -1,42 +1,28 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { TestService } from '../../../core/tests/test.service';
-import { DataTableComponent, TableColumn } from '../../../shared/ui/data-table/data-table.component';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { blueprintSummary } from '../../../core/tests/blueprint';
+import { TestBlueprint } from '../../../models/test.model';
 
 @Component({
   selector: 'app-test-list',
   standalone: true,
-  imports: [CommonModule, DataTableComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './test-list.component.html',
   styleUrl: './test-list.component.scss'
 })
 export class TestListComponent {
-   private router = inject(Router);
-   private testService = inject(TestService);
-   
-   tests = toSignal(this.testService.getTests());
+  private readonly testService = inject(TestService);
 
-   columns: TableColumn[] = [
-      { key: 'name', label: 'Name', type: 'text' },
-      { key: 'questionCount', label: 'Questions', type: 'text' },
-      { key: 'durationMinutes', label: 'Duration (m)', type: 'text' },
-      { 
-          key: 'status', 
-          label: 'Status', 
-          type: 'badge', 
-          badgeVariants: { 'active': 'success', 'draft': 'secondary' } 
-      },
-      { key: 'createdAt', label: 'Created', type: 'date' },
-      { key: 'actions', label: '', type: 'actions' }
-   ];
+  readonly summary = blueprintSummary;
+  tests = signal<TestBlueprint[]>([]);
+  error = signal<string | null>(null);
 
-   createTest() {
-     this.router.navigate(['/admin/tests/new']);
-   }
-
-   editTest(test: any) {
-     this.router.navigate(['/admin/tests', test.id, 'edit']);
-   }
+  constructor() {
+    this.testService.getTests().subscribe({
+      next: tests => this.tests.set(tests),
+      error: () => this.error.set('Could not load tests.')
+    });
+  }
 }

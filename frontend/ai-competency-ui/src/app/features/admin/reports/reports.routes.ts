@@ -12,6 +12,10 @@ export const REPORT_ROUTES: Routes = [
     component: ExamResultsComponent
   },
   {
+    path: 'results/:sessionId',
+    loadComponent: () => import('./attempt-detail/attempt-detail.component').then(m => m.AttemptDetailComponent)
+  },
+  {
     path: '',
     redirectTo: 'dashboard',
     pathMatch: 'full'

@@ -1,29 +1,76 @@
-<div class="mb-4">
-    <h2 class="mb-1">Dashboard</h2>
-    <p class="text-muted">System Overview</p>
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h2 class="mb-1">Dashboard</h2>
+        <p class="text-muted mb-0">Completed standard test attempts</p>
+    </div>
+    <div *ngIf="summary() as s">
+        <label class="form-label small text-muted" for="dashboard-exam">Test</label>
+        <select id="dashboard-exam" class="form-select" [(ngModel)]="examId" (ngModelChange)="load()">
+            <option [ngValue]="null">All tests</option>
+            <option *ngFor="let e of s.exams" [ngValue]="e.examId">{{ e.title }}{{ e.isStandard ? ' (standard)' : '' }} — {{ e.attempts }}</option>
+        </select>
+    </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <!-- Stat Cards -->
-    <div class="col-md-3">
-        <div class="card-common bg-white h-100">
-            <h6 class="text-muted text-uppercase small font-weight-bold">Total Candidates</h6>
-            <h3 class="mb-0 mt-2">1,245</h3>
-            <small class="text-success">+12% this month</small>
+<div class="alert alert-danger" *ngIf="error()">{{ error() }}</div>
+
+<ng-container *ngIf="summary() as s">
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card-common bg-white h-100">
+                <h6 class="text-muted text-uppercase small">Attempts</h6>
+                <h3 class="mb-0 mt-2">{{ s.attempts }}</h3>
+                <small class="text-muted">completed</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-common bg-white h-100">
+                <h6 class="text-muted text-uppercase small">Candidates</h6>
+                <h3 class="mb-0 mt-2">{{ s.candidates }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-common bg-white h-100">
+                <h6 class="text-muted text-uppercase small">Pass rate</h6>
+                <h3 class="mb-0 mt-2">{{ s.passRate === null ? '—' : s.passRate + '%' }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-common bg-white h-100">
+                <h6 class="text-muted text-uppercase small">Average score</h6>
+                <h3 class="mb-0 mt-2">{{ s.averagePercent === null ? '—' : s.averagePercent + '%' }}</h3>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card-common bg-white h-100">
-            <h6 class="text-muted text-uppercase small font-weight-bold">Pass Rate</h6>
-            <h3 class="mb-0 mt-2">78%</h3>
-            <small class="text-muted">Average</small>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card-common bg-white h-100">
+                <h5 class="mb-3">Score distribution</h5>
+                <div style="height: 260px"><canvas #distribution aria-label="Histogram of attempt scores" role="img"></canvas></div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card-common bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Competency groups</h5>
+                    <a class="small" routerLink="/admin/tests/level-mapping">Level mapping</a>
+                </div>
+                <table class="table table-sm align-middle mb-0">
+                    <thead><tr class="small text-muted"><th>Group</th><th>Avg %</th><th>Basic</th><th>Intermediate</th><th>Advanced</th><th>No level</th></tr></thead>
+                    <tbody>
+                        <tr *ngFor="let g of s.groups">
+                            <td>{{ g.groupName }}</td>
+                            <td [style.background]="heat(g.averagePercent)">{{ g.averagePercent === null ? '—' : g.averagePercent }}</td>
+                            <td>{{ g.basic }}</td>
+                            <td>{{ g.intermediate }}</td>
+                            <td>{{ g.advanced }}</td>
+                            <td class="text-muted">{{ g.unmapped }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="small text-muted mt-2 mb-0">Levels appear once an approved mapping is published.</p>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card-common bg-white h-100">
-            <h6 class="text-muted text-uppercase small font-weight-bold">Active Tests</h6>
-            <h3 class="mb-0 mt-2">8</h3>
-            <small class="text-muted">In rotation</small>
-        </div>
-    </div>
-</div>
+</ng-container>

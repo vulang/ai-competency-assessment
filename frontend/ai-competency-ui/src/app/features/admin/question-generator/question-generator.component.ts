@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { environment } from '../../../../environments/environment';
 import { AiService } from '../../../core/ai/ai.service';
@@ -32,6 +33,16 @@ export class QuestionGeneratorComponent {
        next: framework => this.domains.set(framework.domains),
        error: () => this.errorMessage.set("Could not load competency groups.")
      });
+     // Bank coverage links here with a gap to fill; test forms use objective items.
+     const params = inject(ActivatedRoute).snapshot.queryParamMap;
+     if (params.get('group')) {
+       this.mixControls[0].patchValue({
+         group: params.get('group'),
+         level: params.get('level') ?? 'Basic',
+         type: 'mcq_single',
+         count: Math.min(20, Math.max(1, Number(params.get('count')) || 5))
+       });
+     }
    }
    
    isGenerating = false;

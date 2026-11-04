@@ -1,29 +1,113 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-1">Questions</h2>
-        <p class="text-muted mb-0">Manage your assessment question bank</p>
+        <p class="text-muted mb-0">
+            Questions move from draft to reviewed to published. Only reviewed, published objective questions can be used in test forms.
+        </p>
     </div>
-    <button class="btn btn-primary-custom" (click)="createQuestion()">
-        <i class="bi bi-plus-lg me-1"></i> New Question
-    </button>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" routerLink="/admin/questions/coverage">Bank coverage</a>
+        <button class="btn btn-primary-custom" (click)="createQuestion()">
+            <i class="bi bi-plus-lg me-1"></i> New Question
+        </button>
+    </div>
 </div>
 
-<!-- Filters (Placeholder) -->
+<div class="alert alert-success d-flex justify-content-between" *ngIf="message()">
+    <span>{{ message() }}</span>
+    <button type="button" class="btn-close" aria-label="Dismiss" (click)="message.set(null)"></button>
+</div>
+<div class="alert alert-danger d-flex justify-content-between" *ngIf="error()">
+    <span>{{ error() }}</span>
+    <button type="button" class="btn-close" aria-label="Dismiss" (click)="error.set(null)"></button>
+</div>
+
+<div class="card-common mb-4 p-3 bg-white border border-info" *ngIf="reviewing() as question">
+    <h5 class="mb-1">Review “{{ question.title }}”</h5>
+    <p class="text-muted small mb-2">{{ groupName(question.groupCode) }} · {{ question.competencyLevelId }} · {{ question.type }}</p>
+    <p class="mb-2">{{ question.prompt }}</p>
+    <ul class="small mb-2" *ngIf="question.options?.length">
+        <li *ngFor="let option of question.options">{{ option }}</li>
+    </ul>
+    <p class="small mb-3"><strong>Key:</strong> {{ question.answer }}</p>
+    <label class="form-label" for="review-note">Review note (optional)</label>
+    <textarea id="review-note" class="form-control mb-3" rows="2" [(ngModel)]="reviewNote" maxlength="2000"></textarea>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary-custom" (click)="confirmReview()">Confirm review</button>
+        <button class="btn btn-outline-secondary" (click)="reviewing.set(null)">Cancel</button>
+    </div>
+</div>
+
 <div class="card-common mb-4 p-3 bg-white">
-    <div class="row g-3">
-        <div class="col-md-3">
-            <input type="text" class="form-control" placeholder="Search questions..." />
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small text-muted" for="q-search">Search</label>
+            <input id="q-search" type="text" class="form-control" placeholder="Title or prompt"
+                [ngModel]="search()" (ngModelChange)="search.set($event)" />
         </div>
         <div class="col-md-2">
-            <select class="form-select">
-                <option value="">Status: All</option>
-                <option value="published">Published</option>
+            <label class="form-label small text-muted" for="q-status">Status</label>
+            <select id="q-status" class="form-select" [ngModel]="status()" (ngModelChange)="status.set($event)">
+                <option value="">All</option>
                 <option value="draft">Draft</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
             </select>
         </div>
+        <div class="col-md-3">
+            <label class="form-label small text-muted" for="q-group">Group</label>
+            <select id="q-group" class="form-select" [ngModel]="group()" (ngModelChange)="group.set($event)">
+                <option value="">All groups</option>
+                <option *ngFor="let g of groups" [value]="g.code">{{ g.name }}</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small text-muted" for="q-level">Level</label>
+            <select id="q-level" class="form-select" [ngModel]="level()" (ngModelChange)="level.set($event)">
+                <option value="">All levels</option>
+                <option *ngFor="let l of levelOptions" [value]="l.value">{{ l.name }}</option>
+            </select>
+        </div>
+        <div class="col-md-1 text-muted small">{{ filtered().length }} / {{ questions().length }}</div>
     </div>
+    <p class="small text-muted mb-0 mt-2" *ngIf="awaitingReview()">{{ awaitingReview() }} classified draft(s) await review.</p>
 </div>
 
-<!-- Table -->
-<app-data-table [columns]="columns" [data]="questions() || []" (onEdit)="editQuestion($event)"
-    (onDelete)="deleteQuestion($event)"></app-data-table>
+<div class="table-responsive card-common p-0 overflow-hidden">
+    <table class="table mb-0 align-middle">
+        <thead class="bg-light">
+            <tr class="text-muted text-uppercase small">
+                <th class="px-4 py-3 border-0">Title</th>
+                <th class="py-3 border-0">Group</th>
+                <th class="py-3 border-0">Level</th>
+                <th class="py-3 border-0">Type</th>
+                <th class="py-3 border-0">Status</th>
+                <th class="py-3 border-0">Reviewer</th>
+                <th class="py-3 border-0"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let q of filtered()" class="border-bottom">
+                <td class="px-4 py-3">{{ q.title }}</td>
+                <td>{{ groupName(q.groupCode) }}</td>
+                <td>{{ q.competencyLevelId || '—' }}</td>
+                <td><code>{{ q.type }}</code></td>
+                <td>
+                    <span class="badge rounded-pill" [ngClass]="'bg-' + statusBadge[q.status]">{{ q.status }}</span>
+                    <i class="bi bi-check2-circle text-success ms-1" *ngIf="q.eligible" title="Usable in test forms"></i>
+                </td>
+                <td class="small text-muted" [title]="q.reviewNote || ''">{{ q.reviewedBy || '—' }}</td>
+                <td class="text-end pe-3 text-nowrap">
+                    <button class="btn btn-sm btn-outline-info me-1" *ngIf="canReview(q)" (click)="startReview(q)">Review</button>
+                    <button class="btn btn-sm btn-outline-success me-1" *ngIf="q.status === 'reviewed'" (click)="publish(q)">Publish</button>
+                    <a class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/questions', q.id, 'edit']">Edit</a>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteQuestion(q)">Delete</button>
+                </td>
+            </tr>
+            <tr *ngIf="filtered().length === 0">
+                <td colspan="7" class="text-center py-5 text-muted">No questions match these filters.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

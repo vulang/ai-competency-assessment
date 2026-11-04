@@ -42,6 +42,25 @@ Chart.register(RadialLinearScale, RadarController, PointElement, LineElement, Fi
         </div>
       </div>
 
+      <div class="group-section" *ngIf="result.groupScores?.length">
+        <h3>Results by competency group</h3>
+        <table class="group-table">
+          <thead><tr><th>Group</th><th>Score</th><th>%</th><th>Level</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let g of result.groupScores">
+              <td>{{ g.groupName }}</td>
+              <td>{{ g.rawScore === null ? '—' : g.rawScore + ' / ' + g.maxScore }}</td>
+              <td>{{ g.percent === null ? '—' : (g.percent | number:'1.0-0') }}</td>
+              <td>{{ levelLabel(g) }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="group-note">
+          Levels follow a pre-defined, expert-approved rule. “Pending” means the rule has not been approved yet;
+          “—” means this test did not measure the group.
+        </p>
+      </div>
+
       <div class="feedback-section">
         <h3>Detailed Feedback</h3>
         
@@ -74,6 +93,18 @@ Chart.register(RadialLinearScale, RadarController, PointElement, LineElement, Fi
     </div>
   `,
   styles: [`
+    .group-section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .group-section h3 { font-size: 1.1rem; margin: 0 0 16px 0; }
+    .group-table { width: 100%; border-collapse: collapse; }
+    .group-table th, .group-table td { padding: 8px; border-bottom: 1px solid #edf2f7; text-align: left; }
+    .group-table th { color: #718096; font-size: 0.8rem; text-transform: uppercase; }
+    .group-note { color: #718096; font-size: 0.85rem; margin: 12px 0 0 0; }
     .results-container {
       max-width: 800px;
       margin: 0 auto;
@@ -329,7 +360,19 @@ export class TestResultsComponent implements OnInit, OnDestroy {
     }
   }
 
+  levelLabel(group: { percent: number | null; level: 1 | 2 | 3 | null }): string {
+    if (group.percent === null) return '—';
+    return group.level ? ({ 1: 'Basic', 2: 'Intermediate', 3: 'Advanced' } as const)[group.level] : 'Pending';
+  }
+
   calculateRadarData() {
+    // Standard tests return per-group scores computed by the API (thesis §2.12).
+    if (this.result?.groupScores?.length) {
+      this.labels = this.result.groupScores.map((g: { groupName: string }) => g.groupName);
+      this.radarScores = this.result.groupScores.map((g: { percent: number | null }) => Math.round(g.percent ?? 0));
+      setTimeout(() => this.renderChart(), 0);
+      return;
+    }
     const scores: Record<string, { earned: number, total: number }> = {};
     this.labels.forEach(l => scores[l] = { earned: 0, total: 0 });
 
@@ -417,7 +460,7 @@ export class TestResultsComponent implements OnInit, OnDestroy {
                     cornerRadius: 8,
                     callbacks: {
                         label: function(context) {
-                            return context.raw + '% Mastery';
+                            return context.raw + '% correct';
                         }
                     }
                 }

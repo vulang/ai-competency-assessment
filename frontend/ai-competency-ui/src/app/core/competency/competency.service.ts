@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { TestProfile } from '../../models/test.model';
 
 export interface DomainScore {
   domainName: string;
@@ -64,6 +65,13 @@ export class CompetencyService {
   constructor(private http: HttpClient) {}
 
   // ── Candidate ─────────────────────────────────────────────────────────────
+
+  /** Seven-group profile from the latest completed standard test (thesis §2.12). */
+  getMyTestProfile(): Observable<TestProfile> {
+    return this.http.get<TestProfile>(`${this.base}/test-profile`);
+  }
+
+  // Experimental IRT/BKT endpoints below return 404 unless Features:AdaptiveTesting is enabled.
 
   getMyProfile(): Observable<CompetencyProfile> {
     return this.http.get<CompetencyProfile>(`${this.base}/profile`);

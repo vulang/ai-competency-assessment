@@ -1,5 +1,5 @@
 export type QuestionType = 'single_choice' | 'multi_choice' | 'mcq_single' | 'mcq_multi' | 'true_false' | 'short_answer' | 'scenario';
-export type QuestionStatus = 'draft' | 'published' | 'archived';
+export type QuestionStatus = 'draft' | 'reviewed' | 'published' | 'archived';
 
 export interface Question {
   id: string;
@@ -21,7 +21,32 @@ export interface Question {
   judgePromptHints?: string;
   behaviorsAddressed?: string[];
   status: QuestionStatus;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  reviewNote?: string | null;
+  /** Reviewed, published and objective: usable in a test form. */
+  eligible?: boolean;
   updatedAt: Date;
+}
+
+export interface CoverageCell {
+  groupCode: string;
+  groupName: string;
+  level: 1 | 2 | 3;
+  total: number;
+  draft: number;
+  reviewed: number;
+  published: number;
+  archived: number;
+  eligible: number;
+  byType: Record<string, number>;
+}
+
+export interface BankCoverage {
+  standardMinPerGroup: number;
+  standardMaxPerGroup: number;
+  unclassified: number;
+  cells: CoverageCell[];
 }
 
 export interface CompetencyGroup {

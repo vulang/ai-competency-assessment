@@ -8,6 +8,10 @@ export const QUESTION_ROUTES: Routes = [
   },
 
   {
+      path: 'coverage',
+      loadComponent: () => import('./question-coverage/question-coverage.component').then(m => m.QuestionCoverageComponent)
+  },
+  {
       path: 'new',
       loadComponent: () => import('./question-form/question-form.component').then(m => m.QuestionFormComponent)
   },
