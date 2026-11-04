@@ -1,0 +1,150 @@
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a routerLink="/admin/tests">Tests</a></li>
+            <li class="breadcrumb-item" *ngIf="report() as r"><a [routerLink]="['/admin/tests', r.examId]">{{ r.examTitle }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Item analysis</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="mb-1">Item analysis (CTT)</h2>
+            <p class="text-muted mb-0">Recomputed from stored responses of completed sessions. Unanswered items score 0.</p>
+        </div>
+        <div class="d-flex gap-2" *ngIf="report()">
+            <button class="btn btn-outline-secondary btn-sm" (click)="download('items')">Items CSV</button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="download('reliability')">Reliability CSV</button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="download('responses')">Response matrix CSV</button>
+        </div>
+    </div>
+</div>
+
+<div class="text-muted" *ngIf="loading()">Computing…</div>
+<div class="alert alert-danger" *ngIf="error()">{{ error() }}</div>
+
+<ng-container *ngIf="report() as r">
+    <div class="alert alert-warning" *ngIf="r.analysis.nRespondents < exploratory">
+        {{ r.analysis.nRespondents }} completed session(s). With fewer than {{ exploratory }} respondents, treat these statistics as exploratory.
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card-common bg-white h-100">
+                <h6 class="text-muted text-uppercase small">Respondents</h6>
+                <h3 class="mb-0 mt-2">{{ r.analysis.nRespondents }}</h3>
+                <small class="text-muted">{{ r.analysis.nItems }} objective items<span *ngIf="r.excludedNonObjective">, {{ r.excludedNonObjective }} open item(s) excluded</span></small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-common bg-white h-100">
+                <h6 class="text-muted text-uppercase small">Cronbach's α</h6>
+                <h3 class="mb-0 mt-2">{{ r.analysis.reliability.alpha === null ? '—' : (r.analysis.reliability.alpha | number:'1.3-3') }}</h3>
+                <small class="text-muted">{{ r.analysis.reliability.nItems }} items with variance</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-common bg-white h-100">
+                <h6 class="text-muted text-uppercase small">McDonald's ω</h6>
+                <h3 class="mb-0 mt-2">{{ r.analysis.reliability.omega === null ? '—' : (r.analysis.reliability.omega | number:'1.3-3') }}</h3>
+                <small class="text-muted">One-factor model</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card-common bg-white h-100">
+                <h6 class="text-muted text-uppercase small">Total score</h6>
+                <h3 class="mb-0 mt-2">{{ r.analysis.total.mean === null ? '—' : (r.analysis.total.mean | number:'1.1-1') }}</h3>
+                <small class="text-muted">mean<span *ngIf="r.analysis.total.sd !== null">, SD {{ r.analysis.total.sd | number:'1.1-1' }}</span></small>
+            </div>
+        </div>
+    </div>
+    <ul class="small text-muted" *ngIf="r.analysis.reliability.notes.length">
+        <li *ngFor="let note of r.analysis.reliability.notes">{{ note }}</li>
+    </ul>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card-common bg-white h-100">
+                <h5 class="mb-3">Reliability by group</h5>
+                <table class="table table-sm mb-0">
+                    <thead><tr class="small text-muted"><th>Group</th><th>Items</th><th>Mean %</th><th>α</th><th>ω</th></tr></thead>
+                    <tbody>
+                        <tr *ngFor="let g of r.analysis.groups" [title]="g.notes.join(' ')">
+                            <td>{{ groupName(g.group) }}</td>
+                            <td>{{ g.nItems }}</td>
+                            <td>{{ g.meanPercent === null ? '—' : (g.meanPercent | number:'1.0-1') }}</td>
+                            <td>{{ g.alpha === null ? '—' : (g.alpha | number:'1.2-2') }}</td>
+                            <td>{{ g.omega === null ? '—' : (g.omega | number:'1.2-2') }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card-common bg-white h-100">
+                <h5 class="mb-3">Total score distribution</h5>
+                <div style="height: 220px"><canvas #histogram aria-label="Histogram of total scores" role="img"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-common bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Items</h5>
+            <div class="form-check">
+                <input id="flagged-only" class="form-check-input" type="checkbox" [checked]="flaggedOnly()" (change)="flaggedOnly.set(!flaggedOnly())">
+                <label class="form-check-label" for="flagged-only">Flagged only ({{ flaggedCount() }})</label>
+            </div>
+        </div>
+        <p class="small text-muted">
+            Flags: p &lt; {{ r.analysis.thresholds.minDifficulty }} or &gt; {{ r.analysis.thresholds.maxDifficulty }};
+            corrected item-total r &lt; {{ r.analysis.thresholds.minDiscrimination }};
+            distractor chosen by &lt; {{ r.analysis.thresholds.minDistractorRate * 100 }}%.
+        </p>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr class="small text-muted text-uppercase">
+                        <th>#</th><th>Item</th><th>Group</th><th title="Proportion correct">p</th>
+                        <th title="Corrected item-total correlation">r<sub>it</sub></th><th title="Within the item's group">r<sub>group</sub></th>
+                        <th title="Upper minus lower 27%">D</th><th title="Alpha if item deleted">α−i</th><th>Flags</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let row of rows()">
+                        <tr [class.table-warning]="row.stats.flags.length">
+                            <td>{{ row.meta.orderIndex }}</td>
+                            <td>{{ row.meta.title }}</td>
+                            <td class="small">{{ groupName(row.meta.groupCode) }}<span *ngIf="row.meta.targetLevel"> · {{ levelNames[row.meta.targetLevel] }}</span></td>
+                            <td>{{ row.stats.p === null ? '—' : (row.stats.p | number:'1.2-2') }}</td>
+                            <td>{{ row.stats.itemRestR === null ? '—' : (row.stats.itemRestR | number:'1.2-2') }}</td>
+                            <td>{{ row.stats.itemRestRGroup === null ? '—' : (row.stats.itemRestRGroup | number:'1.2-2') }}</td>
+                            <td>{{ row.stats.discriminationIndex === null ? '—' : (row.stats.discriminationIndex | number:'1.2-2') }}</td>
+                            <td>{{ row.stats.alphaIfDeleted === null ? '—' : (row.stats.alphaIfDeleted | number:'1.3-3') }}</td>
+                            <td><span class="badge bg-warning text-dark me-1 mb-1" *ngFor="let f of row.stats.flags">{{ flagLabels[f] || f }}</span></td>
+                            <td><button class="btn btn-sm btn-outline-secondary" *ngIf="row.stats.distractors.length" (click)="toggle(row.stats.itemId)">Options</button></td>
+                        </tr>
+                        <tr *ngIf="expanded() === row.stats.itemId">
+                            <td></td>
+                            <td colspan="9">
+                                <table class="table table-sm mb-0">
+                                    <thead><tr class="small text-muted"><th>Option</th><th>Chosen</th><th>Upper 27%</th><th>Lower 27%</th><th>r (option, rest)</th><th></th></tr></thead>
+                                    <tbody>
+                                        <tr *ngFor="let d of row.stats.distractors" [class.table-success]="d.isKey">
+                                            <td>{{ optionLabel(d.option) }}. {{ row.meta.options[d.option] }} <strong *ngIf="d.isKey">(key)</strong></td>
+                                            <td>{{ d.proportion | percent:'1.0-0' }}</td>
+                                            <td>{{ d.upper === null ? '—' : (d.upper | percent:'1.0-0') }}</td>
+                                            <td>{{ d.lower === null ? '—' : (d.lower | percent:'1.0-0') }}</td>
+                                            <td>{{ d.optionRestR === null ? '—' : (d.optionRestR | number:'1.2-2') }}</td>
+                                            <td><span class="badge bg-warning text-dark me-1" *ngFor="let f of d.flags">{{ f === 'nonfunctional' ? 'Rarely chosen' : 'Attracts high scorers' }}</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <small class="text-muted" *ngIf="row.stats.omitRate">Omitted by {{ row.stats.omitRate | percent:'1.0-0' }}.</small>
+                            </td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</ng-container>

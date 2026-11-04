@@ -42,11 +42,22 @@ public class Question
     public string? RubricScoring { get; set; }
     [Column("status")]
     public QuestionStatus Status { get; set; } = QuestionStatus.Draft;
+
+    // Expert review is required before a question can enter an experimental test.
+    [Column("reviewed_by"), MaxLength(256)]
+    public string? ReviewedBy { get; set; }
+
+    [Column("reviewed_at")]
+    public DateTimeOffset? ReviewedAt { get; set; }
+
+    [Column("review_note")]
+    public string? ReviewNote { get; set; }
 }
 
 public enum QuestionStatus
 {
     Draft,
+    Reviewed,
     Published,
     Archived
 }

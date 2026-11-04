@@ -18,6 +18,8 @@ dotnet ef migrations script AddCompetencyCatalog AddQuestionTaxonomy --project b
 dotnet ef migrations script AddQuestionTaxonomy AlignCvDraftRubricWithThesis --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/rubric.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 dotnet ef migrations script AlignCvDraftRubricWithThesis PublishCvFrameworkV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/release.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 dotnet ef migrations script PublishCvFrameworkV1 RecordExpertReviewOfCvV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/review.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
+dotnet ef migrations script RecordExpertReviewOfCvV1 AddParallelTestBranch --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/testbranch.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
+dotnet ef migrations script AddParallelTestBranch PublishTestLevelMappingV1 --project backend/AiCompetency.Api --configuration Release --no-build --output "$validation_dir/levels.sql" > "$validation_dir/ef.log" 2>&1 || { cat "$validation_dir/ef.log"; exit 1; }
 
 docker run --rm --detach --network none --tmpfs /var/lib/postgresql/data:rw,size=512m --name "$container_name" -e POSTGRES_PASSWORD=schema-validation postgres:16 > /dev/null
 for attempt in {1..30}; do
@@ -90,8 +92,55 @@ DO $$ BEGIN
     INSERT INTO questions (type, content, metadata, status, difficulty_level) VALUES ('mcq_single', 'invalid', '{}', 'Draft', 10);
     RAISE EXCEPTION 'Difficulty constraint did not reject 10';
   EXCEPTION WHEN check_violation THEN NULL; END;
+  IF NOT EXISTS (SELECT 1 FROM test_level_mappings WHERE version = 'tl-v1-draft' AND status = 'Draft' AND NOT is_active
+      AND intermediate_min_percent = 50 AND advanced_min_percent = 80 AND min_items_per_group = 5)
+      OR NOT EXISTS (SELECT 1 FROM test_level_mappings WHERE version = 'tl-v1' AND status = 'Published' AND is_active
+      AND intermediate_min_percent = 50 AND advanced_min_percent = 80 AND min_items_per_group = 5
+      AND review_notes LIKE '%confirmed expert approval%')
+      OR (SELECT count(*) FROM test_level_mappings WHERE is_active) <> 1
+      OR (SELECT nextval(pg_get_serial_sequence('test_level_mappings', 'id'))) <= 2 THEN
+    RAISE EXCEPTION 'Level mapping seeds, the active rule or the sequence are incorrect';
+  END IF;
+  BEGIN
+    UPDATE test_level_mappings SET is_active = true WHERE version = 'tl-v1-draft';
+    RAISE EXCEPTION 'Draft level mapping was allowed to become active';
+  EXCEPTION WHEN check_violation THEN NULL; END;
+  BEGIN
+    UPDATE test_level_mappings SET advanced_min_percent = 40 WHERE version = 'tl-v1-draft';
+    RAISE EXCEPTION 'Inverted level thresholds were accepted';
+  EXCEPTION WHEN check_violation THEN NULL; END;
+  BEGIN
+    INSERT INTO questions (type, content, metadata, status, group_code, target_level)
+    VALUES ('mcq_single', 'unreviewed', '{}', 'Reviewed', 'DATA', 1);
+    RAISE EXCEPTION 'Reviewed status without a review record was accepted';
+  EXCEPTION WHEN check_violation THEN NULL; END;
+  BEGIN
+    INSERT INTO questions (type, content, metadata, status, reviewed_by) VALUES ('mcq_single', 'half review', '{}', 'Draft', 'x');
+    RAISE EXCEPTION 'Reviewer without review time was accepted';
+  EXCEPTION WHEN check_violation THEN NULL; END;
+  BEGIN
+    INSERT INTO exams (title, description, duration_minutes, pass_score, question_count, status, created_at, updated_at, is_standard)
+    VALUES ('No blueprint', '', 60, 1, 0, 'draft', now(), now(), true);
+    RAISE EXCEPTION 'Standard exam without a blueprint was accepted';
+  EXCEPTION WHEN check_violation THEN NULL; END;
+  BEGIN
+    INSERT INTO exams (title, description, duration_minutes, pass_score, question_count, status, created_at, updated_at, is_standard, blueprint)
+    VALUES ('Standard A', '', 60, 1, 0, 'active', now(), now(), true, '{}'), ('Standard B', '', 60, 1, 0, 'active', now(), now(), true, '{}');
+    RAISE EXCEPTION 'Two active standard exams were accepted';
+  EXCEPTION WHEN unique_violation THEN NULL; END;
+  BEGIN
+    WITH exam AS (INSERT INTO exams (title, description, duration_minutes, pass_score, question_count, status, created_at, updated_at)
+                  VALUES ('Scores', '', 60, 1, 0, 'active', now(), now()) RETURNING exam_id),
+         session AS (INSERT INTO test_sessions (session_id, user_id, exam_id, start_time, total_score, status)
+                     SELECT gen_random_uuid(), 'u', exam_id, now(), 0, 'Completed' FROM exam RETURNING session_id)
+    INSERT INTO test_group_scores (session_id, group_code, raw_score, max_score, item_count, percent, level, computed_at)
+    SELECT session_id, 'DATA', 4, 5, 5, 80, 3, now() FROM session;
+    RAISE EXCEPTION 'A group level without its mapping version was accepted';
+  EXCEPTION WHEN check_violation THEN NULL; END;
 END $$;
 CREATE DATABASE legacy;
+CREATE DATABASE duplicate_exam_questions;
+CREATE DATABASE active_level_mapping;
 CREATE DATABASE existing_cv;
 CREATE DATABASE custom_mappings;
 CREATE DATABASE unresolved_published;
@@ -127,6 +176,79 @@ DO $$ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM questions WHERE content = 'unknown group' AND skill_id IS NULL AND difficulty_level = 2 AND group_code IS NULL) THEN
     RAISE EXCEPTION 'Ambiguous group was modified';
+  END IF;
+END $$;
+INSERT INTO exams (title, description, duration_minutes, pass_score, question_count, status, created_at, updated_at)
+VALUES ('Standard Test', 'Dynamically generated standard assessment.', 60, 1, 1, 'active', now(), now()),
+       ('Hand-built exam', 'Kept active', 30, 1, 1, 'active', now(), now());
+INSERT INTO test_sessions (session_id, user_id, exam_id, start_time, total_score, status)
+SELECT gen_random_uuid(), 'legacy-user', exam_id, now(), 1, 'Completed' FROM exams WHERE title = 'Standard Test';
+SQL
+run_sql legacy < "$validation_dir/testbranch.sql"
+run_sql legacy <<'SQL'
+DO $$ BEGIN
+  IF (SELECT status FROM exams WHERE title = 'Standard Test') <> 'archived'
+      OR (SELECT status FROM exams WHERE title = 'Hand-built exam') <> 'active'
+      OR NOT EXISTS (SELECT 1 FROM test_sessions WHERE user_id = 'legacy-user')
+      OR NOT EXISTS (SELECT 1 FROM questions WHERE content = 'recognized group' AND status = 'Published' AND reviewed_at IS NULL) THEN
+    RAISE EXCEPTION 'Phase 2 migration changed legacy exams, sessions or questions incorrectly';
+  END IF;
+END $$;
+INSERT INTO test_group_scores (session_id, group_code, raw_score, max_score, item_count, percent, computed_at)
+SELECT session_id, g.code, g.raw, 5, g.items, g.pct, now()
+FROM test_sessions, (VALUES ('DATA', 4, 5, 80), ('ETHICS', 2, 5, 40), ('TOOLS', 3, 3, 100)) AS g(code, raw, items, pct)
+WHERE user_id = 'legacy-user';
+SQL
+run_sql legacy < "$validation_dir/levels.sql"
+run_sql legacy <<'SQL'
+DO $$ BEGIN
+  IF (SELECT level FROM test_group_scores WHERE group_code = 'DATA') <> 3
+      OR (SELECT level FROM test_group_scores WHERE group_code = 'ETHICS') <> 1
+      OR (SELECT level FROM test_group_scores WHERE group_code = 'TOOLS') IS NOT NULL
+      OR EXISTS (SELECT 1 FROM test_group_scores WHERE level_mapping_version IS DISTINCT FROM 'tl-v1') THEN
+    RAISE EXCEPTION 'tl-v1 release did not backfill unmapped group scores correctly';
+  END IF;
+END $$;
+SQL
+for script in baseline catalog taxonomy rubric release review; do
+  run_sql duplicate_exam_questions < "$validation_dir/$script.sql"
+done
+run_sql duplicate_exam_questions <<'SQL'
+INSERT INTO questions (type, content, metadata, status) VALUES ('mcq_single', 'repeated', '{}', 'Draft');
+INSERT INTO exams (title, description, duration_minutes, pass_score, question_count, status, created_at, updated_at)
+VALUES ('Repeated', '', 60, 1, 2, 'active', now(), now());
+INSERT INTO exam_questions (exam_id, question_id, order_index, point_value)
+SELECT e.exam_id, q.question_id, n, 1 FROM exams e, questions q, generate_series(1, 2) n;
+SQL
+if docker exec -i "$container_name" psql -v ON_ERROR_STOP=1 -U postgres -d duplicate_exam_questions < "$validation_dir/testbranch.sql" > "$validation_dir/duplicate-guard.log" 2>&1; then
+  echo 'Duplicate exam questions were incorrectly accepted.' >&2
+  exit 1
+fi
+grep -q 'An exam lists the same question more than once' "$validation_dir/duplicate-guard.log"
+run_sql duplicate_exam_questions <<'SQL'
+DO $$ BEGIN
+  IF to_regclass('test_group_scores') IS NOT NULL OR (SELECT count(*) FROM exam_questions) <> 2 THEN
+    RAISE EXCEPTION 'Duplicate guard failed to preserve the pre-migration database';
+  END IF;
+END $$;
+SQL
+for script in baseline catalog taxonomy rubric release review testbranch; do
+  run_sql active_level_mapping < "$validation_dir/$script.sql"
+done
+run_sql active_level_mapping <<'SQL'
+UPDATE test_level_mappings SET status = 'Published', published_at = now(), reviewed_by = 'Earlier panel', is_active = true
+WHERE version = 'tl-v1-draft';
+SQL
+if docker exec -i "$container_name" psql -v ON_ERROR_STOP=1 -U postgres -d active_level_mapping < "$validation_dir/levels.sql" > "$validation_dir/levels-guard.log" 2>&1; then
+  echo 'An existing active level mapping was incorrectly replaced.' >&2
+  exit 1
+fi
+grep -q 'tl-v1 release conflicts with existing level mappings' "$validation_dir/levels-guard.log"
+run_sql active_level_mapping <<'SQL'
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM test_level_mappings WHERE version = 'tl-v1')
+      OR NOT EXISTS (SELECT 1 FROM test_level_mappings WHERE version = 'tl-v1-draft' AND is_active) THEN
+    RAISE EXCEPTION 'Level mapping guard modified the existing active rule';
   END IF;
 END $$;
 SQL
@@ -186,4 +308,4 @@ DO $$ BEGIN
   END IF;
 END $$;
 SQL
-echo 'PostgreSQL schema checks passed: fresh install, repeat apply, constraints, legacy backfill, existing release and reconciliation guards.'
+echo 'PostgreSQL schema checks passed: fresh install, repeat apply, constraints, legacy backfill, test-branch migration, level rule release and backfill, existing release and reconciliation guards.'

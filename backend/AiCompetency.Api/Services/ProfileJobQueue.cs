@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 namespace AiCompetency.Api.Services;
 
 // Phase 0 uses an in-process queue. Jobs are best effort and are lost on restart.
-public sealed class ProfileJobQueue
+// The IRT/BKT profile pipeline only runs when experimental adaptive testing is enabled.
+public sealed class ProfileJobQueue(bool enabled = true)
 {
     private readonly Channel<Guid> _jobs = Channel.CreateUnbounded<Guid>(new UnboundedChannelOptions
     {
@@ -13,7 +14,11 @@ public sealed class ProfileJobQueue
         AllowSynchronousContinuations = false
     });
 
-    public void Enqueue(Guid sessionId) => _jobs.Writer.TryWrite(sessionId);
+    public bool Enabled { get; } = enabled;
+    public void Enqueue(Guid sessionId)
+    {
+        if (Enabled) _jobs.Writer.TryWrite(sessionId);
+    }
     public IAsyncEnumerable<Guid> ReadAllAsync(CancellationToken token) => _jobs.Reader.ReadAllAsync(token);
 }
 

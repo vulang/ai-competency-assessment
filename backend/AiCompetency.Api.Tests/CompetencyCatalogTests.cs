@@ -22,7 +22,7 @@ public class CompetencyCatalogTests
         return context;
     }
 
-    private static QuestionsController Controller(ApplicationDbContext context) => new(context, new QuestionClassificationService(context))
+    private static QuestionsController Controller(ApplicationDbContext context) => new(context, new QuestionClassificationService(context), new ScoringService())
     {
         ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
     };

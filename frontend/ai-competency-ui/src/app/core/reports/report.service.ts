@@ -1,33 +1,25 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
-import { ExamAttempt } from '../../models/exam.model';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AttemptDetail, AttemptRow, ReportSummary } from '../../models/exam.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReportService {
-  private mockAttempts: ExamAttempt[] = [
-    {
-       id: 'ea1',
-       candidateName: 'John Doe',
-       testName: 'AI Fundamentals',
-       score: 85,
-       passingScore: 70,
-       status: 'passed',
-       completedAt: new Date('2023-10-15')
-    },
-    {
-       id: 'ea2',
-       candidateName: 'Jane Smith',
-       testName: 'Deep Learning Basics',
-       score: 65,
-       passingScore: 70,
-       status: 'failed',
-       completedAt: new Date('2023-10-16')
-    }
-  ];
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/api/reports`;
 
-  getExamAttempts(): Observable<ExamAttempt[]> {
-     return of(this.mockAttempts).pipe(delay(500));
+  getSummary(examId: number | null): Observable<ReportSummary> {
+    return this.http.get<ReportSummary>(`${this.apiUrl}/summary`, { params: examId ? { examId } : {} });
+  }
+
+  getAttempts(examId: number | null): Observable<AttemptRow[]> {
+    return this.http.get<AttemptRow[]>(`${this.apiUrl}/attempts`, { params: examId ? { examId } : {} });
+  }
+
+  getAttempt(sessionId: string): Observable<AttemptDetail> {
+    return this.http.get<AttemptDetail>(`${this.apiUrl}/attempts/${sessionId}`);
   }
 }

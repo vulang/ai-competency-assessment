@@ -140,3 +140,98 @@ class CompetencyProfileResponse(BaseModel):
     overall_level: str = Field(description="Foundation | Apply | Create")
     domain_scores: list[DomainScore]
     overall_score: float = Field(description="Weighted average across all domains, 0–100")
+
+
+# ---------------------------------------------------------------------------
+# CTT Models (thesis §2.12)
+# ---------------------------------------------------------------------------
+
+class CttItem(BaseModel):
+    item_id: str
+    group: Optional[str] = Field(None, description="Competency group code")
+    option_count: Optional[int] = Field(None, ge=2, le=26, description="Options shown; omit to skip distractor analysis")
+    key: list[int] = Field(default_factory=list, description="Zero-based indexes of the keyed option(s)")
+
+
+class CttRespondent(BaseModel):
+    respondent_id: str
+    scores: list[float] = Field(description="Dichotomous item scores (0/1) aligned with items")
+    selections: Optional[list[list[int]]] = Field(None, description="Chosen option indexes per item; [] when omitted")
+
+
+class CttThresholds(BaseModel):
+    min_difficulty: float = Field(0.2, ge=0, le=1)
+    max_difficulty: float = Field(0.9, ge=0, le=1)
+    min_discrimination: float = Field(0.2, ge=-1, le=1)
+    min_distractor_rate: float = Field(0.05, ge=0, le=1)
+
+
+class CttAnalyzeRequest(BaseModel):
+    items: list[CttItem] = Field(min_length=1)
+    respondents: list[CttRespondent]
+    thresholds: CttThresholds = Field(default_factory=CttThresholds)
+
+
+class CttDistractor(BaseModel):
+    option: int
+    is_key: bool
+    proportion: float
+    upper: Optional[float]
+    lower: Optional[float]
+    option_rest_r: Optional[float]
+    flags: list[str]
+
+
+class CttItemResult(BaseModel):
+    item_id: str
+    group: Optional[str]
+    n: int
+    p: Optional[float] = Field(description="Difficulty: proportion correct")
+    item_rest_r: Optional[float] = Field(description="Corrected item-total correlation (whole test)")
+    item_rest_r_group: Optional[float] = Field(description="Corrected item-total correlation within the group")
+    discrimination_index: Optional[float] = Field(description="Upper 27% minus lower 27% proportion correct")
+    alpha_if_deleted: Optional[float]
+    omit_rate: Optional[float]
+    flags: list[str]
+    distractors: list[CttDistractor]
+
+
+class CttReliability(BaseModel):
+    n_items: int
+    alpha: Optional[float]
+    omega: Optional[float]
+    excluded_items: list[str]
+    notes: list[str]
+
+
+class CttGroupResult(BaseModel):
+    group: str
+    n_items: int
+    mean_percent: Optional[float]
+    alpha: Optional[float]
+    omega: Optional[float]
+    excluded_items: list[str]
+    notes: list[str]
+
+
+class CttHistogramBin(BaseModel):
+    score: float
+    count: int
+
+
+class CttTotal(BaseModel):
+    mean: Optional[float]
+    sd: Optional[float]
+    min: Optional[float]
+    max: Optional[float]
+    histogram: list[CttHistogramBin]
+
+
+class CttAnalyzeResponse(BaseModel):
+    n_respondents: int
+    n_items: int
+    total: CttTotal
+    reliability: CttReliability
+    groups: list[CttGroupResult]
+    items: list[CttItemResult]
+    thresholds: CttThresholds

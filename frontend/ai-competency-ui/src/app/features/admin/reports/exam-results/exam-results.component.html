@@ -1,6 +1,37 @@
 <div class="mb-4">
-    <h2 class="mb-1">Exam Results</h2>
-    <p class="text-muted">Review candidate performance</p>
+    <h2 class="mb-1">Exam results</h2>
+    <p class="text-muted mb-0">All standard test attempts, newest first</p>
 </div>
 
-<app-data-table [columns]="columns" [data]="attempts() || []" (onEdit)="viewDetails($event)"></app-data-table>
+<div class="alert alert-danger" *ngIf="error()">{{ error() }}</div>
+
+<div class="table-responsive card-common p-0 overflow-hidden">
+    <table class="table mb-0 align-middle">
+        <thead class="bg-light">
+            <tr class="text-muted text-uppercase small">
+                <th class="px-4 py-3 border-0">Candidate</th>
+                <th class="py-3 border-0">Test</th>
+                <th class="py-3 border-0">Score</th>
+                <th class="py-3 border-0">Result</th>
+                <th class="py-3 border-0">Date</th>
+                <th class="py-3 border-0"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let a of attempts()" class="border-bottom">
+                <td class="px-4 py-3">{{ a.candidate }}</td>
+                <td>{{ a.examTitle }}</td>
+                <td>{{ a.score }} / {{ a.maxScore }} <span class="text-muted small" *ngIf="a.percent !== null">({{ a.percent }}%)</span></td>
+                <td>
+                    <span class="badge rounded-pill" *ngIf="a.passed !== null" [ngClass]="a.passed ? 'bg-success' : 'bg-danger'">{{ a.passed ? 'passed' : 'failed' }}</span>
+                    <span class="badge rounded-pill bg-secondary" *ngIf="a.passed === null">{{ a.status }}</span>
+                </td>
+                <td class="small">{{ (a.endTime || a.startTime) | date:'medium' }}</td>
+                <td class="text-end pe-3"><a class="btn btn-sm btn-outline-primary" [routerLink]="['/admin/reports/results', a.sessionId]">Details</a></td>
+            </tr>
+            <tr *ngIf="attempts().length === 0">
+                <td colspan="6" class="text-center py-5 text-muted">No attempts yet.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

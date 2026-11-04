@@ -20,13 +20,13 @@ services:
   question-generator:
     ports: !override ["127.0.0.1::8000"]
   mongo:
-    ports: !override []
+    ports: !reset []
   rabbitmq:
-    ports: !override []
+    ports: !reset []
   minio:
-    ports: !override []
+    ports: !reset []
   qdrant:
-    ports: !override []
+    ports: !reset []
 YAML
 if [[ ${VALIDATION_TMPFS:-0} == 1 ]]; then
   cat > "$validation_dir/memory.yml" <<'YAML'

@@ -36,4 +36,5 @@ public class ExamResult
     // If we need the User object, we'd add it here. For now, just the ID is enough for the foreign key.
     
     public ICollection<Response> Responses { get; set; } = new List<Response>();
+    public ICollection<TestGroupScore> GroupScores { get; set; } = new List<TestGroupScore>();
 }

@@ -7,6 +7,7 @@ import { Question, QuestionType, QuestionStatus } from '../../../../models/quest
 import { FrameworkService, FrameworkDomain } from '../../../../core/competency/framework.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { switchMap, of, forkJoin } from 'rxjs';
+import { apiError } from '../../../../shared/download';
 
 @Component({
   selector: 'app-question-form',
@@ -25,6 +26,8 @@ export class QuestionFormComponent implements OnInit {
   private router = inject(Router);
 
   isEditMode = signal(false);
+  reviewedBy = signal<string | null>(null);
+  isReviewed = () => this.reviewedBy() !== null;
   isSaving = signal(false);
   questionId: string | null = null;
 
@@ -60,6 +63,7 @@ export class QuestionFormComponent implements OnInit {
     ).subscribe({ next: ({ framework, question }) => {
       this.domains.set(framework.domains);
       if (question) {
+        this.reviewedBy.set(question.reviewedBy ?? null);
         this.form.patchValue({
           title: question.title,
           prompt: question.prompt,
@@ -108,8 +112,7 @@ export class QuestionFormComponent implements OnInit {
       next: () => { this.isSaving.set(false); this.router.navigate(['/admin/questions']); },
       error: (error: HttpErrorResponse) => {
         this.isSaving.set(false);
-        const validation = error.error?.errors as Record<string, string[]> | undefined;
-        this.errorMessage.set(validation ? Object.values(validation).flat().join(' ') : 'Could not save the question. Please try again.');
+        this.errorMessage.set(apiError(error, 'Could not save the question. Please try again.'));
       }
     });
   }

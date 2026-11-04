@@ -1,0 +1,54 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a routerLink="/admin/questions">Questions</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Coverage</li>
+            </ol>
+        </nav>
+        <h2 class="mb-1">Bank coverage</h2>
+        <p class="text-muted mb-0">
+            Usable = reviewed, published objective questions. A standard form needs {{ standard.minPerGroup }}–{{ standard.maxPerGroup }} per group.
+        </p>
+    </div>
+</div>
+
+<div class="alert alert-danger" *ngIf="error()">{{ error() }}</div>
+
+<div class="alert alert-warning" *ngIf="coverage() && shortGroups().length">
+    Fewer than {{ standard.maxPerGroup }} usable questions in:
+    <span *ngFor="let row of shortGroups(); let last = last">{{ row.name }} ({{ row.eligible }}){{ last ? '' : ', ' }}</span>.
+    Generate drafts for these gaps, then review and publish them.
+</div>
+
+<div class="table-responsive card-common p-0 overflow-hidden" *ngIf="coverage() as c">
+    <table class="table mb-0 align-middle">
+        <thead class="bg-light">
+            <tr class="text-muted text-uppercase small">
+                <th class="px-4 py-3 border-0">Group</th>
+                <th class="py-3 border-0" *ngFor="let level of levels">{{ levelNames[level] }}</th>
+                <th class="py-3 border-0">Usable / total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of rows()" class="border-bottom">
+                <td class="px-4 py-3 fw-semibold">{{ row.name }}</td>
+                <td *ngFor="let cell of row.cells" [title]="types(cell)">
+                    <div><strong [class.text-danger]="cell.eligible === 0">{{ cell.eligible }}</strong> usable</div>
+                    <div class="small text-muted">
+                        {{ cell.draft }} draft · {{ cell.reviewed }} reviewed · {{ cell.published }} published
+                    </div>
+                    <a class="small" [routerLink]="['/admin/questions/generate']"
+                        [queryParams]="{ group: row.code, level: levelNames[cell.level], count: 5 }">Generate drafts</a>
+                </td>
+                <td>
+                    <span class="badge rounded-pill"
+                        [ngClass]="row.eligible >= standard.maxPerGroup ? 'bg-success' : row.eligible >= standard.minPerGroup ? 'bg-warning' : 'bg-danger'">
+                        {{ row.eligible }} / {{ row.total }}
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p class="small text-muted p-3 mb-0" *ngIf="c.unclassified">{{ c.unclassified }} question(s) have no group or level and are not counted.</p>
+</div>

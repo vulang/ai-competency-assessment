@@ -26,6 +26,8 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<ExamQuestion> ExamQuestions { get; set; }
     public DbSet<ExamResult> ExamResults { get; set; }
     public DbSet<Response> Responses { get; set; }
+    public DbSet<TestGroupScore> TestGroupScores { get; set; }
+    public DbSet<TestLevelMapping> TestLevelMappings { get; set; }
     public DbSet<QuestionGenerationPlan> QuestionGenerationPlans { get; set; }
     public DbSet<AdaptiveTestSession> AdaptiveTestSessions { get; set; }
     public DbSet<AdaptiveResponse> AdaptiveResponses { get; set; }
@@ -64,6 +66,8 @@ public class ApplicationDbContext : IdentityDbContext
             t.HasCheckConstraint("ck_questions_group_code", "group_code IS NULL OR group_code IN ('FOUNDATION','DATA','CRITICAL_THINKING','APPLICATION','ETHICS','TOOLS','FUTURE_OF_WORK')");
             t.HasCheckConstraint("ck_questions_target_level", "target_level IS NULL OR target_level BETWEEN 1 AND 3");
             t.HasCheckConstraint("ck_questions_published_classification", "status <> 'Published' OR (group_code IS NOT NULL AND target_level IS NOT NULL)");
+            t.HasCheckConstraint("ck_questions_review_record", "(reviewed_at IS NULL) = (reviewed_by IS NULL)");
+            t.HasCheckConstraint("ck_questions_reviewed_status", "status <> 'Reviewed' OR (reviewed_at IS NOT NULL AND group_code IS NOT NULL AND target_level IS NOT NULL)");
         });
         CompetencyCatalog.Seed(builder);
         CvFrameworkCatalog.Configure(builder);
@@ -74,6 +78,35 @@ public class ApplicationDbContext : IdentityDbContext
 
         builder.Entity<ExamQuestion>()
             .HasKey(eq => eq.Id);
+        builder.Entity<ExamQuestion>().HasIndex(eq => new { eq.ExamId, eq.QuestionId }).IsUnique();
+
+        builder.Entity<Exam>().HasIndex(e => e.IsStandard).IsUnique()
+            .HasFilter("is_standard AND status = 'active'");
+        builder.Entity<Exam>().ToTable("exams", t =>
+            t.HasCheckConstraint("ck_exams_standard_blueprint", "NOT is_standard OR blueprint IS NOT NULL"));
+
+        builder.Entity<TestGroupScore>().HasKey(s => new { s.SessionId, s.GroupCode });
+        builder.Entity<TestGroupScore>().HasOne(s => s.Session).WithMany(s => s.GroupScores)
+            .HasForeignKey(s => s.SessionId).OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<TestGroupScore>().HasOne<ProficiencyLevel>().WithMany()
+            .HasForeignKey(s => s.Level).OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<TestGroupScore>().ToTable("test_group_scores", t =>
+        {
+            t.HasCheckConstraint("ck_test_group_scores_group", "group_code IN ('FOUNDATION','DATA','CRITICAL_THINKING','APPLICATION','ETHICS','TOOLS','FUTURE_OF_WORK')");
+            t.HasCheckConstraint("ck_test_group_scores_values", "item_count > 0 AND max_score > 0 AND raw_score BETWEEN 0 AND max_score AND percent BETWEEN 0 AND 100");
+            t.HasCheckConstraint("ck_test_group_scores_level", "level IS NULL OR (level BETWEEN 1 AND 3 AND level_mapping_version IS NOT NULL)");
+        });
+
+        builder.Entity<TestLevelMapping>().HasIndex(m => m.Version).IsUnique();
+        builder.Entity<TestLevelMapping>().HasIndex(m => m.IsActive).IsUnique().HasFilter("is_active = true");
+        builder.Entity<TestLevelMapping>().ToTable("test_level_mappings", t =>
+        {
+            t.HasCheckConstraint("ck_test_level_mappings_publication",
+                "(status = 'Draft' AND published_at IS NULL AND NOT is_active) OR (status = 'Published' AND published_at IS NOT NULL AND reviewed_by IS NOT NULL)");
+            t.HasCheckConstraint("ck_test_level_mappings_thresholds",
+                "intermediate_min_percent > 0 AND intermediate_min_percent < advanced_min_percent AND advanced_min_percent <= 100 AND min_items_per_group >= 1");
+        });
+        builder.Entity<TestLevelMapping>().HasData(TestLevelMappingCatalog.Draft, TestLevelMappingCatalog.V1);
 
         builder.Entity<ExamQuestion>()
             .HasOne(eq => eq.Exam)

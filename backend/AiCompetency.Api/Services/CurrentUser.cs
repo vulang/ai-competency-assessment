@@ -11,4 +11,10 @@ public static class CurrentUser
             ? id
             : throw new UnauthorizedAccessException("An authenticated subject is required.");
     }
+
+    /// <summary>Human-readable identity for audit fields; falls back to the subject ID.</summary>
+    public static string GetDisplayName(ClaimsPrincipal principal) =>
+        new[] { "email", ClaimTypes.Email, "name", ClaimTypes.Name, "preferred_username" }
+            .Select(principal.FindFirstValue).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v))
+        ?? GetRequiredId(principal);
 }

@@ -206,9 +206,16 @@
                 <label class="form-label">Status</label>
                 <select class="form-select" formControlName="status">
                     <option value="draft">Draft</option>
-                    <option value="published">Published</option>
+                    <option value="reviewed" [disabled]="!isReviewed()">Reviewed</option>
+                    <option value="published" [disabled]="!isReviewed()">Published</option>
                     <option value="archived">Archived</option>
                 </select>
+                <small class="text-muted d-block mt-1" *ngIf="isReviewed(); else needsReview">
+                    Reviewed by {{ reviewedBy() }}. Changing the prompt, options, answer or classification returns the question to draft.
+                </small>
+                <ng-template #needsReview>
+                    <small class="text-muted d-block mt-1">Review the question from the question list before publishing it.</small>
+                </ng-template>
             </div>
         </div>
     </div>

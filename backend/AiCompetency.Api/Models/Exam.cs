@@ -38,5 +38,16 @@ public class Exam
     [Column("updated_at")]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    // Serialized TestBlueprintSpec; null for exams created before Phase 2.
+    [Column("blueprint", TypeName = "jsonb")]
+    public string? Blueprint { get; set; }
+
+    // The single active standard form delivered by start-standard.
+    [Column("is_standard")]
+    public bool IsStandard { get; set; }
+
+    [Column("published_at")]
+    public DateTime? PublishedAt { get; set; }
+
     public ICollection<ExamQuestion> ExamQuestions { get; set; } = new List<ExamQuestion>();
 }

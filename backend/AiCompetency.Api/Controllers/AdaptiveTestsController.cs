@@ -12,10 +12,12 @@ namespace AiCompetency.Api.Controllers;
 [ApiController]
 [Route("api/adaptivetests")]
 [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+[RequiresAdaptiveTesting]
 public class AdaptiveTestsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly MlService _ml;
+    private readonly IScoringService _scoring;
 
     // CAT Configuration
     private const int MaxQuestions = 10;
@@ -25,10 +27,12 @@ public class AdaptiveTestsController : ControllerBase
 
     public AdaptiveTestsController(
         ApplicationDbContext context,
-        MlService ml)
+        MlService ml,
+        IScoringService scoring)
     {
         _context = context;
         _ml = ml;
+        _scoring = scoring;
     }
 
     private string GetCurrentUserId() => CurrentUser.GetRequiredId(User);
@@ -171,7 +175,7 @@ public class AdaptiveTestsController : ControllerBase
         if (session.Responses.Any(r => r.QuestionId == request.QuestionId))
             return BadRequest("Question already answered.");
 
-        bool isCorrect = AnswerEvaluator.IsCorrect(question.Type, question.Metadata, request.Answer);
+        bool isCorrect = _scoring.Score(question, request.Answer, 1).IsCorrect;
 
         // ── IRT-based theta update (EAP) ────────────────────────────────────
         // Build all responses so far (including current) for EAP

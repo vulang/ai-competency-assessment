@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/auth/auth.service';
+import { FeatureService } from '../../../core/features/feature.service';
 
 @Component({
   selector: 'app-candidate-home',
@@ -19,11 +20,12 @@ import { AuthService } from '../../../core/auth/auth.service';
              <span *ngIf="isStartingStandard" class="spinner"></span>
              <i class="icon-file"></i> Start Standard Test
           </button>
-          <button class="btn btn-success" (click)="startAdaptiveTest()" [disabled]="isStartingAdaptive">
+          <button class="btn btn-success" *ngIf="adaptiveTesting" (click)="startAdaptiveTest()" [disabled]="isStartingAdaptive">
              <span *ngIf="isStartingAdaptive" class="spinner"></span>
              <i class="icon-magic"></i> Start Adaptive Test
           </button>
         </div>
+        <p class="start-error" *ngIf="startError">{{ startError }}</p>
       </div>
 
       <div class="dashboard-grid">
@@ -237,6 +239,10 @@ import { AuthService } from '../../../core/auth/auth.service';
       border-radius: 8px;
       border: 1px dashed #cbd5e0;
     }
+    .start-error {
+      color: #c53030;
+      margin-top: 12px;
+    }
     .spinner {
       border: 2px solid rgba(255,255,255,0.3);
       width: 14px;
@@ -257,10 +263,13 @@ export class CandidateHomeComponent implements OnInit {
   startingExamId: number | null = null;
   isStartingAdaptive = false;
   isStartingStandard = false;
+  adaptiveTesting = false;
+  startError: string | null = null;
   
   private http = inject(HttpClient);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private features = inject(FeatureService);
 
   ngOnInit() {
     const user = this.authService.currentUser();
@@ -270,6 +279,7 @@ export class CandidateHomeComponent implements OnInit {
 
     this.loadAvailableTests();
     this.loadPastTests();
+    this.features.flags$.subscribe(flags => this.adaptiveTesting = flags.adaptiveTesting);
   }
 
 
@@ -326,7 +336,8 @@ export class CandidateHomeComponent implements OnInit {
 
   startStandardTest() {
     this.isStartingStandard = true;
-    
+    this.startError = null;
+
     this.http.post<any>(`${environment.apiUrl}/api/candidate/tests/start-standard`, {})
       .subscribe({
         next: (response) => {
@@ -335,7 +346,9 @@ export class CandidateHomeComponent implements OnInit {
         error: (err) => {
           console.error('Failed to start standard test', err);
           this.isStartingStandard = false;
-          alert('Failed to start the standard test. Please try again.');
+          this.startError = err.status === 404
+            ? 'The standard test has not been published yet. Please check back later.'
+            : 'Failed to start the standard test. Please try again.';
         }
       });
   }

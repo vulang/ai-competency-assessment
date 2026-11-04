@@ -267,6 +267,8 @@ flowchart LR
 
 ### Phase 2 — Nhánh trắc nghiệm song song và phân tích CTT
 
+**Trạng thái: Hoàn thành ngày 2026-11-04.** Quy tắc ánh xạ % → mức `tl-v1` (< 50% Basic, 50–79,99% Intermediate, ≥ 80% Advanced, tối thiểu 5 câu/nhóm) đã xuất bản và đang hoạt động; chủ dự án xác nhận chuyên gia đã duyệt, chưa cung cấp tên/ngày phản biện. Chủ dự án xác nhận giảng viên đồng ý chỉ dùng câu khách quan cho đề thực nghiệm và CTT. Bản triển khai (commit `411adf9`) đạt cả bốn job [CI trên GitHub](https://github.com/vulang/ai-competency-assessment/actions/runs/41755598023). Chi tiết: [phase-2-progress.md](phase-2-progress.md).
+
 **Liên hệ luận văn:** §1.3.3, §2.12, §2.13 (dòng "Chất lượng bài trắc nghiệm"), §3.9, Phụ lục H.
 
 **Mục tiêu:** Bài test rút gọn chuẩn hóa theo 7 nhóm, chấm được, có hồ sơ điểm theo nhóm và báo cáo CTT.
@@ -274,28 +276,28 @@ flowchart LR
 **Công việc**
 
 - *Ngân hàng câu hỏi và rà soát*
-  - [ ] Thêm trạng thái `Reviewed` vào luồng `Draft → Reviewed → Published → Archived`, kèm người duyệt và ghi chú. Chỉ câu đã duyệt mới được đưa vào đề thực nghiệm.
-  - [ ] Báo cáo độ phủ ngân hàng theo nhóm × mức × loại câu; dùng question-generator để bù chỗ thiếu.
+  - [x] Thêm trạng thái `Reviewed` vào luồng `Draft → Reviewed → Published → Archived`, kèm người duyệt và ghi chú. Chỉ câu đã duyệt mới được đưa vào đề thực nghiệm.
+  - [x] Báo cáo độ phủ ngân hàng theo nhóm × mức × loại câu; dùng question-generator để bù chỗ thiếu.
 - *Blueprint và đề*
-  - [ ] Mở rộng `Exam`/`TestsController`: định nghĩa quota theo nhóm (mặc định 5–6 câu/nhóm, tổng 35–42), phân bố mức, chế độ cố định hoặc ngẫu nhiên có seed; thêm API gắn, xóa và sắp xếp câu (`exam_questions`); thêm Update, Clone, Archive.
-  - [ ] Test builder UI: chọn quota, xem trước đề, bảng độ phủ.
-  - [ ] Thay `start-standard` (50 câu ngẫu nhiên) bằng đề lấy theo blueprint đã publish.
+  - [x] Mở rộng `Exam`/`TestsController`: định nghĩa quota theo nhóm (mặc định 5–6 câu/nhóm, tổng 35–42), phân bố mức, chế độ cố định hoặc ngẫu nhiên có seed; thêm API gắn, xóa và sắp xếp câu (`exam_questions`); thêm Update, Clone, Archive.
+  - [x] Test builder UI: chọn quota, xem trước đề, bảng độ phủ.
+  - [x] Thay `start-standard` (50 câu ngẫu nhiên) bằng đề lấy theo blueprint đã publish.
 - *Chấm điểm*
-  - [ ] Tách `EvaluateAnswer` thành `IScoringService` dùng chung cho test chuẩn và CAT; viết unit test cho từng loại câu.
-  - [ ] Câu `scenario`/tự luận: luồng chấm theo rubric (thủ công trong admin, tùy chọn có gợi ý LLM-as-judge từ `judgePromptHints`). Nếu luận văn chỉ dùng câu khách quan cho CTT thì ghi rõ và loại câu tự luận khỏi đề thực nghiệm.
-  - [ ] Lưu điểm theo nhóm: bảng `test_group_scores (session_id, group_code, raw, max, pct, level_mapped)`.
+  - [x] Tách `EvaluateAnswer` thành `IScoringService` dùng chung cho test chuẩn và CAT; viết unit test cho từng loại câu.
+  - [x] Câu `scenario`/tự luận: luồng chấm theo rubric (thủ công trong admin, tùy chọn có gợi ý LLM-as-judge từ `judgePromptHints`). Nếu luận văn chỉ dùng câu khách quan cho CTT thì ghi rõ và loại câu tự luận khỏi đề thực nghiệm. — *Đã chọn: đề thực nghiệm và CTT chỉ dùng câu khách quan (§2.12 có phân tích phương án nhiễu); tình huống được thể hiện bằng câu trắc nghiệm có bối cảnh. Chưa xây luồng chấm rubric cho câu tự luận.*
+  - [x] Lưu điểm theo nhóm: bảng `test_group_scores (session_id, group_code, raw, max, pct, level_mapped)`.
 - *Chuẩn hóa sang mức*
-  - [ ] Quy tắc ánh xạ % đúng theo nhóm → Basic/Intermediate/Advanced được **xác định trước** và lưu thành cấu hình có version (§2.12), ví dụ theo ngưỡng do chuyên gia đặt.
+  - [x] Quy tắc ánh xạ % đúng theo nhóm → Basic/Intermediate/Advanced được **xác định trước** và lưu thành cấu hình có version (§2.12), ví dụ theo ngưỡng do chuyên gia đặt. — *Đã xuất bản `tl-v1` (50/80, tối thiểu 5 câu/nhóm) sau khi chủ dự án xác nhận chuyên gia duyệt; bản đã xuất bản bất biến, thay đổi sau này cần phiên bản mới.*
 - *CTT* (trong `ml_service/ctt/`)
-  - [ ] Độ khó p, tương quan biến–tổng hiệu chỉnh (corrected item-total), phân tích phương án nhiễu, Cronbach α (toàn bài và từng nhóm), McDonald ω (mô hình 1 nhân tố, ví dụ dùng `factor_analyzer`), α-if-item-deleted, gắn cờ câu có r < 0.2 hoặc p ∉ [0.2, 0.9].
-  - [ ] Endpoint `POST /ctt/analyze` (đầu vào: ma trận phản hồi) và job backend tổng hợp theo đề.
-  - [ ] UI "Item analysis" thay cho `irt-analysis`: bảng câu hỏi, cờ chất lượng, biểu đồ phân bố, xuất CSV.
+  - [x] Độ khó p, tương quan biến–tổng hiệu chỉnh (corrected item-total), phân tích phương án nhiễu, Cronbach α (toàn bài và từng nhóm), McDonald ω (mô hình 1 nhân tố, ví dụ dùng `factor_analyzer`), α-if-item-deleted, gắn cờ câu có r < 0.2 hoặc p ∉ [0.2, 0.9].
+  - [x] Endpoint `POST /ctt/analyze` (đầu vào: ma trận phản hồi) và job backend tổng hợp theo đề.
+  - [x] UI "Item analysis" thay cho `irt-analysis`: bảng câu hỏi, cờ chất lượng, biểu đồ phân bố, xuất CSV.
 - *Hồ sơ trắc nghiệm*
-  - [ ] Thay `CompetencyProfile` (θ + BKT) bằng `test_profiles` gồm 7 nhóm, điểm % và mức. Cập nhật radar ở `test-results` và `competency-profile`.
+  - [x] Thay `CompetencyProfile` (θ + BKT) bằng `test_profiles` gồm 7 nhóm, điểm % và mức. Cập nhật radar ở `test-results` và `competency-profile`.
 - *IRT/CAT/BKT*
-  - [ ] Bật/tắt bằng feature flag `Features:AdaptiveTesting` (mặc định tắt); ẩn khỏi UI ứng viên; giữ code và test để làm hướng phát triển (§Kết luận).
+  - [x] Bật/tắt bằng feature flag `Features:AdaptiveTesting` (mặc định tắt); ẩn khỏi UI ứng viên; giữ code và test để làm hướng phát triển (§Kết luận).
 - *Dashboard admin*
-  - [ ] Thay mock trong `report.service.ts` bằng API thật: tỷ lệ đạt, phân bố điểm, heatmap nhóm.
+  - [x] Thay mock trong `report.service.ts` bằng API thật: tỷ lệ đạt, phân bố điểm, heatmap nhóm.
 
 **Tiêu chí hoàn thành:** tạo được đề 35–42 câu đúng quota; ứng viên nhận hồ sơ 7 nhóm sau khi nộp; báo cáo CTT tái lập được từ DB; có thể điền bảng CTT cho Phụ lục H.
 
@@ -533,7 +535,7 @@ flowchart LR
 
 1. **Công cụ gán nhãn:** Label Studio (khuyến nghị, nhanh) hay xây trong hệ thống?
 2. **Nhà cung cấp LLM cho Tầng 3:** API thương mại (OpenAI…) hay tự host (gpt-oss qua vLLM)? Quyết định này ảnh hưởng chi phí, độ ổn định và rủi ro dữ liệu.
-3. **Mã IRT/CAT/BKT:** giữ sau feature flag (khuyến nghị) hay gỡ khỏi codebase?
-4. **Câu hỏi tự luận/tình huống trong đề thực nghiệm:** loại khỏi phân tích CTT hay chấm bằng rubric? Luận văn hiện chỉ mô tả CTT cho câu khách quan.
-5. **Quy tắc ánh xạ % đúng → mức B/I/A cho trắc nghiệm** và **ngưỡng Δ cho trạng thái "nhất quán"**: cần chuyên gia xác định trước khi thu dữ liệu.
+3. **Mã IRT/CAT/BKT:** giữ sau feature flag (khuyến nghị) hay gỡ khỏi codebase? — *Phase 2: giữ sau `Features:AdaptiveTesting` (mặc định tắt).*
+4. **Câu hỏi tự luận/tình huống trong đề thực nghiệm:** loại khỏi phân tích CTT hay chấm bằng rubric? Luận văn hiện chỉ mô tả CTT cho câu khách quan. — *Đã chốt: chỉ dùng câu khách quan cho đề thực nghiệm và CTT (chủ dự án xác nhận giảng viên đồng ý ngày 2026-11-04).*
+5. **Quy tắc ánh xạ % đúng → mức B/I/A cho trắc nghiệm** và **ngưỡng Δ cho trạng thái "nhất quán"**: cần chuyên gia xác định trước khi thu dữ liệu. — *Quy tắc trắc nghiệm đã chốt: `tl-v1` (50/80, tối thiểu 5 câu/nhóm). Ngưỡng Δ còn mở, thuộc Phase 9.*
 6. **Lưu trữ PII:** dùng DB riêng hay schema riêng trong cùng Postgres? Thời hạn lưu tệp CV gốc là bao lâu?

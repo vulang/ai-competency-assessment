@@ -2749,6 +2749,10 @@ namespace AiCompetency.Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Blueprint")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("blueprint");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -2763,9 +2767,17 @@ namespace AiCompetency.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("duration_minutes");
 
+                    b.Property<bool>("IsStandard")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_standard");
+
                     b.Property<int>("PassScore")
                         .HasColumnType("integer")
                         .HasColumnName("pass_score");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("published_at");
 
                     b.Property<int>("QuestionCount")
                         .HasColumnType("integer")
@@ -2789,7 +2801,14 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("exams");
+                    b.HasIndex("IsStandard")
+                        .IsUnique()
+                        .HasFilter("is_standard AND status = 'active'");
+
+                    b.ToTable("exams", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_exams_standard_blueprint", "NOT is_standard OR blueprint IS NOT NULL");
+                        });
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.ExamQuestion", b =>
@@ -2819,9 +2838,10 @@ namespace AiCompetency.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ExamId");
-
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("ExamId", "QuestionId")
+                        .IsUnique();
 
                     b.ToTable("exam_questions");
                 });
@@ -2955,6 +2975,19 @@ namespace AiCompetency.Api.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("metadata");
 
+                    b.Property<string>("ReviewNote")
+                        .HasColumnType("text")
+                        .HasColumnName("review_note");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reviewed_at");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("reviewed_by");
+
                     b.Property<string>("RubricScoring")
                         .HasColumnType("text")
                         .HasColumnName("rubric_scoring");
@@ -2989,6 +3022,10 @@ namespace AiCompetency.Api.Migrations
                             t.HasCheckConstraint("ck_questions_group_code", "group_code IS NULL OR group_code IN ('FOUNDATION','DATA','CRITICAL_THINKING','APPLICATION','ETHICS','TOOLS','FUTURE_OF_WORK')");
 
                             t.HasCheckConstraint("ck_questions_published_classification", "status <> 'Published' OR (group_code IS NOT NULL AND target_level IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_questions_review_record", "(reviewed_at IS NULL) = (reviewed_by IS NULL)");
+
+                            t.HasCheckConstraint("ck_questions_reviewed_status", "status <> 'Reviewed' OR (reviewed_at IS NOT NULL AND group_code IS NOT NULL AND target_level IS NOT NULL)");
 
                             t.HasCheckConstraint("ck_questions_target_level", "target_level IS NULL OR target_level BETWEEN 1 AND 3");
                         });
@@ -3122,6 +3159,165 @@ namespace AiCompetency.Api.Migrations
                     b.HasKey("SessionId");
 
                     b.ToTable("session_irt_estimates");
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.TestGroupScore", b =>
+                {
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<string>("GroupCode")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("group_code");
+
+                    b.Property<DateTime>("ComputedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("computed_at");
+
+                    b.Property<int>("ItemCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("item_count");
+
+                    b.Property<int?>("Level")
+                        .HasColumnType("integer")
+                        .HasColumnName("level");
+
+                    b.Property<string>("LevelMappingVersion")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("level_mapping_version");
+
+                    b.Property<decimal>("MaxScore")
+                        .HasColumnType("numeric")
+                        .HasColumnName("max_score");
+
+                    b.Property<decimal>("Percent")
+                        .HasColumnType("numeric")
+                        .HasColumnName("percent");
+
+                    b.Property<decimal>("RawScore")
+                        .HasColumnType("numeric")
+                        .HasColumnName("raw_score");
+
+                    b.HasKey("SessionId", "GroupCode");
+
+                    b.HasIndex("Level");
+
+                    b.ToTable("test_group_scores", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_test_group_scores_group", "group_code IN ('FOUNDATION','DATA','CRITICAL_THINKING','APPLICATION','ETHICS','TOOLS','FUTURE_OF_WORK')");
+
+                            t.HasCheckConstraint("ck_test_group_scores_level", "level IS NULL OR (level BETWEEN 1 AND 3 AND level_mapping_version IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_test_group_scores_values", "item_count > 0 AND max_score > 0 AND raw_score BETWEEN 0 AND max_score AND percent BETWEEN 0 AND 100");
+                        });
+                });
+
+            modelBuilder.Entity("AiCompetency.Api.Models.TestLevelMapping", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AdvancedMinPercent")
+                        .HasColumnType("numeric")
+                        .HasColumnName("advanced_min_percent");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal>("IntermediateMinPercent")
+                        .HasColumnType("numeric")
+                        .HasColumnName("intermediate_min_percent");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<int>("MinItemsPerGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("min_items_per_group");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("published_at");
+
+                    b.Property<string>("ReviewNotes")
+                        .HasColumnType("text")
+                        .HasColumnName("review_notes");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("reviewed_by");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive")
+                        .IsUnique()
+                        .HasFilter("is_active = true");
+
+                    b.HasIndex("Version")
+                        .IsUnique();
+
+                    b.ToTable("test_level_mappings", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_test_level_mappings_publication", "(status = 'Draft' AND published_at IS NULL AND NOT is_active) OR (status = 'Published' AND published_at IS NOT NULL AND reviewed_by IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_test_level_mappings_thresholds", "intermediate_min_percent > 0 AND intermediate_min_percent < advanced_min_percent AND advanced_min_percent <= 100 AND min_items_per_group >= 1");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AdvancedMinPercent = 80m,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 3, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IntermediateMinPercent = 50m,
+                            IsActive = false,
+                            MinItemsPerGroup = 5,
+                            Source = "Proposed for thesis §2.12: below 50% Basic, 50–79.99% Intermediate, 80% or more Advanced; at least five objective items per group. Expert review pending.",
+                            Status = "Draft",
+                            Version = "tl-v1-draft"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AdvancedMinPercent = 80m,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IntermediateMinPercent = 50m,
+                            IsActive = true,
+                            MinItemsPerGroup = 5,
+                            PublishedAt = new DateTimeOffset(new DateTime(2026, 11, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            ReviewNotes = "The project owner confirmed expert approval of tl-v1-draft as proposed on 2026-11-04. The expert's name and review date were not supplied.",
+                            ReviewedBy = "Project owner confirmation of expert approval",
+                            Source = "Thesis §2.12 rule from tl-v1-draft: below 50% Basic, 50–79.99% Intermediate, 80% or more Advanced; at least five objective items per group.",
+                            Status = "Published",
+                            Version = "tl-v1"
+                        });
                 });
 
             modelBuilder.Entity("AiCompetency.Api.Models.UserSkillMastery", b =>
@@ -3727,6 +3923,22 @@ namespace AiCompetency.Api.Migrations
                     b.Navigation("Session");
                 });
 
+            modelBuilder.Entity("AiCompetency.Api.Models.TestGroupScore", b =>
+                {
+                    b.HasOne("AiCompetency.Api.Models.ProficiencyLevel", null)
+                        .WithMany()
+                        .HasForeignKey("Level")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("AiCompetency.Api.Models.ExamResult", "Session")
+                        .WithMany("GroupScores")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -3841,6 +4053,8 @@ namespace AiCompetency.Api.Migrations
 
             modelBuilder.Entity("AiCompetency.Api.Models.ExamResult", b =>
                 {
+                    b.Navigation("GroupScores");
+
                     b.Navigation("Responses");
                 });
 

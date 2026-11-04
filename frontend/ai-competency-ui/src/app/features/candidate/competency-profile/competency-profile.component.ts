@@ -1,21 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CompetencyService, CompetencyProfile, SkillMastery } from '../../../core/competency/competency.service';
+import { CompetencyService } from '../../../core/competency/competency.service';
+import { GroupScore, TestProfile } from '../../../models/test.model';
+import { LEVEL_NAMES } from '../../../core/tests/blueprint';
 import { Chart, RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 
 Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
-
-const DOMAIN_LABELS: Record<string, string> = {
-  ai_fundamentals:   'AI Fundamentals',
-  fundamental:       'AI Fundamentals',
-  data:              'Data',
-  critical_thinking: 'Critical Thinking',
-  ai_use_cases:      'AI Use Cases',
-  ai_ethics:         'AI Ethics',
-  ai_tools:          'AI Tools',
-  future_of_work:    'Future of Work',
-};
 
 @Component({
   selector: 'app-competency-profile',
@@ -24,80 +15,45 @@ const DOMAIN_LABELS: Record<string, string> = {
   templateUrl: './competency-profile.component.html',
   styleUrls: ['./competency-profile.component.scss'],
 })
-export class CompetencyProfileComponent implements OnInit, AfterViewInit {
-  @ViewChild('radarCanvas') radarCanvas!: ElementRef<HTMLCanvasElement>;
+export class CompetencyProfileComponent implements OnDestroy {
+  private readonly competency = inject(CompetencyService);
 
-  profile = signal<CompetencyProfile | null>(null);
-  skillMasteries = signal<SkillMastery[]>([]);
+  @ViewChild('radarCanvas') set radarCanvas(canvas: ElementRef<HTMLCanvasElement> | undefined) {
+    const profile = this.profile();
+    if (canvas && profile) this.renderChart(canvas.nativeElement, profile);
+  }
+
+  profile = signal<TestProfile | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
-
   private chart: Chart | null = null;
 
-  constructor(private competency: CompetencyService) {}
-
-  ngOnInit(): void {
-    this.competency.getMyProfile().subscribe({
-      next: p => {
-        this.profile.set(p);
-        this.loading.set(false);
-        setTimeout(() => this.renderChart(p), 50);
-      },
+  constructor() {
+    this.competency.getMyTestProfile().subscribe({
+      next: p => { this.profile.set(p); this.loading.set(false); },
       error: err => {
         this.error.set(err.status === 404
-          ? 'No competency profile yet. Complete a test to generate your profile.'
+          ? 'No competency profile yet. Complete the standard test to see your seven-group profile.'
           : 'Failed to load profile.');
         this.loading.set(false);
       }
     });
-
-    this.competency.getMySkillMastery().subscribe({
-      next: m => this.skillMasteries.set(m),
-      error: () => {} // non-critical
-    });
   }
 
-  ngAfterViewInit(): void {
-    const p = this.profile();
-    if (p) this.renderChart(p);
+  levelLabel(group: GroupScore): string {
+    if (group.percent === null) return 'Not measured';
+    return group.level ? LEVEL_NAMES[group.level] : 'Level pending';
   }
 
-  get domainEntries(): { label: string; score: number }[] {
-    const p = this.profile();
-    if (!p) return [];
-    return Object.entries(p.domainScores).map(([key, score]) => ({
-      label: DOMAIN_LABELS[key] ?? key,
-      score,
-    }));
-  }
-
-  get levelColor(): string {
-    switch (this.profile()?.overallLevel) {
-      case 'Create': return '#10b981';
-      case 'Apply':  return '#3b82f6';
-      default:       return '#f59e0b';
-    }
-  }
-
-  get thetaDisplay(): string {
-    const t = this.profile()?.theta ?? 0;
-    return `${t >= 0 ? '+' : ''}${t.toFixed(2)}`;
-  }
-
-  private renderChart(p: CompetencyProfile): void {
-    if (!this.radarCanvas) return;
-    if (this.chart) { this.chart.destroy(); this.chart = null; }
-
-    const labels = Object.keys(p.domainScores).map(k => DOMAIN_LABELS[k] ?? k);
-    const data   = Object.values(p.domainScores);
-
-    this.chart = new Chart(this.radarCanvas.nativeElement, {
+  private renderChart(canvas: HTMLCanvasElement, p: TestProfile): void {
+    this.chart?.destroy();
+    this.chart = new Chart(canvas, {
       type: 'radar',
       data: {
-        labels,
+        labels: p.groups.map(g => g.groupName),
         datasets: [{
-          label: 'Competency Score',
-          data,
+          label: 'Percent correct',
+          data: p.groups.map(g => g.percent ?? 0),
           backgroundColor: 'rgba(99, 102, 241, 0.2)',
           borderColor: 'rgba(99, 102, 241, 0.9)',
           borderWidth: 2,
@@ -118,5 +74,9 @@ export class CompetencyProfileComponent implements OnInit, AfterViewInit {
         plugins: { legend: { display: false } }
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.chart?.destroy();
   }
 }

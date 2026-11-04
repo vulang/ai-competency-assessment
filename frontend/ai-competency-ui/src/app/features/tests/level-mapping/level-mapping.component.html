@@ -1,0 +1,101 @@
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a routerLink="/admin/tests">Tests</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Level mapping</li>
+        </ol>
+    </nav>
+    <h2 class="mb-1">Score-to-level mapping</h2>
+    <p class="text-muted mb-0">
+        Each group's percent correct maps to Basic, Intermediate or Advanced by a rule fixed before data collection (thesis §2.12).
+        Published versions cannot change; each group score records the version that produced its level.
+    </p>
+</div>
+
+<div class="alert alert-danger" *ngIf="error()">{{ error() }}</div>
+<div class="alert alert-success" *ngIf="message()">{{ message() }}</div>
+<div class="alert alert-warning" *ngIf="mappings().length && !active()">
+    No mapping is approved yet. Candidates see group percentages, but no levels until a version is published.
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card-common bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Versions</h5>
+                <button class="btn btn-sm btn-outline-primary" (click)="startNew()">New version</button>
+            </div>
+            <div class="list-group">
+                <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between"
+                    *ngFor="let m of mappings()" [class.active]="selected()?.id === m.id" (click)="select(m)">
+                    <span>{{ m.version }}</span>
+                    <span>
+                        <span class="badge bg-success" *ngIf="m.isActive">active</span>
+                        <span class="badge bg-secondary" *ngIf="m.status === 'Draft'">draft</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card-common bg-white mb-4" *ngIf="selected() || creating()">
+            <h5 class="mb-3">{{ creating() ? 'New draft' : selected()?.version }}</h5>
+            <form [formGroup]="form" (ngSubmit)="save()">
+                <div class="mb-3" *ngIf="creating()">
+                    <label class="form-label" for="m-version">Version</label>
+                    <input id="m-version" class="form-control" formControlName="version" placeholder="e.g. tl-v2">
+                    <small class="text-danger" *ngIf="form.controls.version.touched && form.controls.version.invalid">
+                        Use 3–64 lowercase letters, digits, dots, dashes or underscores.
+                    </small>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="m-intermediate">Intermediate from (%)</label>
+                        <input id="m-intermediate" type="number" step="0.01" class="form-control" formControlName="intermediateMinPercent">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="m-advanced">Advanced from (%)</label>
+                        <input id="m-advanced" type="number" step="0.01" class="form-control" formControlName="advancedMinPercent">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="m-items">Minimum items per group</label>
+                        <input id="m-items" type="number" class="form-control" formControlName="minItemsPerGroup">
+                    </div>
+                </div>
+                <small class="text-danger d-block mb-2" *ngIf="form.errors?.['thresholds']">Thresholds must satisfy 0 &lt; Intermediate &lt; Advanced ≤ 100.</small>
+                <p class="small text-muted">
+                    Below {{ form.getRawValue().intermediateMinPercent }}% → Basic;
+                    {{ form.getRawValue().intermediateMinPercent }}% to below {{ form.getRawValue().advancedMinPercent }}% → Intermediate;
+                    {{ form.getRawValue().advancedMinPercent }}% or more → Advanced. Groups with fewer than
+                    {{ form.getRawValue().minItemsPerGroup }} objective items get no level.
+                </p>
+                <div class="mb-3">
+                    <label class="form-label" for="m-source">Rationale / source</label>
+                    <textarea id="m-source" class="form-control" rows="2" formControlName="source"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary-custom" *ngIf="creating() || selected()?.status === 'Draft'" [disabled]="form.invalid">Save draft</button>
+            </form>
+            <p class="small text-muted mt-3 mb-0" *ngIf="selected()?.status === 'Published'">
+                Approved by {{ selected()?.reviewedBy }} on {{ selected()?.publishedAt | date:'mediumDate' }}.
+                <span *ngIf="selected()?.reviewNotes">Notes: {{ selected()?.reviewNotes }}</span>
+            </p>
+        </div>
+
+        <div class="card-common bg-white" *ngIf="selected()?.status === 'Draft'">
+            <h5 class="mb-3">Record expert approval and publish</h5>
+            <form [formGroup]="reviewForm" (ngSubmit)="publish()">
+                <div class="mb-3">
+                    <label class="form-label" for="m-reviewer">Approved by</label>
+                    <input id="m-reviewer" class="form-control" formControlName="reviewedBy" placeholder="Expert name or panel">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="m-notes">Review notes</label>
+                    <textarea id="m-notes" class="form-control" rows="2" formControlName="reviewNotes"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success" [disabled]="reviewForm.invalid || form.dirty">Publish</button>
+                <small class="text-muted ms-2" *ngIf="form.dirty">Save the draft first.</small>
+            </form>
+        </div>
+    </div>
+</div>

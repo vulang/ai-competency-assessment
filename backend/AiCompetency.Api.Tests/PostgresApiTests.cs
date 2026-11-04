@@ -40,11 +40,24 @@ public class PostgresApiTests : IAsyncLifetime
         Assert.Equal(new Uri(admin.BaseAddress!, "connect/logout").ToString(), discovery.GetProperty("end_session_endpoint").GetString());
         Assert.Equal("http://localhost:5000/", discovery.GetProperty("issuer").GetString());
         await Login(admin, "admin@example.com");
-        var created = await admin.PostAsJsonAsync("/api/questions", new {
+        var unreviewed = await admin.PostAsJsonAsync("/api/questions", new {
             title = "Integration Q", prompt = "Choose A", type = "mcq_single", competencyGroupId = "Data",
             competencyLevelId = "Basic", difficulty = 2, options = new[] { "A", "B" }, answer = "A", status = "published"
         });
-        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, unreviewed.StatusCode);
+        var groups = new[] { "FOUNDATION", "DATA", "CRITICAL_THINKING", "APPLICATION", "ETHICS", "TOOLS", "FUTURE_OF_WORK" };
+        foreach (var group in groups)
+            foreach (var level in new[] { "Basic", "Basic", "Intermediate", "Intermediate", "Advanced" })
+                await CreateReviewedQuestion(admin, group, level);
+        var form = await admin.PostAsJsonAsync("/api/tests", new {
+            name = "Standard form", isStandard = true, seed = 5, passPercent = 70,
+            groupQuotas = groups.ToDictionary(g => g, _ => 5)
+        });
+        Assert.Equal(HttpStatusCode.Created, form.StatusCode);
+        var formId = (await form.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetString();
+        var published = await admin.PostAsync($"/api/tests/{formId}/publish", null);
+        Assert.Equal(HttpStatusCode.OK, published.StatusCode);
+        Assert.Equal(25, (await published.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("passingScore").GetInt32());
         using var alice = _factory.CreateClient();
         using var bob = _factory.CreateClient();
         foreach (var (client, email) in new[] { (alice, "alice@example.com"), (bob, "bob@example.com") })
@@ -71,14 +84,61 @@ public class PostgresApiTests : IAsyncLifetime
         Assert.Equal(1, (await alice.GetFromJsonAsync<JsonElement>("/api/candidate/tests/history")).GetArrayLength());
         Assert.Equal(0, (await bob.GetFromJsonAsync<JsonElement>("/api/candidate/tests/history")).GetArrayLength());
         var result = await alice.GetFromJsonAsync<JsonElement>($"/api/candidate/tests/sessions/{aliceSession}/result");
-        Assert.Equal(1, result.GetProperty("totalScore").GetInt32());
-        Assert.Equal(1, result.GetProperty("responses").GetArrayLength());
-        Assert.Equal(1, result.GetProperty("passScore").GetInt32());
+        Assert.Equal(35, result.GetProperty("totalScore").GetInt32());
+        Assert.Equal(35, result.GetProperty("responses").GetArrayLength());
+        Assert.Equal(25, result.GetProperty("passScore").GetInt32());
+        var groupScores = result.GetProperty("groupScores").EnumerateArray().ToList();
+        Assert.Equal(7, groupScores.Count);
+        Assert.All(groupScores, g => Assert.Equal((100m, "ADVANCED", "tl-v1"),
+            (g.GetProperty("percent").GetDecimal(), g.GetProperty("levelCode").GetString(), g.GetProperty("levelMappingVersion").GetString())));
         var bobQuestions = (await bob.GetFromJsonAsync<JsonElement>($"/api/candidate/tests/sessions/{bobSession}"))
             .GetProperty("questions").EnumerateArray().Select(q => new { questionId = q.GetProperty("id").GetInt32(), answer = "B" }).ToList();
         (await bob.PostAsJsonAsync($"/api/candidate/tests/sessions/{bobSession}/submit", new { responses = bobQuestions })).EnsureSuccessStatusCode();
         var wrongResult = await bob.GetFromJsonAsync<JsonElement>($"/api/candidate/tests/sessions/{bobSession}/result");
         Assert.False(wrongResult.GetProperty("passed").GetBoolean());
+
+        // The approved tl-v1 rule is active from the migration; published rules cannot be edited.
+        var mappings = await admin.GetFromJsonAsync<JsonElement>("/api/test-level-mappings");
+        Assert.Equal("tl-v1", mappings.EnumerateArray().Single(m => m.GetProperty("isActive").GetBoolean()).GetProperty("version").GetString());
+        Assert.Equal(HttpStatusCode.Conflict, (await admin.PutAsJsonAsync("/api/test-level-mappings/tl-v1",
+            new { version = "tl-v1", intermediateMinPercent = 40, advancedMinPercent = 70, minItemsPerGroup = 5 })).StatusCode);
+        var aliceProfile = await alice.GetFromJsonAsync<JsonElement>("/api/competency/test-profile");
+        Assert.All(aliceProfile.GetProperty("groups").EnumerateArray(), g => Assert.Equal("ADVANCED", g.GetProperty("levelCode").GetString()));
+        var bobProfile = await bob.GetFromJsonAsync<JsonElement>("/api/competency/test-profile");
+        Assert.All(bobProfile.GetProperty("groups").EnumerateArray(), g => Assert.Equal("BASIC", g.GetProperty("levelCode").GetString()));
+
+        var summary = await admin.GetFromJsonAsync<JsonElement>($"/api/reports/summary?examId={formId}");
+        Assert.Equal((2, 50m), (summary.GetProperty("attempts").GetInt32(), summary.GetProperty("passRate").GetDecimal()));
+        Assert.Equal(1, summary.GetProperty("groups")[0].GetProperty("advanced").GetInt32());
+        var attempts = await admin.GetFromJsonAsync<JsonElement>($"/api/reports/attempts?examId={formId}");
+        Assert.Contains(attempts.EnumerateArray(), a => a.GetProperty("candidate").GetString() == "alice@example.com");
+        var matrix = await admin.GetStringAsync($"/api/tests/{formId}/item-analysis/export?kind=responses");
+        Assert.Equal(3, matrix.Trim().Split('\n').Length);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await admin.GetAsync($"/api/tests/{formId}/item-analysis")).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await admin.PostAsync($"/api/tests/{formId}/assemble", JsonContent.Create(new { }))).StatusCode);
+
+        // Reordering a draft deletes and re-inserts the same exam/question pairs under a unique index.
+        var clone = await (await admin.PostAsync($"/api/tests/{formId}/clone", null)).Content.ReadFromJsonAsync<JsonElement>();
+        var reversed = clone.GetProperty("questions").EnumerateArray().Select(q => q.GetProperty("questionId").GetInt32()).Reverse().ToList();
+        var reordered = await admin.PutAsJsonAsync($"/api/tests/{clone.GetProperty("id").GetString()}/questions", new { questionIds = reversed });
+        Assert.Equal(HttpStatusCode.OK, reordered.StatusCode);
+        Assert.Equal(reversed[0], (await reordered.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("questions")[0].GetProperty("questionId").GetInt32());
+        Assert.Equal(HttpStatusCode.OK, (await admin.PostAsJsonAsync($"/api/tests/{clone.GetProperty("id").GetString()}/assemble", new { seed = 9 })).StatusCode);
+    }
+
+    private static async Task CreateReviewedQuestion(HttpClient admin, string group, string level)
+    {
+        var created = await admin.PostAsJsonAsync("/api/questions", new {
+            title = $"{group} {level}", prompt = "Choose A", type = "mcq_single", competencyGroupId = group,
+            competencyLevelId = level, difficulty = 2, options = new[] { "A. Correct", "B. Incorrect" }, answer = "A"
+        });
+        Assert.Equal(HttpStatusCode.Created, created.StatusCode);
+        var question = await created.Content.ReadFromJsonAsync<JsonElement>();
+        var id = question.GetProperty("id").GetString();
+        (await admin.PostAsJsonAsync($"/api/questions/{id}/review", new { note = "Integration review" })).EnsureSuccessStatusCode();
+        var body = JsonSerializer.Deserialize<Dictionary<string, object?>>(question.GetRawText())!;
+        body["status"] = "published";
+        (await admin.PutAsJsonAsync($"/api/questions/{id}", body)).EnsureSuccessStatusCode();
     }
 
     private static async Task Login(HttpClient client, string email)
